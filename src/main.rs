@@ -2,7 +2,6 @@
  * (c) 2016 Zack Hixon - see LICENSE.txt */
 
 #[derive(Debug)]
-//#[derive(Copy, Clone)]
 struct Stone {
     id: i32,
     color: String
