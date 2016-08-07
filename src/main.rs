@@ -4,18 +4,16 @@
 #[derive(Debug)]
 //#[derive(Copy, Clone)]
 struct Stone {
-    x: i32,
-    y: i32,
-    id: i32
+    id: i32,
+    color: String
 }
 
 fn main() {
-    let mut stone = Stone {x: 32, y: 32, id: 1};
+    let mut stone = Stone {id: 1, color: String::from("yellow")};
     println!("{:?}", stone);
 
-    stone.x = 64;
-    stone.y = 64;
     stone.id = 2;
+    stone.color = String::from("blue");
 
     println!("{:?}", stone);
 }
