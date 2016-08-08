@@ -12,14 +12,15 @@ takes the top value off of the stack, and if it has a truthy value, it executes
 instructions until it finds that the purple stone has moved down. If you move
 the red stone down two units, it pushes a 5 on to the stack.
 
-| Color  | Purpose      | Up | Down | Left  | Right |
-|--------|--------------|----|------|-------|-------|
-| Red    | Numbers      | 0  | 1    | 2     | 3     |
-| Red\*2 |              | 4  | 5    | 6     | 7     |
-| Red\*3 |              | 8  | 9    |       |       |
-| Orange | Operations   | \* | +    | -     | /     |
-| Yellow | Order of op. | (  | )    | (     | )     |
-| Green  |              |    |      |       |       |
-| Blue   |              |    |      |       |       |
-| Purple | Control flow | if | else | while | end   |
+| Color      | Purpose      | Up   | Down | Left  | Right |
+|------------|--------------|------|------|-------|-------|
+| Red x 1    | Numbers      | 0    | 1    | 2     | 3     |
+| Red x 2    |              | 4    | 5    | 6     | 7     |
+| Red x 3    |              | 8    | 9    | true  | false |
+| Orange     | Operations   | \*   | +    | -     | /     |
+| Yellow     | Order of op. | (    | )    | [     | ]     |
+| Green      | Stack ops.   | roll | dup  |       |       |
+| Blue x *n* | Macros       | ?    | ?    | ?     | ?     |
+| Purple     | Control flow | if   | else | while | end   |
+
 
