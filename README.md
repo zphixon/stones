@@ -11,7 +11,7 @@ stone is for control flow. If you move the purple stone up, it
 takes the top value off of the stack, and if it has a truthy value, it executes
 instructions until it finds that the purple stone has moved down.
 
-| Stone color | Purpose | Movements                |
+| Stone color | Purpose | Movements  | |   |      |
 |-------------|---------|----|------|------|-------|
 |             |         | Up | Down | Left | Right |
 |-------------|---------|----|------|------|-------|
