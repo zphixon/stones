@@ -17,9 +17,9 @@ the red stone down two units, it pushes a 5 on to the stack.
 | Red x 1    | Numbers                               | 0     | 1     | 2     | 3     |
 | Red x 2    |                                       | 4     | 5     | 6     | 7     |
 | Red x 3    |                                       | 8     | 9     | true  | false |
-| Yellow x 1 | Array operations, strings             | arr   | [     | ]     | ""    |
-| Yellow x 2 | Array operations, strings             | nth   | app   | head  | tail  |
-| Orange     | Math operators                        | \*    | +     | -     | /     |
+| Orange x 1 | Array operations, strings             | arr   | [     | ]     | ""    |
+| Orange x 2 | Array operations, strings             | nth   | app   | head  | tail  |
+| Yellow     | Math operators                        | \*    | +     | -     | /     |
 | Green      | Stack operations, order of operations | roll  | dup   | (     | )     |
 | Blue       | Input/output, two macros              | print | input | ?     | ?     |
 | Purple     | Control flow                          | if    | else  | while | end   |
