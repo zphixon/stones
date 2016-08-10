@@ -23,14 +23,6 @@ enum Color {
 }
 
 fn main() {
-    let mut field: Vec<Vec<Color>> = /* so much for 80 columns */
-        vec![vec![Color::Blue,  Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Orange,Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
-             vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
-             vec![Color::Invis, Color::Invis, Color::Red,   Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Green, Color::Invis, Color::Invis ],
-             vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
-             vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Yellow,Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Purple],
-             vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ]];
-
     let mut debug = false;
     let mut filename: String = "".into();
 
@@ -66,24 +58,38 @@ fn main() {
     /* split file into tokens */
     let tokens: Vec<&str> = s.split_whitespace().collect();
 
-    for token in tokens {
-        println!("{}", token);
-    }
+    let mut field: Vec<Vec<Color>> = /* so much for 80 columns */
+        vec![vec![Color::Blue,  Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Orange,Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
+             vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
+             vec![Color::Invis, Color::Invis, Color::Red,   Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Green, Color::Invis, Color::Invis ],
+             vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
+             vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Yellow,Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Purple],
+             vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ]];
 
-    if debug {
-        for row in &field {
-            for color in row {
-                match color {
-                    &Color::Red => print!("{:?}... ", color),
-                    &Color::Orange => print!("{:?} ", color),
-                    &Color::Yellow => print!("{:?} ", color),
-                    &Color::Green => print!("{:?}. ", color),
-                    &Color::Blue => print!("{:?}.. ", color),
-                    &Color::Purple => print!("{:?} ", color),
-                    &Color::Invis => print!("...... "), /* oh. */
+    let mut stack: Vec<i64> = vec![];
+
+    let mut expect_number = false;
+    let mut expect_direction = false;
+    let mut expect_color = true;
+    let mut current_stone = Color::Invis;
+
+    /* execute program */
+    for token in tokens {
+        if debug {
+            for row in &field {
+                for color in row {
+                    match color {
+                        &Color::Red => print!("{:?}... ", color),
+                        &Color::Orange => print!("{:?} ", color),
+                        &Color::Yellow => print!("{:?} ", color),
+                        &Color::Green => print!("{:?}. ", color),
+                        &Color::Blue => print!("{:?}.. ", color),
+                        &Color::Purple => print!("{:?} ", color),
+                        &Color::Invis => print!("...... "), /* oh. */
+                    }
                 }
+                println!("");
             }
-            println!("");
         }
     }
 }
