@@ -98,3 +98,7 @@ multiply again, however, the red stone would be pushed by the yellow stone,
 causing a 0 to be pushed on to the stack, then be multiplied by the 21
 that is already there.
 
+When a heavier stone collides with a lighter stone, the lighter stone moves
+first, causing its action to occur, then the heavier stone moves, causing its
+action to occur.
+
