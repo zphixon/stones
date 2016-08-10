@@ -4,7 +4,7 @@ An esoteric programming language
 
 ##Specification
 
-Instrunctions in `stones` are carried out by moving colored stones around in a
+Instructions in `stones` are carried out by moving colored stones around in a
 hypothetical `field`. Each color of stone has a separate purpose, and each
 movement a stone can carry out has a separate effect. For example, the purple
 stone is for control flow. If you move the purple stone up by one unit, it
