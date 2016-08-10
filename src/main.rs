@@ -11,16 +11,14 @@
 struct Stone {
     x: i32,
     y: i32,
-    id: i32,
     color: Color
 }
 
 impl Stone {
-    fn new(x: i32, y: i32, id: i32, color: Color) -> Stone {
+    fn new(x: i32, y: i32, color: Color) -> Stone {
         Stone {
             x: x,
             y: y,
-            id: id,
             color: color
         }
     }
@@ -30,8 +28,7 @@ impl Stone {
         Stone {
             x: -1,
             y: -1,
-            id: -1,
-            color: Color::Red
+            color: Color::Invisible
         }
     }
 }
@@ -43,7 +40,8 @@ enum Color {
     Yellow,
     Green,
     Blue,
-    Purple
+    Purple,
+    Invisible
 }
 
 fn main() {
@@ -52,7 +50,6 @@ fn main() {
     let mut test_stone = Stone {
         x: 0,
         y: 0,
-        id: 1,
         color: Color::Yellow
     };
 
@@ -60,15 +57,14 @@ fn main() {
 
     test_stone.x = 1;
     test_stone.y = 1;
-    test_stone.id = 2;
     test_stone.color = Color::Blue;
 
     println!("{:?}", test_stone);
 
     let mut field: Vec<Vec<Stone>> =
-        vec![vec![Stone::new(0, 0, 1, Color::Red),
-                  Stone::new(1, 0, 2, Color::Blue),
-                  Stone::new(2, 0, 3, Color::Green)],
+        vec![vec![Stone::new(0, 0, Color::Red),
+                  Stone::new(1, 0, Color::Blue),
+                  Stone::new(2, 0, Color::Green)],
              vec![Stone::empty(),
                   Stone::empty(),
                   Stone::empty()],
@@ -79,7 +75,7 @@ fn main() {
     println!("\nall stones:");
     for row in field {
         for stone in row {
-            print!("{} {} {} {:?}\n", stone.x, stone.y, stone.id, stone.color);
+            print!("{} {} {:?}\n", stone.x, stone.y, stone.color);
         }
         println!("");
     }
