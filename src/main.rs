@@ -1,10 +1,11 @@
 /* Stones esoteric programming language
  * (c) 2016 Zack Hixon - see LICENSE.txt */
 
-/** Hey there! This isn't even remotely started yet. I'm gonna need a WHOLE
- *  lot of stuff to make this even *resemble* an interpreter. I also don't
- *  have any real-world experience building interpreters and other stuff, so
- *  really don't expect anything proffessional level. Or good spelling. yeah. */
+/** NOTE: Hey there! This isn't even remotely started yet. I'm gonna need a
+ * WHOLE lot of stuff to make this even *resemble* an interpreter. It also
+ * isn't currently up-to-date with the "specification," so it features
+ * misleading stuff like the Stone struct right below this, along with the
+ * field vector.  Expect a lot of this stuff to change. */
 
 #[derive(Debug)]
 struct Stone {
