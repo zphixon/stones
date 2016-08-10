@@ -20,7 +20,7 @@ the red stone down two units, it pushes a 5 on to the stack.
 | Orange     | Array operations                      | [     | ]     | ,      | nth   |
 | Yellow     | Math operators                        | \*    | +     | -      | /     |
 | Green      | Stack operations                      | roll  | dup   | drop   |       |
-| Blue       | Input/output                          | print | input | printC | ?     |
+| Blue       | Input/output                          | print | input | printc | ?     |
 | Purple     | Control flow                          | if    | else  | while  | end   |
 
 As the program starts, the field is arranged as such:
