@@ -57,7 +57,7 @@ fn main() {
 
     let mut s = String::new();
     match file.read_to_string(&mut s) {
-        Ok(_) => println!("Opened file, yay!"),
+        Ok(_) => {},
         Err(e) => panic!("Couldn't read {}: {}", display, e.description()),
     }
 
@@ -269,7 +269,7 @@ fn main() {
                             "up" => stack.push(4),
                             "down" => stack.push(5),
                             "left" => stack.push(6),
-                            "right" => stack.push(8),
+                            "right" => stack.push(7),
                             _ => panic!("what the hell??"),
                         }
                     } else {
@@ -294,6 +294,8 @@ fn main() {
         }
 
         if debug {
+            println!("");
+            println!("Token:     {}", tokens[count]);
             println!("Color:     {:?}", current_stone);
             println!("Direction: {}", current_direction.trim());
             println!("Number:    {}", current_number.trim());
