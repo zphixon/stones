@@ -10,6 +10,7 @@ syn keyword SConditional purple
 syn keyword SOperator yellow
 syn keyword SFunction green blue orange
 syn keyword SDirection up down left right
+syn match SComment /^red\|^orange\|^yellow\|^green\|^blue\|^purple\|[^123]\|^up\|^down\|^left\|^right/
 syn match SNumber /[123]/
 
 hi def link STodo Todo
@@ -20,6 +21,7 @@ hi def link SFunction Function
 hi def link SNth Function
 hi def link SDirection Identifier
 hi def link SNumber Number
+hi def link SComment Comment
 
-" these syntax definitions are aweful, but deal with it
+" these syntax definitions are awful, deal with it
 
