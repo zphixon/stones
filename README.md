@@ -110,3 +110,20 @@ When a heavier stone collides with a lighter stone, the lighter stone moves
 first, causing its action to occur, then the heavier stone moves, causing its
 action to occur.
 
+Because of the rudimentary system of parsing stones code, comments are simply
+words that are not used in the stones language, or words not on this list:
+
+* `red`
+* `orange`
+* `yellow`
+* `green`
+* `blue`
+* `purple`
+* `up`
+* `down`
+* `left`
+* `right`
+* `1`
+* `2`
+* `3`
+

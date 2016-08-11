@@ -256,7 +256,7 @@ fn main() {
                             "down" => stack.push(1),
                             "left" => stack.push(2),
                             "right" => stack.push(3),
-                            _ => panic!("what the hell??"),
+                            _ => panic!("Unexpected reserved word!"),
                         }
                     } else {
                         println!("That {:?} stone is too heavy!", &current_stone);
@@ -270,7 +270,7 @@ fn main() {
                             "down" => stack.push(5),
                             "left" => stack.push(6),
                             "right" => stack.push(7),
-                            _ => panic!("what the hell??"),
+                            _ => panic!("Unexpected reserved word!"),
                         }
                     } else {
                         println!("That {:?} stone is too heavy!", &current_stone);
@@ -284,7 +284,7 @@ fn main() {
                             "down" => stack.push(9),
                             "left" => stack.push(1),
                             "right" => stack.push(0),
-                            _ => panic!("what the hell?? {}", current_direction),
+                            _ => panic!("Unexpected reserved word!"),
                         }
                     } else {
                         println!("That {:?} stone is too heavy!", &current_stone);
