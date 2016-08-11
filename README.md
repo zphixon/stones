@@ -2,6 +2,14 @@
 
 An esoteric programming language
 
+##To do
+
+* [X] Math
+* [ ] Arrays
+* [ ] Stack operations
+* [ ] More I/O
+* [ ] Control flow
+
 ##Specification
 
 Instructions in `stones` are carried out by moving colored stones around in a
