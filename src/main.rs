@@ -340,7 +340,7 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
         -> Vec<Vec<Color>> {
     let mut x: usize = 0; /* usize can overflow, can't index */
     let mut y: usize = 0; /* a Vec with a signed number */
-    let mut field = _field;
+    let mut field = _field; /* FIXME: really not sure why */
     let field_height = field.len() - 1;   /* == 5 */
     let field_width = field[0].len() - 1; /* == 10 */
 
