@@ -10,6 +10,7 @@ use std::io::Read;
 use std::path::Path;
 use std::error::Error;
 
+/* color enum, represent stones */
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Color {
     Red,
@@ -21,6 +22,7 @@ enum Color {
     Invis
 }
 
+/* direction enum, used for parsing directions */
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Direction {
     Up,
@@ -31,6 +33,7 @@ enum Direction {
 }
 
 fn main() {
+    /* arguments */
     let mut debug = false;
     let mut show_field = false;
     let mut show_stack = false;
@@ -47,7 +50,7 @@ fn main() {
             .add_option(&["-s", "--stack"], StoreTrue, "Show stack");
         args.refer(&mut filename)
             .add_argument("file", Store, "File to run")
-            .required();
+            .required(); /* filename required, possible interpreter? */
         args.parse_args_or_exit();
     }
 
@@ -72,6 +75,7 @@ fn main() {
     /* split file into tokens */
     let tokens: Vec<&str> = s.split_whitespace().collect();
 
+    /* field vector, represents stone field */
     let mut field: Vec<Vec<Color>> = /* so much for 80 columns */
         vec![vec![Color::Blue,  Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Orange,Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
              vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
@@ -80,14 +84,16 @@ fn main() {
              vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Yellow,Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Purple],
              vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ]];
 
+    /* stack vector, pretty ezpz */
     let mut stack: Vec<i64> = vec![];
 
     /* execute program */
-    let mut count = 0;
-    let mut current_stone = Color::Invis;
-    let mut current_direction = Direction::No;
-    let mut current_number = "none";
+    let mut count = 0; /* track token counter */
+    let mut current_stone = Color::Invis; /* keep track of current stone */
+    let mut current_direction = Direction::No; /* track direction */
+    let mut current_number = "none"; /* used for red movement */
 
+    /* loop through tokens */
     while count < tokens.len() {
         if show_field {
             for row in &field {
@@ -173,10 +179,12 @@ fn main() {
             /* directions */
             "up" => {
                     current_direction = Direction::Up;
+                    /* red stone is handled in number area */
                     if current_stone != Color::Red {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
+                                    /* may use let = match later */
                                     let tmp1 = stack.pop().expect("Stack is empty!");
                                     let tmp2 = stack.pop().expect("Stack is empty!");
                                     stack.push(tmp1 * tmp2);
@@ -340,18 +348,6 @@ fn is_color(c: &str) -> bool {
         _ => false
     }
 }
-
-/* let v: Vec<Vec<i32>> = [[0,0,0,0,0,0,0,0,0,0,0],
- *                         [0,0,0,0,0,0,0,0,0,0,0],
- *                         [0,0,0,0,0,0,0,0,0,0,0],
- *                         [0,0,0,0,0,0,0,0,0,0,0],
- *                         [0,0,0,1,0,0,0,0,0,0,0],
- *                         [0,0,0,0,0,0,0,0,0,0,0]]; */
-
-/* to access the 1:
- * Y values first. Row 4, column 3.
- * assert!(v[4][3] == 1);
- * */
 
 fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
         -> Vec<Vec<Color>> {
