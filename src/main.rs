@@ -177,18 +177,20 @@ fn main() {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
-                                    let tmp1 = stack.pop().unwrap();
-                                    let tmp2 = stack.pop().unwrap();
+                                    let tmp1 = stack.pop().expect("Stack is empty!");
+                                    let tmp2 = stack.pop().expect("Stack is empty!");
                                     stack.push(tmp1 * tmp2);
                                 },
                             //Color::Green => {},
                             Color::Blue => {
-                                    print!("{}\n", stack.pop().unwrap());
+                                    print!("{}\n", stack.pop().expect("Stack is empty!"));
                                 },
                             //Color::Purple => {},
                             _ => {}
                         }
                         field = move_stones(current_stone, current_direction, field);
+                        current_stone = Color::Invis;
+                        current_direction = Direction::No;
                     }
                 },
             "down" => {
@@ -197,19 +199,22 @@ fn main() {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
-                                    let tmp1 = stack.pop().unwrap();
-                                    let tmp2 = stack.pop().unwrap();
+                                    let tmp1 = stack.pop().expect("Stack is empty!");
+                                    let tmp2 = stack.pop().expect("Stack is empty!");
                                     stack.push(tmp1 + tmp2);
                                 },
                             //Color::Green => {},
                             //Color::Blue => {
-                            //        let tmp = stack.pop().unwrap();
+                            //        let tmp = stack.pop().expect("Stack is empty!");
                             //        stack.push(&tmp); /* might cause problemos... */
                             //        stack.push(&tmp);
                             //    },
                             //Color::Purple => {},
                             _ => {}
                         }
+                        //field = move_stones(current_stone, current_direction, field);
+                        current_stone = Color::Invis;
+                        current_direction = Direction::No;
                     }
                 },
             "left" => {
@@ -218,18 +223,21 @@ fn main() {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
-                                    let tmp1 = stack.pop().unwrap();
-                                    let tmp2 = stack.pop().unwrap();
+                                    let tmp1 = stack.pop().expect("Stack is empty!");
+                                    let tmp2 = stack.pop().expect("Stack is empty!");
                                     stack.push(tmp1 - tmp2);
                                 },
                             //Color::Green => {},
                             Color::Blue => {
                                     /* ewwww */
-                                    print!("{}", to_char(stack.pop().unwrap()));
+                                    print!("{}", to_char(stack.pop().expect("Stack is empty!")));
                                 },
                             //Color::Purple => {},
                             _ => {}
                         }
+                        //field = move_stones(current_stone, current_direction, field);
+                        current_stone = Color::Invis;
+                        current_direction = Direction::No;
                     }
                 },
             "right" => {
@@ -238,17 +246,20 @@ fn main() {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
-                                    let tmp1 = stack.pop().unwrap();
-                                    let tmp2 = stack.pop().unwrap();
+                                    let tmp1 = stack.pop().expect("Stack is empty!");
+                                    let tmp2 = stack.pop().expect("Stack is empty!");
                                     stack.push(tmp1 / tmp2);
                                 },
                             //Color::Green => {},
                             //Color::Blue => {
-                            //        print!("{}", stack.pop().unwrap());
+                            //        print!("{}", stack.pop().expect("Stack is empty!"));
                             //    },
                             //Color::Purple => {},
                             _ => {}
                         }
+                        //field = move_stones(current_stone, current_direction, field);
+                        current_stone = Color::Invis;
+                        current_direction = Direction::No;
                     }
                 },
 
@@ -263,6 +274,8 @@ fn main() {
                             Direction::Right => stack.push(3),
                             _ => panic!("Unexpected reserved word!"),
                         }
+                        current_stone = Color::Invis;
+                        current_direction = Direction::No;
                     } else {
                         println!("That {:?} stone is too heavy!", &current_stone);
                     }
@@ -277,6 +290,8 @@ fn main() {
                             Direction::Right => stack.push(7),
                             _ => panic!("Unexpected reserved word!"),
                         }
+                        current_stone = Color::Invis;
+                        current_direction = Direction::No;
                     } else {
                         println!("That {:?} stone is too heavy!", &current_stone);
                     }
@@ -291,6 +306,8 @@ fn main() {
                             Direction::Right => stack.push(0),
                             _ => panic!("Unexpected reserved word!"),
                         }
+                        current_stone = Color::Invis;
+                        current_direction = Direction::No;
                     } else {
                         println!("That {:?} stone is too heavy!", &current_stone);
                     }
