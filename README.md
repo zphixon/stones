@@ -26,7 +26,8 @@ the red stone down two units, it pushes a 5 on to the stack.
 | Red x 1    | Numbers/booleans                      | 0     | 1     | 2      | 3     |
 | Red x 2    |                                       | 4     | 5     | 6      | 7     |
 | Red x 3    |                                       | 8     | 9     | true   | false |
-| Orange     | Array operations                      | [     | ]     | ,      | nth   |
+| Orange x 1 | Array operations, boolean             | [     | ]     | ,      | nth   |
+| Orange x 2 |                                       | ==    | <     | >      |       |
 | Yellow     | Math operators                        | \*    | +     | -      | /     |
 | Green      | Stack operations                      | roll  | dup   | drop   | not   |
 | Blue       | Input/output                          | print | input | printc | ?     |

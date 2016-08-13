@@ -180,7 +180,7 @@ fn main() {
             "up" => {
                     current_direction = Direction::Up;
                     /* red stone is handled in number area */
-                    if current_stone != Color::Red {
+                    if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
@@ -203,7 +203,7 @@ fn main() {
                 },
             "down" => {
                     current_direction = Direction::Down;
-                    if current_stone != Color::Red {
+                    if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
@@ -227,7 +227,7 @@ fn main() {
                 },
             "left" => {
                     current_direction = Direction::Left;
-                    if current_stone != Color::Red {
+                    if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
@@ -250,7 +250,7 @@ fn main() {
                 },
             "right" => {
                     current_direction = Direction::Right;
-                    if current_stone != Color::Red {
+                    if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
                             //Color::Orange => {},
                             Color::Yellow => {
@@ -274,50 +274,62 @@ fn main() {
             /* numbers */
             "1" => {
                     current_number = "1";
-                    if current_stone == Color::Red {
-                        match current_direction {
-                            Direction::Up => stack.push(0),
-                            Direction::Down => stack.push(1),
-                            Direction::Left => stack.push(2),
-                            Direction::Right => stack.push(3),
-                            _ => panic!("Unexpected reserved word!"),
-                        }
-                        current_stone = Color::Invis;
-                        current_direction = Direction::No;
-                    } else {
-                        println!("That {:?} stone is too heavy!", &current_stone);
+                    match current_stone {
+                        Color::Red => {
+                                match current_direction {
+                                    Direction::Up => stack.push(0),
+                                    Direction::Down => stack.push(1),
+                                    Direction::Left => stack.push(2),
+                                    Direction::Right => stack.push(3),
+                                    _ => panic!("Unexpected reserved word!"),
+                                }
+                            },
+                        Color::Orange => {
+                                match current_direction {
+                                    _ => {}
+                                }
+                            },
+                        _ => println!("That {:?} stone is too heavy!", &current_stone)
                     }
                 },
             "2" => {
                     current_number = "2";
-                    if current_stone == Color::Red {
-                        match current_direction {
-                            Direction::Up => stack.push(4),
-                            Direction::Down => stack.push(5),
-                            Direction::Left => stack.push(6),
-                            Direction::Right => stack.push(7),
-                            _ => panic!("Unexpected reserved word!"),
-                        }
-                        current_stone = Color::Invis;
-                        current_direction = Direction::No;
-                    } else {
-                        println!("That {:?} stone is too heavy!", &current_stone);
+                    match current_stone {
+                        Color::Red => {
+                                match current_direction {
+                                    Direction::Up => stack.push(4),
+                                    Direction::Down => stack.push(5),
+                                    Direction::Left => stack.push(6),
+                                    Direction::Right => stack.push(7),
+                                    _ => panic!("Unexpected reserved word!"),
+                                }
+                            },
+                        Color::Orange => {
+                                match current_direction {
+                                    _ => {}
+                                }
+                            },
+                        _ => println!("That {:?} stone is too heavy!", &current_stone)
                     }
                 },
             "3" => {
                     current_number = "3";
-                    if current_stone == Color::Red {
-                        match current_direction {
-                            Direction::Up => stack.push(8),
-                            Direction::Down => stack.push(9),
-                            Direction::Left => stack.push(1),
-                            Direction::Right => stack.push(0),
-                            _ => panic!("Unexpected reserved word!"),
-                        }
-                        current_stone = Color::Invis;
-                        current_direction = Direction::No;
-                    } else {
-                        println!("That {:?} stone is too heavy!", &current_stone);
+                    match current_stone {
+                        Color::Red => {
+                                match current_direction {
+                                    Direction::Up => stack.push(8),
+                                    Direction::Down => stack.push(9),
+                                    Direction::Left => stack.push(1),
+                                    Direction::Right => stack.push(0),
+                                    _ => panic!("Unexpected reserved word!"),
+                                }
+                            },
+                        Color::Orange => {
+                                match current_direction {
+                                    _ => {}
+                                }
+                            },
+                        _ => println!("That {:?} stone is too heavy!", &current_stone)
                     }
                 },
             _ => { }
