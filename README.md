@@ -1,4 +1,4 @@
-#stones
+#stones [![Build status](https://travis-ci.org/cheezgi/stones.svg?branch=master)](https://travis-ci.org/cheezgi/stones)
 
 An esoteric programming language
 
