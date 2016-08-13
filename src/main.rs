@@ -9,9 +9,8 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use std::error::Error;
-use std::process;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Color {
     Red,
     Orange,
@@ -20,6 +19,15 @@ enum Color {
     Blue,
     Purple,
     Invis
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+    No
 }
 
 fn main() {
@@ -77,9 +85,8 @@ fn main() {
     /* execute program */
     let mut count = 0;
     let mut current_stone = Color::Invis;
-    let mut current_direction = "none";
+    let mut current_direction = Direction::No;
     let mut current_number = "none";
-    let colors: Vec<&str> = vec!["red", "orange", "yellow", "green", "blue", "purple"];
 
     while count < tokens.len() {
         if show_field {
@@ -97,13 +104,14 @@ fn main() {
                 }
                 println!("");
             }
+            println!("");
         }
 
         match tokens[count] {
             /* colors */
             "red" => {
                     current_stone = Color::Red;
-                    current_direction = "none";
+                    current_direction = Direction::No;
                     current_number = "none";
                     if count != 0 {
                         if is_color(tokens[count - 1]) {
@@ -113,7 +121,7 @@ fn main() {
                 },
             "orange" => {
                     current_stone = Color::Orange;
-                    current_direction = "none";
+                    current_direction = Direction::No;
                     current_number = "none";
                     if count != 0 {
                         if is_color(tokens[count - 1]) {
@@ -123,7 +131,7 @@ fn main() {
                 },
             "yellow" => {
                     current_stone = Color::Yellow;
-                    current_direction = "none";
+                    current_direction = Direction::No;
                     current_number = "none";
                     if count != 0 {
                         if is_color(tokens[count - 1]) {
@@ -133,7 +141,7 @@ fn main() {
                 },
             "green" => {
                     current_stone = Color::Green;
-                    current_direction = "none";
+                    current_direction = Direction::No;
                     current_number = "none";
                     if count != 0 {
                         if is_color(tokens[count - 1]) {
@@ -143,7 +151,7 @@ fn main() {
                 },
             "blue" => {
                     current_stone = Color::Blue;
-                    current_direction = "none";
+                    current_direction = Direction::No;
                     current_number = "none";
                     if count != 0 {
                         if is_color(tokens[count - 1]) {
@@ -153,7 +161,7 @@ fn main() {
                 },
             "purple" => {
                     current_stone = Color::Purple;
-                    current_direction = "none";
+                    current_direction = Direction::No;
                     current_number = "none";
                     if count != 0 {
                         if is_color(tokens[count - 1]) {
@@ -164,7 +172,7 @@ fn main() {
 
             /* directions */
             "up" => {
-                    current_direction = "up";
+                    current_direction = Direction::Up;
                     if current_stone != Color::Red {
                         match current_stone {
                             //Color::Orange => {},
@@ -180,14 +188,11 @@ fn main() {
                             //Color::Purple => {},
                             _ => {}
                         }
-
-                        //field[]
-                        /* oh boy! I just found a shitty thing. fuck. I need
-                         * to figure out how to move the stones around. */
+                        field = move_stones(current_stone, current_direction, field);
                     }
                 },
             "down" => {
-                    current_direction = "down";
+                    current_direction = Direction::Down;
                     if current_stone != Color::Red {
                         match current_stone {
                             //Color::Orange => {},
@@ -208,7 +213,7 @@ fn main() {
                     }
                 },
             "left" => {
-                    current_direction = "left";
+                    current_direction = Direction::Left;
                     if current_stone != Color::Red {
                         match current_stone {
                             //Color::Orange => {},
@@ -228,7 +233,7 @@ fn main() {
                     }
                 },
             "right" => {
-                    current_direction = "right";
+                    current_direction = Direction::Right;
                     if current_stone != Color::Red {
                         match current_stone {
                             //Color::Orange => {},
@@ -252,10 +257,10 @@ fn main() {
                     current_number = "1";
                     if current_stone == Color::Red {
                         match current_direction {
-                            "up" => stack.push(0),
-                            "down" => stack.push(1),
-                            "left" => stack.push(2),
-                            "right" => stack.push(3),
+                            Direction::Up => stack.push(0),
+                            Direction::Down => stack.push(1),
+                            Direction::Left => stack.push(2),
+                            Direction::Right => stack.push(3),
                             _ => panic!("Unexpected reserved word!"),
                         }
                     } else {
@@ -266,10 +271,10 @@ fn main() {
                     current_number = "2";
                     if current_stone == Color::Red {
                         match current_direction {
-                            "up" => stack.push(4),
-                            "down" => stack.push(5),
-                            "left" => stack.push(6),
-                            "right" => stack.push(7),
+                            Direction::Up => stack.push(4),
+                            Direction::Down => stack.push(5),
+                            Direction::Left => stack.push(6),
+                            Direction::Right => stack.push(7),
                             _ => panic!("Unexpected reserved word!"),
                         }
                     } else {
@@ -280,10 +285,10 @@ fn main() {
                     current_number = "3";
                     if current_stone == Color::Red {
                         match current_direction {
-                            "up" => stack.push(8),
-                            "down" => stack.push(9),
-                            "left" => stack.push(1),
-                            "right" => stack.push(0),
+                            Direction::Up => stack.push(8),
+                            Direction::Down => stack.push(9),
+                            Direction::Left => stack.push(1),
+                            Direction::Right => stack.push(0),
                             _ => panic!("Unexpected reserved word!"),
                         }
                     } else {
@@ -297,8 +302,8 @@ fn main() {
             println!("");
             println!("Token:     {}", tokens[count]);
             println!("Color:     {:?}", current_stone);
-            println!("Direction: {}", current_direction.trim());
-            println!("Number:    {}", current_number.trim());
+            println!("Direction: {:?}", current_direction);
+            println!("Number:    {}", current_number);
         }
 
         if show_stack {
@@ -317,6 +322,60 @@ fn is_color(c: &str) -> bool {
         "red" | "orange" | "yellow" | "green" | "blue" | "purple" => true,
         _ => false
     }
+}
+
+/* let v: Vec<Vec<i32>> = [[0,0,0,0,0,0,0,0,0,0,0],
+ *                         [0,0,0,0,0,0,0,0,0,0,0],
+ *                         [0,0,0,0,0,0,0,0,0,0,0],
+ *                         [0,0,0,0,0,0,0,0,0,0,0],
+ *                         [0,0,0,1,0,0,0,0,0,0,0],
+ *                         [0,0,0,0,0,0,0,0,0,0,0]]; */
+
+/* to access the 1:
+ * Y values first. Row 4, column 3.
+ * assert!(v[4][3] == 1);
+ * */
+
+fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
+        -> Vec<Vec<Color>> {
+    let mut x: usize = 0; /* usize can overflow, can't index */
+    let mut y: usize = 0; /* a Vec with a signed number */
+    let mut field = _field;
+    let field_height = field.len() - 1;   /* == 5 */
+    let field_width = field[0].len() - 1; /* == 10 */
+
+    /* go through vertical rows first */
+    while y <= field_height {
+        /* reset column after every row */
+        x = 0;
+        /* columns left to right */
+        while x <= field_width {
+            /* find a match */
+            if field[y][x] == stone {
+                match dir {
+                    Direction::Up => {
+                        /* set color to invisible */
+                        field[y][x] = Color::Invis;
+                        /* protect overflow crashes, wrap stone */
+                        if y != 0 {
+                            /* move stone up one */
+                            field[y - 1][x] = stone;
+                        } else {
+                            /* wrap around to the bottom */
+                            field[field_height][x] = stone;
+                        }
+                    },
+                    _ => println!("can't do {:?} yet", dir)
+                }
+            }
+            /* move to next column */
+            x = x + 1;
+        }
+        /* move to next row */
+        y = y + 1;
+    }
+
+    field
 }
 
 /* Copied from superfish.rs */

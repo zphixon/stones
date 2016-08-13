@@ -10,7 +10,7 @@ red down 3
 red down 1
 yellow down
 yellow up
-red down 1   << This would run in to the Blue stone!
+red down 1   <- This would run in to the Blue stone!
 yellow down
 blue left
 
