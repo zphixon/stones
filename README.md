@@ -5,6 +5,7 @@ An esoteric programming language
 ##To do
 
 * [X] Math
+* [ ] Stone movement
 * [ ] Arrays
 * [ ] Stack operations
 * [ ] More I/O
