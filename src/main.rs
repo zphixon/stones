@@ -316,7 +316,7 @@ fn main() {
         }
 
         if debug {
-            println!("");
+            println!("-----------");
             println!("Token:     {}", tokens[count]);
             println!("Color:     {:?}", current_stone);
             println!("Direction: {:?}", current_direction);
@@ -355,41 +355,35 @@ fn is_color(c: &str) -> bool {
 
 fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
         -> Vec<Vec<Color>> {
-    let mut x: usize = 0; /* usize can overflow, can't index */
-    let mut y: usize = 0; /* a Vec with a signed number */
     let mut field = _field; /* FIXME: really not sure why */
     let field_height = field.len() - 1;   /* == 5 */
     let field_width = field[0].len() - 1; /* == 10 */
 
     /* go through vertical rows first */
-    while y <= field_height {
-        /* reset column after every row */
-        x = 0;
+    'y: for y in 0..field_height {
         /* columns left to right */
-        while x <= field_width {
+        for x in 0..field_width {
             /* find a match */
             if field[y][x] == stone {
                 match dir {
                     Direction::Up => {
                         /* set color to invisible */
                         field[y][x] = Color::Invis;
-                        /* protect overflow crashes, wrap stone */
+                        /* protect overflow crashes */
                         if y != 0 {
                             /* move stone up one */
                             field[y - 1][x] = stone;
                         } else {
-                            /* wrap around to the bottom */
+                            /* wrap around to bottom */
                             field[field_height][x] = stone;
                         }
+                        /* break loop */
+                        break 'y;
                     },
-                    _ => println!("can't do {:?} yet", dir)
+                    _ => println!("can't move {:?} {:?} yet", stone, dir),
                 }
             }
-            /* move to next column */
-            x = x + 1;
         }
-        /* move to next row */
-        y = y + 1;
     }
 
     field
