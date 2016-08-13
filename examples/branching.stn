@@ -1,0 +1,28 @@
+red down 1
+red down 1
+
+purple up
+    red right 1
+    red down 3
+    red left 1
+    yellow down
+    yellow up
+    blue left
+purple right
+
+red down 1
+red left 1
+purple up
+    red right 1
+    red down 3
+    red left 1
+    yellow down
+    yellow up
+    blue left
+purple down
+    red down 3
+    red down 3
+    yellow up
+    blue left
+purple right
+
