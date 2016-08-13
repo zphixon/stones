@@ -306,9 +306,14 @@ fn main() {
                                     }
                                 },
                             //Color::Green => {},
-                            //Color::Blue => {
-                            //        print!("{}", stack.pop().expect("Stack is empty!"));
-                            //    },
+                            Color::Blue => {
+                                    if tokens.len() == 2 {
+                                        print!("blue right");
+                                    } else {
+                                        /* muahahaha */
+                                        std::process::exit(0);
+                                    }
+                                },
                             Color::Purple => {
                                     /* somewhat redundant */
                                     if flow == Flow::End {
