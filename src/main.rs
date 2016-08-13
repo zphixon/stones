@@ -34,7 +34,6 @@ enum Direction {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Flow {
-    Else,
     ElseOrEnd,
     End,
     No
@@ -257,7 +256,7 @@ fn main() {
                                         /* if condition wasn't met, execute is false,
                                          * continue until an end */
                                         execute = !execute;
-                                        Flow::End;
+                                        flow = Flow::End;
                                     }
                                 },
                             _ => {}
