@@ -1,4 +1,6 @@
-red down 3
-red down 1
+
+red red right 2 2
 blue left
+blue left
+blue left <- crash
 
