@@ -153,8 +153,7 @@ fn main() {
                     }
                     if count != tokens.len() - 2 {
                         if tokens[count + 2] != "1" &&
-                           tokens[count + 2] != "2" &&
-                           tokens[count + 2] != "3" {
+                           tokens[count + 2] != "2" {
                             println!("Expected number!");
                         }
                     }
@@ -273,7 +272,7 @@ fn main() {
                                 },
                             _ => {}
                         }
-                        //field = move_stones(current_stone, current_direction, field);
+                        field = move_stones(current_stone, current_direction, field);
                         current_stone = Color::Invis;
                         current_direction = Direction::No;
                     }
@@ -299,7 +298,7 @@ fn main() {
                             //Color::Purple => { /* while */},
                             _ => {}
                         }
-                        //field = move_stones(current_stone, current_direction, field);
+                        field = move_stones(current_stone, current_direction, field);
                         current_stone = Color::Invis;
                         current_direction = Direction::No;
                     }
@@ -340,7 +339,7 @@ fn main() {
                                 },
                             _ => {}
                         }
-                        //field = move_stones(current_stone, current_direction, field);
+                        field = move_stones(current_stone, current_direction, field);
                         current_stone = Color::Invis;
                         current_direction = Direction::No;
                     }
@@ -359,11 +358,13 @@ fn main() {
                                         Direction::Right => stack.push(3),
                                         _ => panic!("Unexpected reserved word!"),
                                     }
+                                    field = move_stones(current_stone, current_direction, field);
                                 },
                             Color::Orange => { /* array stuff */
                                     match current_direction {
                                         _ => {}
                                     }
+                                    field = move_stones(current_stone, current_direction, field);
                                 },
                             _ => println!("That {:?} stone is too heavy!", &current_stone)
                         }
@@ -381,6 +382,8 @@ fn main() {
                                         Direction::Right => stack.push(7),
                                         _ => panic!("Unexpected reserved word!"),
                                     }
+                                    field = move_stones(current_stone, current_direction, field);
+                                    field = move_stones(current_stone, current_direction, field);
                                 },
                             Color::Orange => { /* equality stuff */
                                     match current_direction {
@@ -413,6 +416,8 @@ fn main() {
                                             },
                                         _ => {}
                                     }
+                                    field = move_stones(current_stone, current_direction, field);
+                                    field = move_stones(current_stone, current_direction, field);
                                 },
                             _ => println!("That {:?} stone is too heavy!", &current_stone)
                         }
@@ -430,6 +435,9 @@ fn main() {
                                         Direction::Right => stack.push(0),
                                         _ => panic!("Unexpected reserved word!"),
                                     }
+                                    field = move_stones(current_stone, current_direction, field);
+                                    field = move_stones(current_stone, current_direction, field);
+                                    field = move_stones(current_stone, current_direction, field);
                                 },
                             _ => println!("That {:?} stone is too heavy!", &current_stone)
                         }
@@ -474,9 +482,9 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
     let field_width = field[0].len() - 1; /* == 10 */
 
     /* go through vertical rows first */
-    'y: for y in 0..field_height {
+    'y: for y in 0..(field_height + 1) {
         /* columns left to right */
-        for x in 0..field_width {
+        for x in 0..(field_width + 1) {
             /* find a match */
             if field[y][x] == stone {
                 match dir {
@@ -494,7 +502,20 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
                         /* break loop */
                         break 'y;
                     },
-                    _ => println!("can't move {:?} {:?} yet", stone, dir),
+                    Direction::Down => {
+                        field[y][x] = Color::Invis;
+                        if y != field_height {
+                            field[y + 1][x] = stone;
+                        } else {
+                            /* wrap to bottom */
+                            field[0][x] = stone;
+                        }
+                        break 'y;
+                    },
+                    _ => {
+                        //println!("can't move {:?} {:?} yet", stone, dir);
+                        break 'y;
+                    }
                 }
             }
         }
