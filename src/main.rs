@@ -524,7 +524,7 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
     field
 }
 
-/* Copied from superfish.rs */
+/* copied from superfish.rs */
 fn to_char(i: i64) -> String {
     let a = match i {
         0 => "NUL",
