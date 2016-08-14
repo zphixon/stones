@@ -4,7 +4,6 @@ Branching test - should print this
 EOF
 
 red down 1
-red down 1
 purple up condition is true
     red right 1 do this
     red down 3
@@ -14,8 +13,7 @@ purple up condition is true
     blue left !
 purple right
 
-red down 1
-red left 1
+red up 1
 purple up condition is false
     red right 1 don't do this
     red down 3
@@ -30,7 +28,6 @@ purple down
     blue left Q
 purple right
 
-red down 1
 red down 1
 purple up condition is true
     red right 1 do this
@@ -49,10 +46,8 @@ purple right
 nested? maybe
 
 red down 1
-red down 1
 purple up
-    red down 2
-    red down 2
+    red down 1
     purple up oh boy
         red down 3
         red down 3
@@ -62,16 +57,14 @@ purple up
 purple right
 
 hey it works! let's try again
-red down 1
-red down 2
+red up 1
 purple up
     red down 3 don't do this
     red down 3
     yellow up
     blue left
 purple down
-    red up 2 do this
-    red up 2
+    red down 1 do this
     purple up
         red right 2 do this
         red up 3
@@ -96,7 +89,6 @@ yellow down
 yellow up
 blue left !
 
-red left 3 true
 red right 3 false
 purple up
     red down 2 don't do this
@@ -116,3 +108,4 @@ red down 2 do this
 red down 2
 yellow down
 blue left \n
+
