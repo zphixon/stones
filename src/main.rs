@@ -212,14 +212,14 @@ fn main() {
                                 let tmp2 = stack.pop().expect("Stack is empty!");
                                 stack.push(tmp1 * tmp2);
                                 // move stones
-                                field = move_stones(current_stone, current_direction, field);
+                                field = move_stone(current_stone, current_direction, field);
                             }
                         },
                         //Color::Green => { // roll },
                         Color::Blue => { // print as number
                             if execute {
                                 print!("{}\n", stack.pop().expect("Stack is empty!"));
-                                field = move_stones(current_stone, current_direction, field);
+                                field = move_stone(current_stone, current_direction, field);
                             }
                         },
                         Color::Purple => { // if
@@ -235,7 +235,7 @@ fn main() {
                                 // continue until else or end
                                 flow = Flow::ElseOrEnd;
                             }
-                            field = move_stones(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
                             scope = scope + 1;
                         },
                         _ => {}
@@ -253,7 +253,7 @@ fn main() {
                                 let tmp1 = stack.pop().expect("Stack is empty!");
                                 let tmp2 = stack.pop().expect("Stack is empty!");
                                 stack.push(tmp1 + tmp2);
-                                field = move_stones(current_stone, current_direction, field);
+                                field = move_stone(current_stone, current_direction, field);
                             }
                         },
                         //Color::Green => { // dup },
@@ -272,7 +272,7 @@ fn main() {
                                 execute = !execute;
                                 flow = Flow::End;
                             }
-                            field = move_stones(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
                         },
                         _ => {}
                     }
@@ -289,7 +289,7 @@ fn main() {
                                 let tmp1 = stack.pop().expect("Stack is empty!");
                                 let tmp2 = stack.pop().expect("Stack is empty!");
                                 stack.push(tmp1 - tmp2);
-                                field = move_stones(current_stone, current_direction, field);
+                                field = move_stone(current_stone, current_direction, field);
                             }
                         },
                         //Color::Green => { // drop },
@@ -297,7 +297,7 @@ fn main() {
                             if execute {
                                 // ewwww
                                 print!("{}", to_char(stack.pop().expect("Stack is empty!")));
-                                field = move_stones(current_stone, current_direction, field);
+                                field = move_stone(current_stone, current_direction, field);
                             }
                         },
                         //Color::Purple => { // while },
@@ -317,7 +317,7 @@ fn main() {
                                 let tmp1 = stack.pop().expect("Stack is empty!");
                                 let tmp2 = stack.pop().expect("Stack is empty!");
                                 stack.push(tmp1 / tmp2);
-                                field = move_stones(current_stone, current_direction, field);
+                                field = move_stone(current_stone, current_direction, field);
                             }
                         },
                         //Color::Green => {},
@@ -341,7 +341,7 @@ fn main() {
                                 execute = true;
                                 flow = Flow::No;
                             }
-                            field = move_stones(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
                             if scope == 0 {
                                 println!("Mismatching if/else!");
                             } else {
@@ -368,13 +368,13 @@ fn main() {
                                 Direction::Right => stack.push(3),
                                 _ => panic!("Unexpected reserved word!"),
                             }
-                            field = move_stones(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
                         },
                         Color::Orange => { // array stuff
                             match current_direction {
                                 _ => {}
                             }
-                            field = move_stones(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
                         },
                         _ => println!("That {:?} stone is too heavy!", &current_stone)
                     }
@@ -392,8 +392,8 @@ fn main() {
                                 Direction::Right => stack.push(7),
                                 _ => panic!("Unexpected reserved word!"),
                             }
-                            field = move_stones(current_stone, current_direction, field);
-                            field = move_stones(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
                         },
                         Color::Orange => { // equality stuff
                             match current_direction {
@@ -426,8 +426,8 @@ fn main() {
                                 },
                                 _ => {}
                             }
-                            field = move_stones(current_stone, current_direction, field);
-                            field = move_stones(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
                         },
                         _ => println!("That {:?} stone is too heavy!", &current_stone)
                     }
@@ -445,9 +445,9 @@ fn main() {
                                 Direction::Right => stack.push(0),
                                 _ => panic!("Unexpected reserved word!"),
                             }
-                            field = move_stones(current_stone, current_direction, field);
-                            field = move_stones(current_stone, current_direction, field);
-                            field = move_stones(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
+                            field = move_stone(current_stone, current_direction, field);
                         },
                         _ => println!("That {:?} stone is too heavy!", &current_stone)
                     }
@@ -485,7 +485,7 @@ fn is_color(c: &str) -> bool {
     }
 }
 
-fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
+fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
         -> Vec<Vec<Color>> {
     let mut field = _field; // FIXME: really not sure why
     let field_height = field.len() - 1;   // == 5
@@ -506,14 +506,14 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
                             // check for stone in the way
                             if field[y - 1][x] != Color::Invis {
                                 // move it up
-                                field = move_stones(field[y - 1][x], dir, field);
+                                field = move_stone(field[y - 1][x], dir, field);
                             }
                             // move stone up one
                             field[y - 1][x] = stone;
                         } else {
                             // check for stone in the way
                             if field[field_height][x] != Color::Invis {
-                                field = move_stones(field[field_height][x], dir, field);
+                                field = move_stone(field[field_height][x], dir, field);
                             }
                             // wrap around to bottom
                             field[field_height][x] = stone;
@@ -525,13 +525,13 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
                         field[y][x] = Color::Invis;
                         if y != field_height {
                             if field[y + 1][x] != Color::Invis {
-                                field = move_stones(field[y + 1][x], dir, field);
+                                field = move_stone(field[y + 1][x], dir, field);
                             }
                             // move stone down one
                             field[y + 1][x] = stone;
                         } else {
                             if field[0][x] != Color::Invis {
-                                field = move_stones(field[0][x], dir, field);
+                                field = move_stone(field[0][x], dir, field);
                             }
                             // wrap to bottom
                             field[0][x] = stone;
@@ -542,12 +542,12 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
                         field[y][x] = Color::Invis;
                         if x != 0 {
                             if field[y][x - 1] != Color::Invis {
-                                field = move_stones(field[y][x - 1], dir, field);
+                                field = move_stone(field[y][x - 1], dir, field);
                             }
                             field[y][x - 1] = stone;
                         } else {
                             if field[y][field_width] != Color::Invis {
-                                field = move_stones(field[y][field_width], dir, field);
+                                field = move_stone(field[y][field_width], dir, field);
                             }
                             field[y][field_width] = stone;
                         }
@@ -557,12 +557,12 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
                         field[y][x] = Color::Invis;
                         if x != field_width {
                             if field[y][x + 1] != Color::Invis {
-                                field = move_stones(field[y][x + 1], dir, field);
+                                field = move_stone(field[y][x + 1], dir, field);
                             }
                             field[y][x + 1] = stone;
                         } else {
                             if field[y][0] != Color::Invis {
-                                field = move_stones(field[y][0], dir, field);
+                                field = move_stone(field[y][0], dir, field);
                             }
                             field[y][0] = stone;
                         }
