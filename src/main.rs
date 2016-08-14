@@ -227,7 +227,6 @@ fn main() {
                             if tmp == 1 {
                                 // condition is met, will execute
                                 execute = true;
-                                scope = scope + 1;
                                 // continue until an else or end
                                 flow = Flow::ElseOrEnd;
                             } else {
@@ -237,6 +236,7 @@ fn main() {
                                 flow = Flow::ElseOrEnd;
                             }
                             field = move_stones(current_stone, current_direction, field);
+                            scope = scope + 1;
                         },
                         _ => {}
                     }
@@ -342,6 +342,11 @@ fn main() {
                                 flow = Flow::No;
                             }
                             field = move_stones(current_stone, current_direction, field);
+                            if scope == 0 {
+                                println!("Mismatching if/else!");
+                            } else {
+                                scope = scope - 1;
+                            }
                         },
                         _ => {}
                     }
@@ -452,7 +457,6 @@ fn main() {
         }
 
         if debug {
-            println!("-----------");
             println!("Token:     {}", tokens[count]);
             println!("Color:     {:?}", current_stone);
             println!("Direction: {:?}", current_direction);
@@ -460,6 +464,7 @@ fn main() {
             println!("Scope:     {}", scope);
             println!("Flow:      {:?}", flow);
             println!("Execute?   {}", execute);
+            println!("-----------");
         }
 
         if show_stack {
@@ -501,35 +506,65 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
                             // check for stone in the way
                             if field[y - 1][x] != Color::Invis {
                                 // move it up
-                                field = move_stones(field[y - 1][x], Direction::Up, field);
+                                field = move_stones(field[y - 1][x], dir, field);
                             }
                             // move stone up one
                             field[y - 1][x] = stone;
                         } else {
                             // check for stone in the way
                             if field[field_height][x] != Color::Invis {
-                                field = move_stones(field[field_height][x], Direction::Up, field);
+                                field = move_stones(field[field_height][x], dir, field);
                             }
                             // wrap around to bottom
                             field[field_height][x] = stone;
                         }
-                        // break loop
+                        // break loop - put this at the end of every direction
                         break 'y;
                     },
                     Direction::Down => {
                         field[y][x] = Color::Invis;
                         if y != field_height {
                             if field[y + 1][x] != Color::Invis {
-                                field = move_stones(field[y + 1][x], Direction::Down, field);
+                                field = move_stones(field[y + 1][x], dir, field);
                             }
                             // move stone down one
                             field[y + 1][x] = stone;
                         } else {
                             if field[0][x] != Color::Invis {
-                                field = move_stones(field[0][x], Direction::Down, field);
+                                field = move_stones(field[0][x], dir, field);
                             }
                             // wrap to bottom
                             field[0][x] = stone;
+                        }
+                        break 'y;
+                    },
+                    Direction::Left => {
+                        field[y][x] = Color::Invis;
+                        if x != 0 {
+                            if field[y][x - 1] != Color::Invis {
+                                field = move_stones(field[y][x - 1], dir, field);
+                            }
+                            field[y][x - 1] = stone;
+                        } else {
+                            if field[y][field_width] != Color::Invis {
+                                field = move_stones(field[y][field_width], dir, field);
+                            }
+                            field[y][field_width] = stone;
+                        }
+                        break 'y;
+                    },
+                    Direction::Right => {
+                        field[y][x] = Color::Invis;
+                        if x != field_width {
+                            if field[y][x + 1] != Color::Invis {
+                                field = move_stones(field[y][x + 1], dir, field);
+                            }
+                            field[y][x + 1] = stone;
+                        } else {
+                            if field[y][0] != Color::Invis {
+                                field = move_stones(field[y][0], dir, field);
+                            }
+                            field[y][0] = stone;
                         }
                         break 'y;
                     },
