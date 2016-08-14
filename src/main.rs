@@ -10,7 +10,7 @@ use std::io::Read;
 use std::path::Path;
 use std::error::Error;
 
-/* color enum, represent stones */
+// color enum, represent stones
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Color {
     Red,
@@ -22,7 +22,7 @@ enum Color {
     Invis
 }
 
-/* direction enum, used for parsing directions */
+// direction enum, used for parsing directions
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Direction {
     Up,
@@ -40,7 +40,7 @@ enum Flow {
 }
 
 fn main() {
-    /* arguments */
+    // arguments
     let mut debug = false;
     let mut show_field = false;
     let mut show_stack = false;
@@ -57,11 +57,11 @@ fn main() {
             .add_option(&["-s", "--stack"], StoreTrue, "Show stack");
         args.refer(&mut filename)
             .add_argument("file", Store, "File to run")
-            .required(); /* filename required, possible interpreter? */
+            .required(); // filename required, possible interpreter?
         args.parse_args_or_exit();
     }
 
-    /* open file */
+    // open file
     let path = Path::new(&filename);
     let display = path.display();
 
@@ -79,11 +79,11 @@ fn main() {
         Err(e) => panic!("Couldn't read {}: {}", display, e.description()),
     }
 
-    /* split file into tokens */
+    // split file into tokens
     let tokens: Vec<&str> = s.split_whitespace().collect();
 
-    /* field vector, represents stone field */
-    let mut field: Vec<Vec<Color>> = /* so much for 80 columns */
+    // field vector, represents stone field
+    let mut field: Vec<Vec<Color>> = // so much for 80 columns
         vec![vec![Color::Blue,  Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Orange,Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
              vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ],
              vec![Color::Invis, Color::Invis, Color::Red,   Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Green, Color::Invis, Color::Invis ],
@@ -91,19 +91,19 @@ fn main() {
              vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Yellow,Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Purple],
              vec![Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis, Color::Invis ]];
 
-    /* stack vector, pretty ezpz */
+    // stack vector, pretty ezpz
     let mut stack: Vec<i64> = vec![];
 
-    /* execute program */
-    let mut count = 0; /* track token counter */
-    let mut scope = 0; /* scope for loops, if/end, etc: unused sort of... */
-    let mut execute = true; /* control whether or not something executes */
-    let mut flow = Flow::No; /* looking for else or end */
-    let mut current_stone = Color::Invis; /* keep track of current stone */
-    let mut current_direction = Direction::No; /* track direction */
-    let mut current_number = "none"; /* used for red movement */
+    // execute program
+    let mut count = 0; // track token counter
+    let mut scope = 0; // scope for loops, if/end, etc: unused sort of...
+    let mut execute = true; // control whether or not something executes
+    let mut flow = Flow::No; // looking for else or end
+    let mut current_stone = Color::Invis; // keep track of current stone
+    let mut current_direction = Direction::No; // track direction
+    let mut current_number = "none"; // used for red movement
 
-    /* loop through tokens */
+    // loop through tokens
     while count < tokens.len() {
         if show_field {
             for row in &field {
@@ -115,7 +115,7 @@ fn main() {
                         &Color::Green => print!("{:?}. ", color),
                         &Color::Blue => print!("{:?}.. ", color),
                         &Color::Purple => print!("{:?} ", color),
-                        &Color::Invis => print!("...... "), /* oh. */
+                        &Color::Invis => print!("...... "), // oh.
                     }
                 }
                 println!("");
@@ -124,7 +124,7 @@ fn main() {
         }
 
         match tokens[count] {
-            /* colors */
+            // colors
             "red" => {
                     current_stone = Color::Red;
                     current_direction = Direction::No;
@@ -199,44 +199,44 @@ fn main() {
                     }
                 },
 
-            /* directions */
+            // directions
             "up" => {
                     current_direction = Direction::Up;
-                    /* red stone is handled in number area */
+                    // red stone is handled in number area
                     if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
-                            Color::Yellow => { /* multiply */
-                                    /* may use let = match later */
+                            Color::Yellow => { // multiply
+                                    // may use let = match later
                                     if execute {
                                         let tmp1 = stack.pop().expect("Stack is empty!");
                                         let tmp2 = stack.pop().expect("Stack is empty!");
                                         stack.push(tmp1 * tmp2);
                                     }
                                 },
-                            //Color::Green => { /* roll */},
-                            Color::Blue => { /* print as number */
+                            //Color::Green => { // roll },
+                            Color::Blue => { // print as number
                                     if execute {
                                         print!("{}\n", stack.pop().expect("Stack is empty!"));
                                     }
                                 },
-                            Color::Purple => { /* if */
+                            Color::Purple => { // if
                                     let tmp = stack.pop().expect("Stack is empty!");
                                     if tmp == 1 {
-                                        /* condition is met, will execute */
+                                        // condition is met, will execute
                                         execute = true;
                                         scope = scope + 1;
-                                        /* continue until an else or end */
+                                        // continue until an else or end
                                         flow = Flow::ElseOrEnd;
                                     } else {
-                                        /* condition not met, will not execute */
+                                        // condition not met, will not execute
                                         execute = false;
-                                        /* continue until else or end */
+                                        // continue until else or end
                                         flow = Flow::ElseOrEnd;
                                     }
                                 },
                             _ => {}
                         }
-                        /* move stones */
+                        // move stones
                         field = move_stones(current_stone, current_direction, field);
                         current_stone = Color::Invis;
                         current_direction = Direction::No;
@@ -246,24 +246,24 @@ fn main() {
                     current_direction = Direction::Down;
                     if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
-                            Color::Yellow => { /* add */
+                            Color::Yellow => { // add
                                     if execute {
                                         let tmp1 = stack.pop().expect("Stack is empty!");
                                         let tmp2 = stack.pop().expect("Stack is empty!");
                                         stack.push(tmp1 + tmp2);
                                     }
                                 },
-                            //Color::Green => { /* dup */},
-                            //Color::Blue => { /* input */
+                            //Color::Green => { // dup },
+                            //Color::Blue => { // input
                             //        let tmp = stack.pop().expect("Stack is empty!");
-                            //        stack.push(&tmp); /* might cause problemos... */
+                            //        stack.push(&tmp); // might cause problemos...
                             //        stack.push(&tmp);
                             //    },
-                            Color::Purple => { /* else */
-                                    /* looking for an else or end */
+                            Color::Purple => { // else
+                                    // looking for an else or end
                                     if flow == Flow::ElseOrEnd {
                                         /* if condition was met, execute is true, stop
-                                         * until an end*/
+                                         * until an end */
                                         /* if condition wasn't met, execute is false,
                                          * continue until an end */
                                         execute = !execute;
@@ -281,21 +281,21 @@ fn main() {
                     current_direction = Direction::Left;
                     if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
-                            Color::Yellow => { /* subtract */
+                            Color::Yellow => { // subtract
                                     if execute {
                                         let tmp1 = stack.pop().expect("Stack is empty!");
                                         let tmp2 = stack.pop().expect("Stack is empty!");
                                         stack.push(tmp1 - tmp2);
                                     }
                                 },
-                            //Color::Green => { /* drop */},
-                            Color::Blue => { /* print as character */
+                            //Color::Green => { // drop },
+                            Color::Blue => { // print as character
                                     if execute {
-                                        /* ewwww */
+                                        // ewwww
                                         print!("{}", to_char(stack.pop().expect("Stack is empty!")));
                                     }
                                 },
-                            //Color::Purple => { /* while */},
+                            //Color::Purple => { // while },
                             _ => {}
                         }
                         field = move_stones(current_stone, current_direction, field);
@@ -308,7 +308,7 @@ fn main() {
                     if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
                             //Color::Orange => {},
-                            Color::Yellow => { /* divide */
+                            Color::Yellow => { // divide
                                     if execute {
                                         let tmp1 = stack.pop().expect("Stack is empty!");
                                         let tmp2 = stack.pop().expect("Stack is empty!");
@@ -316,20 +316,20 @@ fn main() {
                                     }
                                 },
                             //Color::Green => {},
-                            Color::Blue => { /* quine :) */
+                            Color::Blue => { // quine :)
                                     if tokens.len() == 2 {
                                         print!("blue right");
                                     } else {
-                                        /* muahahaha */
+                                        // muahahaha
                                         std::process::exit(0);
                                     }
                                 },
-                            Color::Purple => { /* end */
-                                    /* somewhat redundant */
+                            Color::Purple => { // end
+                                    // somewhat redundant
                                     if flow == Flow::End {
-                                        /* reset execute */
+                                        // reset execute
                                         execute = true;
-                                        /* reset flow */
+                                        // reset flow
                                         flow = Flow::No;
                                     }
                                     if flow == Flow::ElseOrEnd {
@@ -345,7 +345,7 @@ fn main() {
                     }
                 },
 
-            /* numbers */
+            // numbers
             "1" => {
                     current_number = "1";
                     if execute {
@@ -360,7 +360,7 @@ fn main() {
                                     }
                                     field = move_stones(current_stone, current_direction, field);
                                 },
-                            Color::Orange => { /* array stuff */
+                            Color::Orange => { // array stuff
                                     match current_direction {
                                         _ => {}
                                     }
@@ -385,7 +385,7 @@ fn main() {
                                     field = move_stones(current_stone, current_direction, field);
                                     field = move_stones(current_stone, current_direction, field);
                                 },
-                            Color::Orange => { /* equality stuff */
+                            Color::Orange => { // equality stuff
                                     match current_direction {
                                         Direction::Up => {
                                                 let tmp1 = stack.pop();
@@ -477,37 +477,38 @@ fn is_color(c: &str) -> bool {
 
 fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
         -> Vec<Vec<Color>> {
-    let mut field = _field; /* FIXME: really not sure why */
-    let field_height = field.len() - 1;   /* == 5 */
-    let field_width = field[0].len() - 1; /* == 10 */
+    let mut field = _field; // FIXME: really not sure why
+    let field_height = field.len() - 1;   // == 5
+    let field_width = field[0].len() - 1; // == 10
 
-    /* go through vertical rows first */
+    // go through vertical rows first
     'y: for y in 0..(field_height + 1) {
-        /* columns left to right */
+        // columns left to right
         for x in 0..(field_width + 1) {
-            /* find a match */
+            // find a match
             if field[y][x] == stone {
                 match dir {
                     Direction::Up => {
-                        /* set color to invisible */
+                        // set color to invisible
                         field[y][x] = Color::Invis;
-                        /* protect overflow crashes */
+                        // protect overflow crashes
                         if y != 0 {
-                            /* move stone up one */
+                            // move stone up one
                             field[y - 1][x] = stone;
                         } else {
-                            /* wrap around to bottom */
+                            // wrap around to bottom
                             field[field_height][x] = stone;
                         }
-                        /* break loop */
+                        // break loop
                         break 'y;
                     },
                     Direction::Down => {
                         field[y][x] = Color::Invis;
                         if y != field_height {
+                            // move stone down one
                             field[y + 1][x] = stone;
                         } else {
-                            /* wrap to bottom */
+                            // wrap to bottom
                             field[0][x] = stone;
                         }
                         break 'y;
@@ -524,7 +525,7 @@ fn move_stones(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
     field
 }
 
-/* copied from superfish.rs */
+// copied from superfish.rs
 fn to_char(i: i64) -> String {
     let a = match i {
         0 => "NUL",
