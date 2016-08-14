@@ -134,6 +134,13 @@ fn main() {
                             println!("Unexpected color!");
                         }
                     }
+                    if count != tokens.len() - 2 {
+                        if tokens[count + 2] != "1" &&
+                           tokens[count + 2] != "2" &&
+                           tokens[count + 2] != "3" {
+                            println!("Expected number!");
+                        }
+                    }
                 },
             "orange" => {
                     current_stone = Color::Orange;
@@ -142,6 +149,13 @@ fn main() {
                     if count != 0 {
                         if is_color(tokens[count - 1]) {
                             println!("Unexpected color!");
+                        }
+                    }
+                    if count != tokens.len() - 2 {
+                        if tokens[count + 2] != "1" &&
+                           tokens[count + 2] != "2" &&
+                           tokens[count + 2] != "3" {
+                            println!("Expected number!");
                         }
                     }
                 },
@@ -208,9 +222,8 @@ fn main() {
                                     }
                                 },
                             Color::Purple => {
-                                    let tmp1 = stack.pop().expect("Stack is empty!");
-                                    let tmp2 = stack.pop().expect("Stack is empty!");
-                                    if tmp1 == tmp2 {
+                                    let tmp = stack.pop().expect("Stack is empty!");
+                                    if tmp == 1 {
                                         /* condition is met, will execute */
                                         execute = true;
                                         scope = scope + 1;
@@ -373,6 +386,33 @@ fn main() {
                                 },
                             Color::Orange => {
                                     match current_direction {
+                                        Direction::Up => {
+                                                let tmp1 = stack.pop();
+                                                let tmp2 = stack.pop();
+                                                if tmp1 == tmp2 {
+                                                    stack.push(1);
+                                                } else {
+                                                    stack.push(0);
+                                                }
+                                            },
+                                        Direction::Down => {
+                                                let tmp1 = stack.pop();
+                                                let tmp2 = stack.pop();
+                                                if tmp1 < tmp2 {
+                                                    stack.push(1);
+                                                } else {
+                                                    stack.push(0);
+                                                }
+                                            },
+                                        Direction::Left => {
+                                                let tmp1 = stack.pop();
+                                                let tmp2 = stack.pop();
+                                                if tmp1 > tmp2 {
+                                                    stack.push(1);
+                                                } else {
+                                                    stack.push(0);
+                                                }
+                                            },
                                         _ => {}
                                     }
                                 },
@@ -391,11 +431,6 @@ fn main() {
                                         Direction::Left => stack.push(1),
                                         Direction::Right => stack.push(0),
                                         _ => panic!("Unexpected reserved word!"),
-                                    }
-                                },
-                            Color::Orange => {
-                                    match current_direction {
-                                        _ => {}
                                     }
                                 },
                             _ => println!("That {:?} stone is too heavy!", &current_stone)
