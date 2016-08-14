@@ -30,7 +30,7 @@ the red stone down two units, it pushes a 5 on to the stack.
 | Orange x 2 |                                       | ==    | <     | >      |       |
 | Yellow     | Math operators                        | \*    | +     | -      | /     |
 | Green      | Stack operations                      | roll  | dup   | drop   | not   |
-| Blue       | Input/output                          | print | input | printc | ?     |
+| Blue       | Input/output                          | print | input | printc |       |
 | Purple     | Control flow                          | if    | else  | while  | end   |
 
 As the program starts, the field is arranged as such:

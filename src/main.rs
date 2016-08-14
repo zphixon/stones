@@ -206,8 +206,7 @@ fn main() {
                     /* red stone is handled in number area */
                     if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
-                            //Color::Orange => {},
-                            Color::Yellow => {
+                            Color::Yellow => { /* multiply */
                                     /* may use let = match later */
                                     if execute {
                                         let tmp1 = stack.pop().expect("Stack is empty!");
@@ -215,13 +214,13 @@ fn main() {
                                         stack.push(tmp1 * tmp2);
                                     }
                                 },
-                            //Color::Green => {},
-                            Color::Blue => {
+                            //Color::Green => { /* roll */},
+                            Color::Blue => { /* print as number */
                                     if execute {
                                         print!("{}\n", stack.pop().expect("Stack is empty!"));
                                     }
                                 },
-                            Color::Purple => {
+                            Color::Purple => { /* if */
                                     let tmp = stack.pop().expect("Stack is empty!");
                                     if tmp == 1 {
                                         /* condition is met, will execute */
@@ -238,6 +237,7 @@ fn main() {
                                 },
                             _ => {}
                         }
+                        /* move stones */
                         field = move_stones(current_stone, current_direction, field);
                         current_stone = Color::Invis;
                         current_direction = Direction::No;
@@ -247,21 +247,20 @@ fn main() {
                     current_direction = Direction::Down;
                     if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
-                            //Color::Orange => {},
-                            Color::Yellow => {
+                            Color::Yellow => { /* add */
                                     if execute {
                                         let tmp1 = stack.pop().expect("Stack is empty!");
                                         let tmp2 = stack.pop().expect("Stack is empty!");
                                         stack.push(tmp1 + tmp2);
                                     }
                                 },
-                            //Color::Green => {},
-                            //Color::Blue => {
+                            //Color::Green => { /* dup */},
+                            //Color::Blue => { /* input */
                             //        let tmp = stack.pop().expect("Stack is empty!");
                             //        stack.push(&tmp); /* might cause problemos... */
                             //        stack.push(&tmp);
                             //    },
-                            Color::Purple => {
+                            Color::Purple => { /* else */
                                     /* looking for an else or end */
                                     if flow == Flow::ElseOrEnd {
                                         /* if condition was met, execute is true, stop
@@ -283,22 +282,21 @@ fn main() {
                     current_direction = Direction::Left;
                     if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
-                            //Color::Orange => {},
-                            Color::Yellow => {
+                            Color::Yellow => { /* subtract */
                                     if execute {
                                         let tmp1 = stack.pop().expect("Stack is empty!");
                                         let tmp2 = stack.pop().expect("Stack is empty!");
                                         stack.push(tmp1 - tmp2);
                                     }
                                 },
-                            //Color::Green => {},
-                            Color::Blue => {
+                            //Color::Green => { /* drop */},
+                            Color::Blue => { /* print as character */
                                     if execute {
                                         /* ewwww */
                                         print!("{}", to_char(stack.pop().expect("Stack is empty!")));
                                     }
                                 },
-                            //Color::Purple => {},
+                            //Color::Purple => { /* while */},
                             _ => {}
                         }
                         //field = move_stones(current_stone, current_direction, field);
@@ -311,7 +309,7 @@ fn main() {
                     if current_stone != Color::Red && current_stone != Color::Orange {
                         match current_stone {
                             //Color::Orange => {},
-                            Color::Yellow => {
+                            Color::Yellow => { /* divide */
                                     if execute {
                                         let tmp1 = stack.pop().expect("Stack is empty!");
                                         let tmp2 = stack.pop().expect("Stack is empty!");
@@ -319,7 +317,7 @@ fn main() {
                                     }
                                 },
                             //Color::Green => {},
-                            Color::Blue => {
+                            Color::Blue => { /* quine :) */
                                     if tokens.len() == 2 {
                                         print!("blue right");
                                     } else {
@@ -327,7 +325,7 @@ fn main() {
                                         std::process::exit(0);
                                     }
                                 },
-                            Color::Purple => {
+                            Color::Purple => { /* end */
                                     /* somewhat redundant */
                                     if flow == Flow::End {
                                         /* reset execute */
@@ -362,7 +360,7 @@ fn main() {
                                         _ => panic!("Unexpected reserved word!"),
                                     }
                                 },
-                            Color::Orange => {
+                            Color::Orange => { /* array stuff */
                                     match current_direction {
                                         _ => {}
                                     }
@@ -384,7 +382,7 @@ fn main() {
                                         _ => panic!("Unexpected reserved word!"),
                                     }
                                 },
-                            Color::Orange => {
+                            Color::Orange => { /* equality stuff */
                                     match current_direction {
                                         Direction::Up => {
                                                 let tmp1 = stack.pop();
