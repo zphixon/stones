@@ -10,6 +10,15 @@ use std::io::Read;
 use std::path::Path;
 use std::error::Error;
 
+// cargo clippy tests
+
+// main() has a cyclomatic complexity of 53. should I be proud?
+#[allow(cyclomatic_complexity)]
+
+// I wasn't aware that there was a way to enumerate a Vec without moving it
+// it's too late to change it right now, but I might consider fixing it later.
+#[allow(needless_range_loop)]
+
 // color enum, represent stones
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Color {
@@ -108,14 +117,14 @@ fn main() {
         if show_field {
             for row in &field {
                 for color in row {
-                    match color {
-                        &Color::Red => print!("{:?}... ", color),
-                        &Color::Orange => print!("{:?} ", color),
-                        &Color::Yellow => print!("{:?} ", color),
-                        &Color::Green => print!("{:?}. ", color),
-                        &Color::Blue => print!("{:?}.. ", color),
-                        &Color::Purple => print!("{:?} ", color),
-                        &Color::Invis => print!("...... "), // oh.
+                    match *color {
+                        Color::Red => print!("{:?}... ", color),
+                        Color::Orange => print!("{:?} ", color),
+                        Color::Yellow => print!("{:?} ", color),
+                        Color::Green => print!("{:?}. ", color),
+                        Color::Blue => print!("{:?}.. ", color),
+                        Color::Purple => print!("{:?} ", color),
+                        Color::Invis => print!("...... "), // oh.
                     }
                 }
                 println!("");
@@ -129,73 +138,59 @@ fn main() {
                 current_stone = Color::Red;
                 current_direction = Direction::No;
                 current_number = "none";
-                if count != 0 {
-                    if is_color(tokens[count - 1]) {
-                        println!("Unexpected color!");
-                    }
+                if count != 0 && is_color(tokens[count - 1]) {
+                    println!("Unexpected color!");
                 }
-                if count != tokens.len() - 2 {
-                    if tokens[count + 2] != "1" &&
-                       tokens[count + 2] != "2" &&
-                       tokens[count + 2] != "3" {
-                        println!("Expected number!");
-                    }
+                if count != tokens.len() - 2 &&
+                   tokens[count + 2] != "1" &&
+                   tokens[count + 2] != "2" &&
+                   tokens[count + 2] != "3" {
+                    println!("Expected number!");
                 }
             },
             "orange" => {
                 current_stone = Color::Orange;
                 current_direction = Direction::No;
                 current_number = "none";
-                if count != 0 {
-                    if is_color(tokens[count - 1]) {
-                        println!("Unexpected color!");
-                    }
+                if count != 0 && is_color(tokens[count - 1]) {
+                    println!("Unexpected color!");
                 }
-                if count != tokens.len() - 2 {
-                    if tokens[count + 2] != "1" &&
-                       tokens[count + 2] != "2" {
+                if count != tokens.len() - 2 &&
+                   tokens[count + 2] != "1" &&
+                   tokens[count + 2] != "2" {
                         println!("Expected number!");
-                    }
                 }
             },
             "yellow" => {
                 current_stone = Color::Yellow;
                 current_direction = Direction::No;
                 current_number = "none";
-                if count != 0 {
-                    if is_color(tokens[count - 1]) {
-                        println!("Unexpected color!");
-                    }
+                if count != 0 && is_color(tokens[count - 1]) {
+                    println!("Unexpected color!");
                 }
             },
             "green" => {
                 current_stone = Color::Green;
                 current_direction = Direction::No;
                 current_number = "none";
-                if count != 0 {
-                    if is_color(tokens[count - 1]) {
-                        println!("Unexpected color!");
-                    }
+                if count != 0 && is_color(tokens[count - 1]) {
+                    println!("Unexpected color!");
                 }
             },
             "blue" => {
                 current_stone = Color::Blue;
                 current_direction = Direction::No;
                 current_number = "none";
-                if count != 0 {
-                    if is_color(tokens[count - 1]) {
-                        println!("Unexpected color!");
-                    }
+                if count != 0 && is_color(tokens[count - 1]) {
+                    println!("Unexpected color!");
                 }
             },
             "purple" => {
                 current_stone = Color::Purple;
                 current_direction = Direction::No;
                 current_number = "none";
-                if count != 0 {
-                    if is_color(tokens[count - 1]) {
-                        println!("Unexpected color!");
-                    }
+                if count != 0 && is_color(tokens[count - 1]) {
+                    println!("Unexpected color!");
                 }
             },
 
@@ -236,7 +231,7 @@ fn main() {
                                 flow = Flow::ElseOrEnd;
                             }
                             field = move_stone(current_stone, current_direction, field);
-                            scope = scope + 1;
+                            scope += 1;
                         },
                         _ => {}
                     }
@@ -345,7 +340,7 @@ fn main() {
                             if scope == 0 {
                                 println!("Mismatching if/else!");
                             } else {
-                                scope = scope - 1;
+                                scope -= 1;
                             }
                         },
                         _ => {}
@@ -474,7 +469,7 @@ fn main() {
             }
         }
 
-        count = count + 1;
+        count += 1;
     }
 }
 
