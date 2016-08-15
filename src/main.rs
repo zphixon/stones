@@ -10,16 +10,14 @@ use std::io::Read;
 use std::path::Path;
 use std::error::Error;
 
-// cargo clippy tests
-
-// main() has a cyclomatic complexity of 53. should I be proud?
+// main() has a cyclomatic complexity of 54. should I be proud?
 #[allow(cyclomatic_complexity)]
 
 // I wasn't aware that there was a way to enumerate a Vec without moving it
 // it's too late to change it right now, but I might consider fixing it later.
 #[allow(needless_range_loop)]
 
-// shut up appveyor/travis
+// remove warning messages, appveyor/travis don't have clippy
 #[allow(unknown_lints)]
 
 // color enum, represent stones
@@ -262,12 +260,12 @@ fn main() {
                                 field = move_stone(current_stone, current_direction, field);
                             }
                         },
-                        //Color::Green => { // dup },
-                        //Color::Blue => { // input
+                        //Color::Green => { // dup
                         //    let tmp = stack.pop().expect("Stack is empty!");
                         //    stack.push(&tmp); // might cause problemos...
                         //    stack.push(&tmp);
                         //},
+                        //Color::Blue => { // input },
                         Color::Purple => { // else
                             // looking for an else or end
                             if flow == Flow::ElseOrEnd {
