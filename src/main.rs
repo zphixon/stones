@@ -56,6 +56,7 @@ fn main() {
     let mut debug = false;
     let mut show_field = false;
     let mut show_stack = false;
+    let mut create_print = false;
     let mut filename: String = "".into();
 
     {
@@ -67,10 +68,17 @@ fn main() {
             .add_option(&["-f", "--field"], StoreTrue, "Show field");
         args.refer(&mut show_stack)
             .add_option(&["-s", "--stack"], StoreTrue, "Show stack");
+        args.refer(&mut create_print)
+            .add_option(&["-p", "--print"], StoreTrue, "Create print");
         args.refer(&mut filename)
-            .add_argument("file", Store, "File to run")
-            .required(); // filename required, possible interpreter?
+            .add_argument("file", Store, "File to run/output to")
+            .required();
         args.parse_args_or_exit();
+    }
+
+    if create_print {
+        do_print(filename);
+        std::process::exit(0);
     }
 
     // open file
@@ -576,6 +584,137 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
     }
 
     field
+}
+
+// read from a file, convert text to stones commands
+fn do_print(filename: String) {
+    let path = Path::new(&filename);
+    let display = path.display();
+
+    let mut file = match File::open(&path) {
+        Ok(file) => file,
+        Err(_) => {
+            println!("File doesn't exist: {}", display);
+            std::process::exit(1);
+        }
+    };
+
+    let mut contents = String::new();
+    match file.read_to_string(&mut contents) {
+        Ok(_) => {},
+        Err(e) => panic!("Couldn't read {}: {}", display, e.description()),
+    }
+
+    let chars = contents.chars();
+
+    let mut output = String::new();
+
+    for c in chars {
+        output.push_str(
+            match c {
+                '\t' => "red down 3\nblue left\n\n",
+                '\n' => "red down 2\nred down 2\nyellow down\nblue left\n\n",
+                '\r' => "red down 3\nred up 2\nyellow down\nblue left\n\n",
+                ' ' => "red up 2\nred up 2\nred left 1\nyellow up\nyellow up\nblue left\n\n",
+                '!' => "red right 1\nred left 1\nred down 3\nyellow down\nyellow up\nblue left\n\n",
+                '\"' => "red down 2\nred down 2\nred right 2\nyellow down\nyellow down \nred left 1\nyellow up\nred right 1\nyellow down\nblue left\n\n",
+                '#' => "red right 2\nred down 2\nyellow up\nblue left\n\n",
+                '$' => "red left 2\nred left 2\nyellow up\nblue left\n\n",
+                '%' => "red down 2\nred down 2\nyellow down\nred right 1\nyellow up\nred right 2\nyellow down\nblue left\n\n",
+                '&' => "red down 3\nred up 3\nyellow down\nred left 1\nyellow down\nred left 1\nyellow up\nblue left\n\n",
+                '\'' => "red up 2\nred down 3\nyellow down\nred right 1\nyellow up\nblue left\n\n",
+                '(' => "red down 2\nred down 2\nyellow down\nred up 2\nyellow up\nblue left\n\n",
+                ')' => "red down 2\nred down 2\nyellow down\nred up 2\nyellow up\nred down 1\nyellow down\nblue left\n\n",
+                '*' => "red left 2\nred right 2\nyellow up\nblue left\n\n",
+                '+' => "red left 2\nred right 2\nyellow up\nred down 1\nyellow down\nblue left\n\n",
+                ',' => "red left 1\nred down 3\nyellow down\nred up 2\nyellow up\nblue left\n\n",
+                '-' => "red down 3\nred down 2\nyellow up\nblue left\n\n",
+                '.' => "red down 3\nred down 2\nyellow up\nred down 1\nyellow down\nblue left\n\n",
+                '/' => "red down 3\nred down 2\nyellow up\nred left 1\nyellow down\nblue left\n\n",
+                '0' => "red left 2\nred up 3\nyellow up\nblue left\n\n",
+                '1' => "red left 2\nred up 3\nyellow up\nred down 1\nyellow down\nblue left\n\n",
+                '2' => "red down 2\nred left 1\nred down 2\nyellow up\nyellow up\nblue left\n\n",
+                '3' => "\n", // yeah, this is awful
+                '4' => "\n",
+                '5' => "\n",
+                '6' => "\n",
+                '7' => "\n",
+                '8' => "\n",
+                '9' => "\n",
+                ':' => "\n",
+                ';' => "\n",
+                '<' => "\n",
+                '=' => "\n",
+                '>' => "\n",
+                '?' => "\n",
+                '@' => "\n",
+                'A' => "\n",
+                'B' => "\n",
+                'C' => "\n",
+                'D' => "\n",
+                'E' => "\n",
+                'F' => "\n",
+                'G' => "\n",
+                'H' => "\n",
+                'I' => "\n",
+                'J' => "\n",
+                'K' => "\n",
+                'L' => "\n",
+                'M' => "\n",
+                'N' => "\n",
+                'O' => "\n",
+                'P' => "\n",
+                'Q' => "\n",
+                'R' => "\n",
+                'S' => "\n",
+                'T' => "\n",
+                'U' => "\n",
+                'V' => "\n",
+                'W' => "\n",
+                'X' => "\n",
+                'Y' => "\n",
+                'Z' => "\n",
+                '[' => "\n",
+                '\\' => "\n",
+                ']' => "\n",
+                '^' => "\n",
+                '_' => "\n",
+                '`' => "\n",
+                'a' => "\n",
+                'b' => "\n",
+                'c' => "\n",
+                'd' => "\n",
+                'e' => "\n",
+                'f' => "\n",
+                'g' => "\n",
+                'h' => "\n",
+                'i' => "\n",
+                'j' => "\n",
+                'k' => "\n",
+                'l' => "\n",
+                'm' => "\n",
+                'n' => "\n",
+                'o' => "\n",
+                'p' => "\n",
+                'q' => "\n",
+                'r' => "\n",
+                's' => "\n",
+                't' => "\n",
+                'u' => "\n",
+                'v' => "\n",
+                'w' => "\n",
+                'x' => "\n",
+                'y' => "\n",
+                'z' => "\n",
+                '{' => "\n",
+                '|' => "\n",
+                '}' => "\n",
+                '~' => "\n",
+                _ => "\n",
+        });
+    }
+
+    println!("{}", output);
 }
 
 // copied from superfish.rs
