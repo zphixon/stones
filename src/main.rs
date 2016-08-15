@@ -19,6 +19,9 @@ use std::error::Error;
 // it's too late to change it right now, but I might consider fixing it later.
 #[allow(needless_range_loop)]
 
+// shut up appveyor/travis
+#[allow(unknown_lints)]
+
 // color enum, represent stones
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Color {
