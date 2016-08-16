@@ -10,13 +10,6 @@ use std::io::Read;
 use std::path::Path;
 use std::error::Error;
 
-// main() has a cyclomatic complexity of 54. should I be proud?
-#[allow(cyclomatic_complexity)]
-
-// I wasn't aware that there was a way to enumerate a Vec without moving it
-// it's too late to change it right now, but I might consider fixing it later.
-#[allow(needless_range_loop)]
-
 // remove warning messages, appveyor/travis don't have clippy
 #[allow(unknown_lints)]
 
@@ -49,6 +42,8 @@ enum Flow {
     No
 }
 
+// main() has a cyclomatic complexity of 54. should I be proud?
+#[allow(cyclomatic_complexity)]
 fn main() {
     // arguments
     let mut debug = false;
@@ -489,6 +484,9 @@ fn is_color(c: &str) -> bool {
     }
 }
 
+// I didn't know there was a way to iterate vectors without moving them
+// it's too late right now, I might fix this later
+#[allow(needless_range_loop)]
 fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
         -> Vec<Vec<Color>> {
     let mut field = _field; // FIXME: really not sure why
@@ -585,6 +583,7 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
 }
 
 // read from a file, convert text to stones commands
+#[allow(match_same_arms)]
 fn do_print(filename: String) {
     let path = Path::new(&filename);
     let display = path.display();
