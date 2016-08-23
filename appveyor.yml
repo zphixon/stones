@@ -22,10 +22,10 @@ build_script:
     - cargo build
 
 artifacts:
-    - path: target\release\mymdb.exe
+    - path: target\release\stones.exe
       name: release
 
-    - path: target\debug\mymdb.exe
+    - path: target\debug\stones.exe
       name: debug
 
 cache:
