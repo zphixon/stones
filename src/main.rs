@@ -10,9 +10,6 @@ use std::io::Read;
 use std::path::Path;
 use std::error::Error;
 
-// remove warning messages, appveyor/travis don't have clippy
-#[allow(unknown_lints)]
-
 // color enum, represent stones
 #[derive(Debug, PartialEq, Clone, Copy)]
 enum Color {
@@ -43,6 +40,7 @@ enum Flow {
 }
 
 // main() has a cyclomatic complexity of 54. should I be proud?
+#[allow(unknown_lints)]
 #[allow(cyclomatic_complexity)]
 fn main() {
     // arguments
@@ -222,20 +220,22 @@ fn main() {
                             }
                         },
                         Color::Purple => { // if
-                            let tmp = stack.pop().expect("Stack is empty!");
-                            if tmp == 1 {
-                                // condition is met, will execute
-                                execute = true;
-                                // continue until an else or end
-                                flow = Flow::ElseOrEnd;
-                            } else {
-                                // condition not met, will not execute
-                                execute = false;
-                                // continue until else or end
-                                flow = Flow::ElseOrEnd;
+                            if execute {
+                                let tmp = stack.pop().expect("Stack is empty!");
+                                if tmp == 1 {
+                                    // condition is met, will execute
+                                    execute = true;
+                                    // continue until an else or end
+                                    flow = Flow::ElseOrEnd;
+                                } else {
+                                    // condition not met, will not execute
+                                    execute = false;
+                                    // continue until else or end
+                                    flow = Flow::ElseOrEnd;
+                                }
+                                field = move_stone(current_stone, current_direction, field);
+                                scope += 1;
                             }
-                            field = move_stone(current_stone, current_direction, field);
-                            scope += 1;
                         },
                         _ => {}
                     }
@@ -486,6 +486,7 @@ fn is_color(c: &str) -> bool {
 
 // I wasn't aware that there was a way to enumerate a Vec without moving it
 // it's too late to change it right now, but I might consider fixing it later.
+#[allow(unknown_lints)]
 #[allow(needless_range_loop)]
 fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
         -> Vec<Vec<Color>> {
