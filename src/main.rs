@@ -32,13 +32,6 @@ enum Direction {
     No
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
-enum Flow {
-    ElseOrEnd,
-    End,
-    No
-}
-
 // main() has a cyclomatic complexity of 54. should I be proud?
 #[allow(unknown_lints)]
 #[allow(cyclomatic_complexity)]
@@ -105,11 +98,12 @@ fn main() {
     // stack vector, pretty ezpz
     let mut stack: Vec<i64> = vec![];
 
+    // store scopes/wether or not to execute
+    let mut frame: Vec<bool> = vec![true];
+    let mut current_frame = 0;
+
     // execute program
     let mut count = 0; // track token counter
-    let mut scope = 0; // scope for loops, if/end, etc: unused sort of...
-    let mut execute = true; // control whether or not something executes
-    let mut flow = Flow::No; // looking for else or end
     let mut current_stone = Color::Invis; // keep track of current stone
     let mut current_direction = Direction::No; // track direction
     let mut current_number = "none"; // used for red movement
@@ -204,7 +198,7 @@ fn main() {
                     match current_stone {
                         Color::Yellow => { // multiply
                             // may use let = match later
-                            if execute {
+                            if frame[current_frame] {
                                 let tmp1 = stack.pop().expect("Stack is empty!");
                                 let tmp2 = stack.pop().expect("Stack is empty!");
                                 stack.push(tmp1 * tmp2);
@@ -214,27 +208,24 @@ fn main() {
                         },
                         //Color::Green => { // roll },
                         Color::Blue => { // print as number
-                            if execute {
+                            if frame[current_frame] {
                                 print!("{}\n", stack.pop().expect("Stack is empty!"));
                                 field = move_stone(current_stone, current_direction, field);
                             }
                         },
                         Color::Purple => { // if
-                            if execute {
+                            if frame[current_frame] {
                                 let tmp = stack.pop().expect("Stack is empty!");
                                 if tmp == 1 {
                                     // condition is met, will execute
-                                    execute = true;
-                                    // continue until an else or end
-                                    flow = Flow::ElseOrEnd;
+                                    current_frame += 1;
+                                    frame.push(true);
                                 } else {
                                     // condition not met, will not execute
-                                    execute = false;
-                                    // continue until else or end
-                                    flow = Flow::ElseOrEnd;
+                                    current_frame += 1;
+                                    frame.push(false);
                                 }
                                 field = move_stone(current_stone, current_direction, field);
-                                scope += 1;
                             }
                         },
                         _ => {}
@@ -248,7 +239,7 @@ fn main() {
                 if current_stone != Color::Red && current_stone != Color::Orange {
                     match current_stone {
                         Color::Yellow => { // add
-                            if execute {
+                            if frame[current_frame] {
                                 let tmp1 = stack.pop().expect("Stack is empty!");
                                 let tmp2 = stack.pop().expect("Stack is empty!");
                                 stack.push(tmp1 + tmp2);
@@ -262,15 +253,7 @@ fn main() {
                         //},
                         //Color::Blue => { // input },
                         Color::Purple => { // else
-                            // looking for an else or end
-                            if flow == Flow::ElseOrEnd {
-                                /* if condition was met, execute is true, stop
-                                 * until an end */
-                                /* if condition wasn't met, execute is false,
-                                 * continue until an end */
-                                execute = !execute;
-                                flow = Flow::End;
-                            }
+                            frame[current_frame] = !frame[current_frame];
                             field = move_stone(current_stone, current_direction, field);
                         },
                         _ => {}
@@ -279,12 +262,12 @@ fn main() {
                     current_direction = Direction::No;
                 }
             },
-        "left" => {
+            "left" => {
                 current_direction = Direction::Left;
                 if current_stone != Color::Red && current_stone != Color::Orange {
                     match current_stone {
                         Color::Yellow => { // subtract
-                            if execute {
+                            if frame[current_frame] {
                                 let tmp1 = stack.pop().expect("Stack is empty!");
                                 let tmp2 = stack.pop().expect("Stack is empty!");
                                 stack.push(tmp1 - tmp2);
@@ -293,7 +276,7 @@ fn main() {
                         },
                         //Color::Green => { // drop },
                         Color::Blue => { // print as character
-                            if execute {
+                            if frame[current_frame] {
                                 // ewwww
                                 print!("{}", to_char(stack.pop().expect("Stack is empty!")));
                                 field = move_stone(current_stone, current_direction, field);
@@ -312,7 +295,7 @@ fn main() {
                     match current_stone {
                         //Color::Orange => {},
                         Color::Yellow => { // divide
-                            if execute {
+                            if frame[current_frame] {
                                 let tmp1 = stack.pop().expect("Stack is empty!");
                                 let tmp2 = stack.pop().expect("Stack is empty!");
                                 stack.push(tmp1 / tmp2);
@@ -329,23 +312,9 @@ fn main() {
                             }
                         },
                         Color::Purple => { // end
-                            // somewhat redundant
-                            if flow == Flow::End {
-                                // reset execute
-                                execute = true;
-                                // reset flow
-                                flow = Flow::No;
-                            }
-                            if flow == Flow::ElseOrEnd {
-                                execute = true;
-                                flow = Flow::No;
-                            }
-                            field = move_stone(current_stone, current_direction, field);
-                            if scope == 0 {
-                                println!("Mismatching if/else!");
-                            } else {
-                                scope -= 1;
-                            }
+                            if current_frame == 0 { panic!("Mismatching purple up/down/right"); }
+                            frame.pop();
+                            current_frame -= 1;
                         },
                         _ => {}
                     }
@@ -357,7 +326,7 @@ fn main() {
             // numbers
             "1" => {
                 current_number = "1";
-                if execute {
+                if frame[current_frame] {
                     match current_stone {
                         Color::Red => {
                             match current_direction {
@@ -381,7 +350,7 @@ fn main() {
             },
             "2" => {
                 current_number = "2";
-                if execute {
+                if frame[current_frame] {
                     match current_stone {
                         Color::Red => {
                             match current_direction {
@@ -434,7 +403,7 @@ fn main() {
             },
             "3" => {
                 current_number = "3";
-                if execute {
+                if frame[current_frame] {
                     match current_stone {
                         Color::Red => {
                             match current_direction {
@@ -460,9 +429,8 @@ fn main() {
             println!("Color:     {:?}", current_stone);
             println!("Direction: {:?}", current_direction);
             println!("Number:    {}", current_number);
-            println!("Scope:     {}", scope);
-            println!("Flow:      {:?}", flow);
-            println!("Execute?   {}", execute);
+            println!("Frame:     {}", current_frame);
+            println!("Current:   {}", frame[current_frame]);
             println!("-----------");
         }
 
