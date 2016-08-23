@@ -42,6 +42,7 @@ fn main() {
     let mut debug = false;
     let mut show_field = false;
     let mut show_stack = false;
+    let mut show_frames = false;
     let mut create_print = false;
     let mut filename: String = "".into();
 
@@ -52,6 +53,8 @@ fn main() {
             .add_option(&["-d", "--debug"], StoreTrue, "Run debugging");
         args.refer(&mut show_field)
             .add_option(&["-f", "--field"], StoreTrue, "Show field");
+        args.refer(&mut show_frames)
+            .add_option(&["-r", "--frames"], StoreTrue, "Show frames");
         args.refer(&mut show_stack)
             .add_option(&["-s", "--stack"], StoreTrue, "Show stack");
         args.refer(&mut create_print)
@@ -439,8 +442,15 @@ fn main() {
         }
 
         if show_stack {
-            println!("-------");
+            println!("stack--");
             for item in &stack {
+                println!("{}", item);
+            }
+        }
+
+        if show_frames {
+            println!("frames--");
+            for item in &frame {
                 println!("{}", item);
             }
         }
