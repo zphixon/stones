@@ -5,11 +5,20 @@ An esoteric programming language
 ##To do
 
 * [X] Math
-* [ ] Stone movement
+* [X] Stone movement
+* [ ] Another layer of abstraction between execution and parsing/whatever
 * [ ] Arrays
 * [ ] Stack operations
 * [ ] More I/O
 * [ ] Control flow
+
+##Disclaimer
+
+I've never been in an official class on programming, so everything I know is
+mostly self-taught. As a result, this will likely be awful. I know absolutely
+nothing about compiler or interpreter design, and I'm sure it shows. By no
+means use this is as an example. For copyright-related matters, consult
+LICENSE.txt.
 
 ##Specification
 
