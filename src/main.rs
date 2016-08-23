@@ -1,9 +1,11 @@
 /* Stones esoteric programming language
  * (c) 2016 Zack Hixon - see LICENSE.txt */
 
+static VERSION: &'static str = "0.3.0";
+
 extern crate argparse;
 
-use argparse::{ArgumentParser, StoreTrue, Store};
+use argparse::{ArgumentParser, StoreTrue, Store, Print};
 
 use std::fs::File;
 use std::io::Read;
@@ -57,6 +59,8 @@ fn main() {
         args.refer(&mut filename)
             .add_argument("file", Store, "File to run/output to")
             .required();
+        args.add_option(&["-V", "--version"],
+                        Print("stones version ".to_string() + VERSION), "Show version");
         args.parse_args_or_exit();
     }
 
