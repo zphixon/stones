@@ -1,4 +1,4 @@
-#stones [![Build status](https://travis-ci.org/cheezgi/stones.svg?branch=master)](https://travis-ci.org/cheezgi/stones) [![Build status](https://ci.appveyor.com/api/projects/status/120smgk90ltqhopc?svg=true)](https://ci.appveyor.com/project/cheezgi/stones)
+#stones [![Freaking travis](https://travis-ci.org/cheezgi/stones.svg?branch=master)](https://travis-ci.org/cheezgi/stones) [![Freaking appveyor](https://ci.appveyor.com/api/projects/status/120smgk90ltqhopc?svg=true)](https://ci.appveyor.com/project/cheezgi/stones)
 
 An esoteric programming language
 
