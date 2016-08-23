@@ -556,6 +556,8 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
 }
 
 // read from a file, convert text to stones commands
+#[allow(unknown_lints)]
+#[allow(match_same_arms)]
 fn do_print(filename: String) {
     let path = Path::new(&filename);
     let display = path.display();
