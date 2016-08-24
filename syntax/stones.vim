@@ -10,7 +10,7 @@ syn keyword SConditional purple
 syn keyword SOperator yellow
 syn keyword SFunction green blue orange
 syn keyword SDirection up down left right
-syn match SComment /^red\|^orange\|^yellow\|^green\|^blue\|^purple\|[^123]\|^up\|^down\|^left\|^right/
+syn match SComment /^red\|^orange\|^yellow\|^green\|^blue\|^purple\|[^123]\|^up\|^down\|^left\|^right\|^\s/
 syn match SNumber /[123]/
 
 hi def link STodo Todo
