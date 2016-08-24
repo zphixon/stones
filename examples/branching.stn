@@ -1,7 +1,9 @@
 Branching test - should print this
 !Q!Q8
 !!
-EOF
+!!Q8
+888
+eof
 
 red down 1
 purple up condition is true
@@ -105,6 +107,108 @@ purple down
 purple right
 
 red down 2 do this
+red down 2
+yellow down
+blue left \n
+
+red right 3 false
+purple up
+    red down 2 don't do this
+    red down 2
+    yellow down
+    blue left
+purple down
+    red right 1 do this
+    red left 1
+    red down 3
+    yellow down
+    yellow up
+    blue left !
+    red right 3 false
+    purple up
+        red down 2 don't do this
+        red down 2
+        yellow down
+        blue left
+        red down 2
+        red down 2
+        yellow down
+        blue left \n
+    purple down
+        red right 1 do this
+        red left 1
+        red down 3
+        yellow down
+        yellow up
+        blue left !
+        red down 1
+        purple up
+            red down 1
+            purple up oh boy
+                red down 3
+                red down 3
+                yellow up
+                blue left Q
+            purple right
+            red up 1
+            purple up
+                red down 3 don't do this
+                red down 3
+                yellow up
+                blue left
+            purple down
+                red down 1 do this
+                purple up
+                    red right 2 do this
+                    red up 3
+                    yellow up
+                    blue left 8
+                purple down
+                    red down 3 don't do this
+                    red down 3
+                    yellow up
+                    blue left
+                purple right
+                red down 2 do this
+                red down 2
+                yellow down
+                blue left \n
+            purple right
+        purple right
+    purple right
+purple right
+
+red right 2 do this
+red up 3
+yellow up
+blue left 8
+
+red left 3
+purple up
+    red right 2 do this
+    red up 3
+    yellow up
+    blue left 8
+    red left 3
+    purple up
+        red right 2 do this
+        red up 3
+        yellow up
+        blue left 8
+    purple down
+        red down 2 don't
+        red down 2
+        yellow down
+        blue left \n
+    purple right
+purple down
+    red down 2 don't
+    red down 2
+    yellow down
+    blue left \n
+purple right
+
+red down 2
 red down 2
 yellow down
 blue left \n
