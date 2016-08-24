@@ -34,6 +34,24 @@ enum Direction {
     No
 }
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+enum Token {
+    Red,
+    Orange,
+    Yellow,
+    Green,
+    Blue,
+    Purple,
+    Up,
+    Down,
+    Left,
+    Right,
+    One,
+    Two,
+    Three,
+    Nop
+}
+
 // main() has a cyclomatic complexity of 54. should I be proud?
 #[allow(unknown_lints)]
 #[allow(cyclomatic_complexity)]
@@ -91,7 +109,28 @@ fn main() {
     }
 
     // split file into tokens
-    let tokens: Vec<&str> = s.split_whitespace().collect();
+    let tlist: Vec<&str> = s.split_whitespace().collect();
+
+    // parse tokens into tokens... yes
+    let mut tokens: Vec<Token> = vec![];
+    for token in &tlist {
+        tokens.push(match *token {
+            "red" => Token::Red,
+            "orange" => Token::Orange,
+            "yellow" => Token::Yellow,
+            "green" => Token::Green,
+            "blue" => Token::Blue,
+            "purple" => Token::Purple,
+            "up" => Token::Up,
+            "down" => Token::Down,
+            "left" => Token::Left,
+            "right" => Token::Right,
+            "1" => Token::One,
+            "2" => Token::Two,
+            "3" => Token::Three,
+            _ => Token::Nop
+        });
+    }
 
     // field vector, represents stone field
     let mut field: Vec<Vec<Color>> = // so much for 80 columns
@@ -137,7 +176,7 @@ fn main() {
 
         match tokens[count] {
             // colors
-            "red" => {
+            Token::Red => {
                 current_stone = Color::Red;
                 current_direction = Direction::No;
                 current_number = "none";
@@ -145,13 +184,13 @@ fn main() {
                     println!("Unexpected color!");
                 }
                 if count != tokens.len() - 2 &&
-                   tokens[count + 2] != "1" &&
-                   tokens[count + 2] != "2" &&
-                   tokens[count + 2] != "3" {
+                   tokens[count + 2] != Token::One &&
+                   tokens[count + 2] != Token::Two &&
+                   tokens[count + 2] != Token::Three {
                     println!("Expected number!");
                 }
             },
-            "orange" => {
+            Token::Orange => {
                 current_stone = Color::Orange;
                 current_direction = Direction::No;
                 current_number = "none";
@@ -159,12 +198,12 @@ fn main() {
                     println!("Unexpected color!");
                 }
                 if count != tokens.len() - 2 &&
-                   tokens[count + 2] != "1" &&
-                   tokens[count + 2] != "2" {
+                   tokens[count + 2] != Token::One &&
+                   tokens[count + 2] != Token::Two {
                         println!("Expected number!");
                 }
             },
-            "yellow" => {
+            Token::Yellow => {
                 current_stone = Color::Yellow;
                 current_direction = Direction::No;
                 current_number = "none";
@@ -172,7 +211,7 @@ fn main() {
                     println!("Unexpected color!");
                 }
             },
-            "green" => {
+            Token::Green => {
                 current_stone = Color::Green;
                 current_direction = Direction::No;
                 current_number = "none";
@@ -180,7 +219,7 @@ fn main() {
                     println!("Unexpected color!");
                 }
             },
-            "blue" => {
+            Token::Blue => {
                 current_stone = Color::Blue;
                 current_direction = Direction::No;
                 current_number = "none";
@@ -188,7 +227,7 @@ fn main() {
                     println!("Unexpected color!");
                 }
             },
-            "purple" => {
+            Token::Purple => {
                 current_stone = Color::Purple;
                 current_direction = Direction::No;
                 current_number = "none";
@@ -198,7 +237,7 @@ fn main() {
             },
 
             // directions
-            "up" => {
+            Token::Up => {
                 current_direction = Direction::Up;
                 // red stone is handled in number area
                 if current_stone != Color::Red && current_stone != Color::Orange {
@@ -241,7 +280,7 @@ fn main() {
                     current_direction = Direction::No;
                 }
             },
-            "down" => {
+            Token::Down => {
                 current_direction = Direction::Down;
                 if current_stone != Color::Red && current_stone != Color::Orange {
                     match current_stone {
@@ -269,7 +308,7 @@ fn main() {
                     current_direction = Direction::No;
                 }
             },
-            "left" => {
+            Token::Left => {
                 current_direction = Direction::Left;
                 if current_stone != Color::Red && current_stone != Color::Orange {
                     match current_stone {
@@ -296,7 +335,7 @@ fn main() {
                     current_direction = Direction::No;
                 }
             },
-            "right" => {
+            Token::Right => {
                 current_direction = Direction::Right;
                 if current_stone != Color::Red && current_stone != Color::Orange {
                     match current_stone {
@@ -331,7 +370,7 @@ fn main() {
             },
 
             // numbers
-            "1" => {
+            Token::One => {
                 current_number = "1";
                 if frame[current_frame] {
                     match current_stone {
@@ -355,7 +394,7 @@ fn main() {
                     }
                 }
             },
-            "2" => {
+            Token::Two => {
                 current_number = "2";
                 if frame[current_frame] {
                     match current_stone {
@@ -408,7 +447,7 @@ fn main() {
                     }
                 }
             },
-            "3" => {
+            Token::Three => {
                 current_number = "3";
                 if frame[current_frame] {
                     match current_stone {
@@ -432,7 +471,7 @@ fn main() {
         }
 
         if debug {
-            println!("Token:     {}", tokens[count]);
+            println!("Token:     {:?}", tokens[count]);
             println!("Color:     {:?}", current_stone);
             println!("Direction: {:?}", current_direction);
             println!("Number:    {}", current_number);
@@ -459,9 +498,9 @@ fn main() {
     }
 }
 
-fn is_color(c: &str) -> bool {
+fn is_color(c: Token) -> bool {
     match c {
-        "red" | "orange" | "yellow" | "green" | "blue" | "purple" => true,
+        Token::Red | Token::Orange | Token::Yellow | Token::Green | Token::Blue | Token::Purple => true,
         _ => false
     }
 }
