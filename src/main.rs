@@ -612,7 +612,7 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
     field
 }
 
-// fn do_print(filename: String) {
+// fn do_print(filename: String) { {{{1
 // read from a file, convert text to stones commands
 #[allow(unknown_lints)]
 #[allow(match_same_arms)]
@@ -745,8 +745,9 @@ fn do_print(filename: String) {
 
     println!("{}", output);
 }
+// }}}1
 
-// fn to_char(i: i64) -> String {
+// fn to_char(i: i64) -> String { {{{1
 // copied from superfish.rs
 fn to_char(i: i64) -> String {
     let a = match i {
@@ -882,4 +883,5 @@ fn to_char(i: i64) -> String {
     };
     String::from(a)
 }
+// }}}1
 
