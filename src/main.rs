@@ -152,7 +152,7 @@ fn main() {
     // stack vector, pretty ezpz
     let mut stack: Vec<i64> = vec![];
 
-    // store scopes/wether or not to execute
+    // store scopes/whether or not to execute
     let mut frame: Vec<bool> = vec![true];
     let mut current_frame = 0;
 
@@ -300,11 +300,13 @@ fn main() {
                                 field = move_stone(current_stone, current_direction, field);
                             }
                         },
-                        //Color::Green => { // dup
-                        //    let tmp = stack.pop().expect("Stack is empty!");
-                        //    stack.push(&tmp); // might cause problemos...
-                        //    stack.push(&tmp);
-                        //},
+                        Color::Green => { // dup
+                            if frame[current_frame] {
+                                let tmp = stack.pop().expect("Stack is empty!");
+                                stack.push(tmp);
+                                stack.push(tmp);
+                            }
+                        },
                         //Color::Blue => { // input },
                         Color::Purple => { // else
                             frame[current_frame] = !frame[current_frame];
@@ -328,7 +330,9 @@ fn main() {
                                 field = move_stone(current_stone, current_direction, field);
                             }
                         },
-                        //Color::Green => { // drop },
+                        Color::Green => { // drop
+                            stack.pop().expect("Stack is empty!");
+                        },
                         Color::Blue => { // print as character
                             if frame[current_frame] {
                                 // ewwww
@@ -612,11 +616,10 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>)
     field
 }
 
-// fn do_print(filename: String) { {{{1
 // read from a file, convert text to stones commands
 #[allow(unknown_lints)]
 #[allow(match_same_arms)]
-fn do_print(filename: String) {
+fn do_print(filename: String) { // {{{1
     let path = Path::new(&filename);
     let display = path.display();
 
@@ -747,9 +750,8 @@ fn do_print(filename: String) {
 }
 // }}}1
 
-// fn to_char(i: i64) -> String { {{{1
 // copied from superfish.rs
-fn to_char(i: i64) -> String {
+fn to_char(i: i64) -> String { // {{{1
     let a = match i {
         0 => "NUL",
         1 => "SOH",
