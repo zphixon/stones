@@ -1,8 +1,8 @@
-#stones [![Freaking travis](https://travis-ci.org/cheezgi/stones.svg?branch=master)](https://travis-ci.org/cheezgi/stones) [![Freaking appveyor](https://ci.appveyor.com/api/projects/status/120smgk90ltqhopc?svg=true)](https://ci.appveyor.com/project/cheezgi/stones)
+# stones [![Freaking travis](https://travis-ci.org/cheezgi/stones.svg?branch=master)](https://travis-ci.org/cheezgi/stones) [![Freaking appveyor](https://ci.appveyor.com/api/projects/status/120smgk90ltqhopc?svg=true)](https://ci.appveyor.com/project/cheezgi/stones)
 
 An esoteric programming language
 
-##To do
+## To do
 
 * [X] Math
 * [X] Stone movement
@@ -12,7 +12,7 @@ An esoteric programming language
 * [ ] More I/O
 * [ ] Control flow
 
-##Disclaimer
+## Disclaimer
 
 I've never been in an official class on programming, so everything I know is
 mostly self-taught. As a result, this will likely be awful. I know absolutely
@@ -20,7 +20,7 @@ nothing about compiler or interpreter design, and I'm sure it shows. By no
 means use this is as an example. For copyright-related matters, consult
 LICENSE.txt.
 
-##Specification
+## Specification
 
 Instructions in `stones` are carried out by moving colored stones around in a
 hypothetical `field`. Each color of stone has a separate purpose, and each
