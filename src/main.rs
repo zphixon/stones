@@ -335,7 +335,6 @@ fn main() {
                         },
                         Color::Blue => { // print as character
                             if frame[current_frame] {
-                                // ewwww
                                 print!("{}", stack.pop().expect("Stack is empty!") as u8 as char);
                                 field = move_stone(current_stone, current_direction, field);
                             }
@@ -493,14 +492,14 @@ fn main() {
         }
 
         if show_stack {
-            println!("stack--");
+            println!("stack: {}", stack.len());
             for item in &stack {
                 println!("{}", item);
             }
         }
 
         if show_frames {
-            println!("frames--");
+            println!("frames: {}", frame.len());
             for item in &frame {
                 println!("{}", item);
             }
