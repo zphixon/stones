@@ -31,7 +31,7 @@ enum Direction {
     Down,
     Left,
     Right,
-    No
+    None
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -39,7 +39,7 @@ enum Number {
     One,
     Two,
     Three,
-    No
+    None
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -159,8 +159,8 @@ fn main() {
     // execute program
     let mut count = 0; // track token counter
     let mut current_stone = Color::Invis; // keep track of current stone
-    let mut current_direction = Direction::No; // track direction
-    let mut current_number = Number::No; // used for red movement
+    let mut current_direction = Direction::None; // track direction
+    let mut current_number = Number::None; // used for red movement
 
     // loop through tokens
     while count < tokens.len() {
@@ -186,8 +186,8 @@ fn main() {
             // colors
             Token::Red => {
                 current_stone = Color::Red;
-                current_direction = Direction::No;
-                current_number = Number::No;
+                current_direction = Direction::None;
+                current_number = Number::None;
                 if count != 0 && is_color(tokens[count - 1]) {
                     println!("Unexpected color!");
                 }
@@ -200,8 +200,8 @@ fn main() {
             },
             Token::Orange => {
                 current_stone = Color::Orange;
-                current_direction = Direction::No;
-                current_number = Number::No;
+                current_direction = Direction::None;
+                current_number = Number::None;
                 if count != 0 && is_color(tokens[count - 1]) {
                     println!("Unexpected color!");
                 }
@@ -213,32 +213,32 @@ fn main() {
             },
             Token::Yellow => {
                 current_stone = Color::Yellow;
-                current_direction = Direction::No;
-                current_number = Number::No;
+                current_direction = Direction::None;
+                current_number = Number::None;
                 if count != 0 && is_color(tokens[count - 1]) {
                     println!("Unexpected color!");
                 }
             },
             Token::Green => {
                 current_stone = Color::Green;
-                current_direction = Direction::No;
-                current_number = Number::No;
+                current_direction = Direction::None;
+                current_number = Number::None;
                 if count != 0 && is_color(tokens[count - 1]) {
                     println!("Unexpected color!");
                 }
             },
             Token::Blue => {
                 current_stone = Color::Blue;
-                current_direction = Direction::No;
-                current_number = Number::No;
+                current_direction = Direction::None;
+                current_number = Number::None;
                 if count != 0 && is_color(tokens[count - 1]) {
                     println!("Unexpected color!");
                 }
             },
             Token::Purple => {
                 current_stone = Color::Purple;
-                current_direction = Direction::No;
-                current_number = Number::No;
+                current_direction = Direction::None;
+                current_number = Number::None;
                 if count != 0 && is_color(tokens[count - 1]) {
                     println!("Unexpected color!");
                 }
@@ -285,7 +285,7 @@ fn main() {
                         _ => {}
                     }
                     current_stone = Color::Invis;
-                    current_direction = Direction::No;
+                    current_direction = Direction::None;
                 }
             },
             Token::Down => {
@@ -315,7 +315,7 @@ fn main() {
                         _ => {}
                     }
                     current_stone = Color::Invis;
-                    current_direction = Direction::No;
+                    current_direction = Direction::None;
                 }
             },
             Token::Left => {
@@ -343,7 +343,7 @@ fn main() {
                         _ => {}
                     }
                     current_stone = Color::Invis;
-                    current_direction = Direction::No;
+                    current_direction = Direction::None;
                 }
             },
             Token::Right => {
@@ -376,7 +376,7 @@ fn main() {
                         _ => {}
                     }
                     current_stone = Color::Invis;
-                    current_direction = Direction::No;
+                    current_direction = Direction::None;
                 }
             },
 
