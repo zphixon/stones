@@ -120,9 +120,9 @@ fn main() {
     let tlist: Vec<&str> = s.split_whitespace().collect();
 
     // parse tokens into tokens... yes
-    let mut tokens: Vec<Token> = vec![];
+    let mut tokens_nop: Vec<Token> = vec![];
     for token in &tlist {
-        tokens.push(match *token {
+        tokens_nop.push(match *token {
             "red" => Token::Red,
             "orange" => Token::Orange,
             "yellow" => Token::Yellow,
@@ -139,6 +139,8 @@ fn main() {
             _ => Token::Nop
         });
     }
+
+    let mut tokens = tokens_nop.filter(|t| t != Token::Nop).collect::<Vec<Token>>();
 
     // field vector, represents stone field
     let mut field: Vec<Vec<Color>> = // so much for 80 columns
