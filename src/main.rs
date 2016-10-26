@@ -140,7 +140,7 @@ fn main() {
         });
     }
 
-    let mut tokens = tokens_nop.filter(|t| t != Token::Nop).collect::<Vec<Token>>();
+    let mut tokens: Vec<Token> = tokens_nop.filter(|t| t != Token::Nop).collect::<Vec<Token>>();
 
     // field vector, represents stone field
     let mut field: Vec<Vec<Color>> = // so much for 80 columns
