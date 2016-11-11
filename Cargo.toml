@@ -5,3 +5,7 @@ authors = ["cheezgi <zackh@firemail.cc>"]
 
 [dependencies]
 argparse = "*"
+
+[profile.dev]
+debug = true
+

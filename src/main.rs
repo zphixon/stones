@@ -72,6 +72,16 @@ impl Token {
             Color::Invis => Token::Nop,
         }
     }
+
+    fn from_direction(d: Direction) -> Token {
+        match d {
+            Direction::Up => Token::Up,
+            Direction::Down => Token::Down,
+            Direction::Left => Token::Left,
+            Direction::Right => Token::Right,
+            Direction::None => panic!("from_direction recieved Direction::None"),
+        }
+    }
 }
 
 // main() has a cyclomatic complexity of 56. should I be proud?
@@ -558,6 +568,8 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>, tokens: &mu
                             if field[y - 1][x] != Color::Invis {
                                 // move it up
                                 tokens.insert(count, Token::from_stone(field[y - 1][x]));
+                                tokens.insert(count + 1, Token::from_direction(dir));
+                                tokens.insert(count + 2, Token::One);
                                 field = move_stone(field[y - 1][x], dir, field, tokens, count);
                             }
                             // move stone up one
@@ -566,6 +578,8 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>, tokens: &mu
                             // check for stone in the way
                             if field[field_height][x] != Color::Invis {
                                 tokens.insert(count, Token::from_stone(field[field_height][x]));
+                                tokens.insert(count + 1, Token::from_direction(dir));
+                                tokens.insert(count + 2, Token::One);
                                 field = move_stone(field[field_height][x], dir, field, tokens, count);
                             }
                             // wrap around to bottom
@@ -579,6 +593,8 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>, tokens: &mu
                         if y != field_height {
                             if field[y + 1][x] != Color::Invis {
                                 tokens.insert(count, Token::from_stone(field[y + 1][x]));
+                                tokens.insert(count + 1, Token::from_direction(dir));
+                                tokens.insert(count + 2, Token::One);
                                 field = move_stone(field[y + 1][x], dir, field, tokens, count);
                             }
                             // move stone down one
@@ -586,6 +602,8 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>, tokens: &mu
                         } else {
                             if field[0][x] != Color::Invis {
                                 tokens.insert(count, Token::from_stone(field[0][x]));
+                                tokens.insert(count + 1, Token::from_direction(dir));
+                                tokens.insert(count + 2, Token::One);
                                 field = move_stone(field[0][x], dir, field, tokens, count);
                             }
                             // wrap to bottom
@@ -598,12 +616,16 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>, tokens: &mu
                         if x != 0 {
                             if field[y][x - 1] != Color::Invis {
                                 tokens.insert(count, Token::from_stone(field[y][x - 1]));
+                                tokens.insert(count + 1, Token::from_direction(dir));
+                                tokens.insert(count + 2, Token::One);
                                 field = move_stone(field[y][x - 1], dir, field, tokens, count);
                             }
                             field[y][x - 1] = stone;
                         } else {
                             if field[y][field_width] != Color::Invis {
                                 tokens.insert(count, Token::from_stone(field[y][field_width]));
+                                tokens.insert(count + 1, Token::from_direction(dir));
+                                tokens.insert(count + 2, Token::One);
                                 field = move_stone(field[y][field_width], dir, field, tokens, count);
                             }
                             field[y][field_width] = stone;
@@ -615,12 +637,16 @@ fn move_stone(stone: Color, dir: Direction, _field: Vec<Vec<Color>>, tokens: &mu
                         if x != field_width {
                             if field[y][x + 1] != Color::Invis {
                                 tokens.insert(count, Token::from_stone(field[y][x + 1]));
+                                tokens.insert(count + 1, Token::from_direction(dir));
+                                tokens.insert(count + 2, Token::One);
                                 field = move_stone(field[y][x + 1], dir, field, tokens, count);
                             }
                             field[y][x + 1] = stone;
                         } else {
                             if field[y][0] != Color::Invis {
                                 tokens.insert(count, Token::from_stone(field[y][0]));
+                                tokens.insert(count + 1, Token::from_direction(dir));
+                                tokens.insert(count + 2, Token::One);
                                 field = move_stone(field[y][0], dir, field, tokens, count);
                             }
                             field[y][0] = stone;
