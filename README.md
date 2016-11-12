@@ -2,6 +2,9 @@
 
 An esoteric programming language
 
+# This project is deprecated!
+Go [here](https://github.com/cheezgi/stones-rewrite) for the new interpreter.
+
 ## To do
 
 * [X] Math
