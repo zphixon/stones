@@ -1,6 +1,7 @@
 
-use color;
-use direction;
+use color::*;
+use direction::*;
+use number::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Token {
@@ -21,29 +22,67 @@ pub enum Token {
 }
 
 impl Token {
-    pub fn to_stone(self) -> Color {
-        match s {
-            color::Color::Red => Token::Red,
-            color::Color::Orange => Token::Orange,
-            color::Color::Yellow => Token::Yellow,
-            color::Color::Green => Token::Green,
-            color::Color::Blue => Token::Blue,
-            color::Color::Purple => Token::Purple,
-            color::Color::Invis => Token::Nop,
+    pub fn from_stone(c: Color) -> Token {
+        match c {
+            Color::Red => Token::Red,
+            Color::Orange => Token::Orange,
+            Color::Yellow => Token::Yellow,
+            Color::Green => Token::Green,
+            Color::Blue => Token::Blue,
+            Color::Purple => Token::Purple,
+            _ => Token::Nop,
         }
     }
 
-    pub fn to_direction(self) -> Color {
+    pub fn from_direction(d: Direction) -> Token {
         match d {
-            direction::Direction::Up => Token::Up,
-            direction::Direction::Down => Token::Down,
-            direction::Direction::Left => Token::Left,
-            direction::Direction::Right => Token::Right,
-            direction::Direction::None => panic!("from_direction recieved Direction::None"),
+            Direction::Up => Token::Up,
+            Direction::Down => Token::Down,
+            Direction::Left => Token::Left,
+            Direction::Right => Token::Right,
+            _ => Token::Nop,
         }
     }
 
-    pub fn to_number(self) -> Number {}
+    pub fn from_number(n: Number) -> Token {
+        match n {
+            Number::One => Token::One,
+            Number::Two => Token::Two,
+            Number::Three => Token::Three,
+            _ => Token::Nop,
+        }
+    }
+
+    pub fn to_stone(self) -> Color {
+        match self {
+            Token::Red => Color::Red,
+            Token::Orange => Color::Orange,
+            Token::Yellow => Color::Yellow,
+            Token::Green => Color::Green,
+            Token::Blue => Color::Blue,
+            Token::Purple => Color::Purple,
+            _ => Color::Invis,
+        }
+    }
+
+    pub fn to_direction(self) -> Direction {
+        match self {
+            Token::Up => Direction::Up,
+            Token::Down => Direction::Down,
+            Token::Left => Direction::Left,
+            Token::Right => Direction::Right,
+            _ => Direction::None,
+        }
+    }
+
+    pub fn to_number(self) -> Number {
+        match self {
+            Token::One => Number::One,
+            Token::Two => Number::Two,
+            Token::Three => Number::Three,
+            _ => Number::None,
+        }
+    }
 
     pub fn is_color(self) -> bool {
         match self {

@@ -2,6 +2,7 @@ use color;
 use direction;
 use number;
 
+#[derive(Debug, Clone, Copy)]
 pub struct Statement {
     pub color: color::Color,
     pub direction: direction::Direction,

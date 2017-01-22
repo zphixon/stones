@@ -46,14 +46,14 @@ fn main() {
     }
 
     if create_print {
-        do_print(filename);
+        //do_print(filename);
         std::process::exit(0);
     }
 
     // open file
     let path = Path::new(&filename);
     let display = path.display();
-
+    //{{
     let mut file = match File::open(&path) {
         Ok(file) => file,
         Err(_) => {
@@ -70,6 +70,15 @@ fn main() {
 
     // split file into tokens
     let tlist: Vec<&str> = s.split_whitespace().collect();
+
+    let tokens = lex(tlist);
+    let stmts = parse(tokens);
+
+    for stmt in stmts {
+        println!("{:?}", stmt);
+    }
+}
+    /*
 
     // parse tokens into tokens... yes
     let mut tokens_nop: Vec<Token> = vec![];
@@ -726,4 +735,4 @@ fn do_print(filename: String) { // {{{1
     println!("{}", output);
 }
 // }}}1
-
+*/
