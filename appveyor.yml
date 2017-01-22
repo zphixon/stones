@@ -13,6 +13,9 @@ build_script:
     - cargo build --release
     - cargo build
 
+test:
+    - cargo test
+
 artifacts:
     - path: target\release\stones.exe
       name: release
