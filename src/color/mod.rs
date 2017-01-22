@@ -11,3 +11,17 @@ pub enum Color {
     Invis
 }
 
+impl Color {
+    pub fn from_str(col: &str) -> Color {
+        match col {
+            "red" => Color::Red,
+            "orange" => Color::Orange,
+            "yellow" => Color::Yellow,
+            "green" => Color::Green,
+            "blue" => Color::Blue,
+            "purple" => Color::Purple,
+            _ => Color::Invis
+        }
+    }
+}
+
