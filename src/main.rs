@@ -4,6 +4,12 @@
 static VERSION: &'static str = "0.3.0";
 
 extern crate argparse;
+extern crate stones;
+
+use stones::token::*;
+use stones::color::*;
+use stones::direction::*;
+use stones::number::*;
 
 use argparse::{ArgumentParser, StoreTrue, Store, Print};
 
@@ -12,81 +18,6 @@ use std::io::Read;
 use std::path::Path;
 use std::error::Error;
 
-// color enum, represent stones
-#[derive(Debug, PartialEq, Clone, Copy)]
-enum Color {
-    Red,
-    Orange,
-    Yellow,
-    Green,
-    Blue,
-    Purple,
-    Invis
-}
-
-// direction enum, used for parsing directions
-#[derive(Debug, PartialEq, Clone, Copy)]
-enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-    None
-}
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-enum Number {
-    One,
-    Two,
-    Three,
-    None
-}
-
-#[derive(Debug, PartialEq, Clone, Copy)]
-enum Token {
-    Red,
-    Orange,
-    Yellow,
-    Green,
-    Blue,
-    Purple,
-    Up,
-    Down,
-    Left,
-    Right,
-    One,
-    Two,
-    Three,
-    Nop
-}
-
-impl Token {
-    fn from_stone(s: Color) -> Token {
-        match s {
-            Color::Red => Token::Red,
-            Color::Orange => Token::Orange,
-            Color::Yellow => Token::Yellow,
-            Color::Green => Token::Green,
-            Color::Blue => Token::Blue,
-            Color::Purple => Token::Purple,
-            Color::Invis => Token::Nop,
-        }
-    }
-
-    fn from_direction(d: Direction) -> Token {
-        match d {
-            Direction::Up => Token::Up,
-            Direction::Down => Token::Down,
-            Direction::Left => Token::Left,
-            Direction::Right => Token::Right,
-            Direction::None => panic!("from_direction recieved Direction::None"),
-        }
-    }
-}
-
-// main() has a cyclomatic complexity of 56. should I be proud?
-#[allow(unknown_lints)]
-#[allow(cyclomatic_complexity)]
 fn main() {
     // arguments
     let mut debug = false;
