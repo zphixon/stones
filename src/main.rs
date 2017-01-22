@@ -71,9 +71,113 @@ fn main() {
     let tlist: Vec<&str> = s.split_whitespace().collect();
 
     let tokens = lex(tlist);
-    let stmts = parse(tokens);
+    let stmts = parse(tokens).unwrap_or(std::process::exit(1));
 
-    for stmt in stmts {
-        println!("{:?}", stmt);
+    eval_prog(stmts);
+}
+
+fn eval_prog(prog: Vec<Statement>) {
+    let mut frames = vec![true];
+    let mut current_frame = frames.len() - 1;
+
+    let mut whiles = vec![false];
+    let mut current_while = whiles.len() - 1;
+
+    let mut stack: Vec<Value> = vec![];
+
+    let mut nmove = 0;
+    let mut arraying = false;
+    let mut fake_array: Vec<i64> = vec![];
+
+    let mut k = 0;
+
+    while k < prog.len() {
+        let stmt = prog[k];
+
+        if stmt.color == Color::Red {
+            if frames[current_frame] {
+                if stmt.direction == Direction::Up {
+                    if stmt.number == Number::One {
+                    } else if stmt.number == Number::Two {
+                    } else if stmt.number == Number::Three {
+                    }
+                } else if stmt.direction == Direction::Down {
+                    if stmt.number == Number::One {
+                    } else if stmt.number == Number::Two {
+                    } else if stmt.number == Number::Three {
+                    }
+                } else if stmt.direction == Direction::Left {
+                    if stmt.number == Number::One {
+                    } else if stmt.number == Number::Two {
+                    } else if stmt.number == Number::Three {
+                    }
+                } else if stmt.direction == Direction::Right {
+                    if stmt.number == Number::One {
+                    } else if stmt.number == Number::Two {
+                    } else if stmt.number == Number::Three {
+                    }
+                }
+            }
+        }
+        else if stmt.color == Color::Orange {
+            if frames[current_frame] {
+                if stmt.direction == Direction::Up {
+                    if stmt.number == Number::One {
+                    } else if stmt.number == Number::Two {
+                    }
+                } else if stmt.direction == Direction::Down {
+                    if stmt.number == Number::One {
+                    } else if stmt.number == Number::Two {
+                    }
+                } else if stmt.direction == Direction::Left {
+                    if stmt.number == Number::One {
+                    } else if stmt.number == Number::Two {
+                    }
+                } else if stmt.direction == Direction::Right {
+                    if stmt.number == Number::One {
+                    } else if stmt.number == Number::Two {
+                    }
+                }
+            }
+        }
+        else if stmt.color == Color::Yellow {
+            if frames[current_frame] {
+                if stmt.direction == Direction::Up {
+                } else if stmt.direction == Direction::Down {
+                } else if stmt.direction == Direction::Left {
+                } else if stmt.direction == Direction::Right {
+                }
+            }
+        }
+        else if stmt.color == Color::Green {
+            if frames[current_frame] {
+                if stmt.direction == Direction::Up {
+                } else if stmt.direction == Direction::Down {
+                } else if stmt.direction == Direction::Left {
+                } else if stmt.direction == Direction::Right {
+                }
+            }
+        }
+        else if stmt.color == Color::Blue {
+            if frames[current_frame] {
+                if stmt.direction == Direction::Up {
+                } else if stmt.direction == Direction::Down {
+                } else if stmt.direction == Direction::Left {
+                } else if stmt.direction == Direction::Right {
+                }
+            }
+        }
+        else if stmt.color == Color::Purple {
+            if stmt.direction == Direction::Up {
+            } else if stmt.direction == Direction::Down {
+            } else if stmt.direction == Direction::Left {
+            } else if stmt.direction == Direction::Right {
+            }
+        }
     }
 }
+
+fn move_field(stone: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> Vec<Vec<Color>> {
+    vec![vec![Color::Blue]]
+}
+

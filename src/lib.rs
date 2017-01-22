@@ -11,6 +11,27 @@ pub use number::*;
 pub use token::*;
 pub use statement::*;
 
+pub enum Value {
+    Num(i64),
+    Arr(Vec<i64>)
+}
+
+impl Value {
+    pub fn is_num(&self) -> bool {
+        match *self {
+            Value::Num(_) => true,
+            _ => false
+        }
+    }
+
+    pub fn is_arr(&self) -> bool {
+        match *self {
+            Value::Arr(_) => true,
+            _ => false
+        }
+    }
+}
+
 pub fn lex(stokens: Vec<&str>) -> Vec<Token> {
     let mut ttokens: Vec<Token> = vec![];
     for token in stokens {
