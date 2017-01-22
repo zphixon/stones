@@ -6,10 +6,7 @@ static VERSION: &'static str = "0.3.0";
 extern crate argparse;
 extern crate stones;
 
-use stones::token::*;
-use stones::color::*;
-use stones::direction::*;
-use stones::number::*;
+use stones::*;
 
 use argparse::{ArgumentParser, StoreTrue, Store, Print};
 
