@@ -4,16 +4,20 @@ mod direction;
 mod number;
 mod token;
 mod statement;
+mod field;
 
 pub use color::*;
 pub use direction::*;
 pub use number::*;
 pub use token::*;
 pub use statement::*;
+pub use field::*;
 
+#[derive(PartialOrd, PartialEq, Clone, Debug)]
 pub enum Value {
     Num(i64),
-    Arr(Vec<i64>)
+    Arr(Vec<Value>),
+    Bool(bool)
 }
 
 impl Value {
@@ -27,6 +31,13 @@ impl Value {
     pub fn is_arr(&self) -> bool {
         match *self {
             Value::Arr(_) => true,
+            _ => false
+        }
+    }
+
+    pub fn is_bool(&self) -> bool {
+        match *self {
+            Value::Bool(_) => true,
             _ => false
         }
     }

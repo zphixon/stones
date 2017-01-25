@@ -1,14 +1,14 @@
 
 // color enum, represent stones
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, PartialOrd)]
 pub enum Color {
+    Invis,
     Red,
     Orange,
     Yellow,
     Green,
     Blue,
-    Purple,
-    Invis
+    Purple
 }
 
 impl Color {

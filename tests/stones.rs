@@ -42,3 +42,23 @@ fn token_is_number_false() {
     assert!(!Token::Red.is_number());
 }
 
+#[test]
+fn stone_weight_gt() {
+    assert!(Color::Blue > Color::Red);
+}
+
+#[test]
+fn stone_weight_lt() {
+    assert!(Color::Red < Color::Blue);
+}
+
+#[test]
+fn stone_weight_eq() {
+    assert!(Color::Red == Color::Red);
+}
+
+#[test]
+fn stone_invis_lightest() {
+    assert!(Color::Invis < Color::Red);
+}
+
