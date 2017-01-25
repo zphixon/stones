@@ -120,7 +120,7 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
                 for val in &stack {
                     println!("{:?}", val);
                 }
-                if fake_array.len() > 0 {
+                if !fake_array.is_empty() {
                     println!("{}: arraying", k);
                     for val in &fake_array {
                         println!("{:?}", val);
@@ -381,6 +381,35 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
 
         k += 1;
     }
+
+    unsafe {
+        if DEBUG {
+            println!("{}: end", k);
+        }
+
+        if SHOW_STACK {
+            println!("{}: stack end", k);
+        }
+
+        if SHOW_FIELD {
+            println!("{}: field end", k);
+            for row in &field {
+                for color in row {
+                    match *color {
+                        Color::Red => print!("{:?}... ", color),
+                        Color::Orange => print!("{:?} ", color),
+                        Color::Yellow => print!("{:?} ", color),
+                        Color::Green => print!("{:?}. ", color),
+                        Color::Blue => print!("{:?}.. ", color),
+                        Color::Purple => print!("{:?} ", color),
+                        Color::Invis => print!("...... "), // oh.
+                    }
+                }
+                println!("");
+            }
+            println!("");
+        }
+    }
 } // }}}
 
 fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> bool { // {{{
@@ -388,9 +417,9 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
     let field_width = field[0].len() - 1;
 
     // loop through rows
-    for y in 0..(field_height + 0) {
+    for y in 0..6 {
         // loop through columns
-        for x in 0..(field_width + 0) {
+        for x in 0..12 {
             // search for target
             if field[y][x] == target {
                 // match direction
