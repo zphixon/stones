@@ -83,22 +83,24 @@ fn main() {
     let stmts = parse(tokens);//.unwrap_or(panic!("couldn't parse tokens"));
 
     if stmts.is_ok() {
-        eval_prog(stmts.unwrap());
+        let mut stack: Vec<Value> = vec![];
+        let mut field: Vec<Vec<Color>> = Field::new();
+        eval_prog(stmts.unwrap(), &mut field, &mut stack);
     } else {
         println!("couldn't parse");
     }
 }
 
-fn eval_prog(prog: Vec<Statement>) { // {{{
+fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<Value>) { // {{{
     let mut frames = vec![true];
     let mut current_frame = frames.len() - 1;
 
     let mut whiles = vec![false];
     let mut current_while = whiles.len() - 1;
 
-    let mut stack: Vec<Value> = vec![];
+    //let mut stack: Vec<Value> = vec![];
 
-    let mut field: Vec<Vec<Color>> = Field::new();
+    //let mut field: Vec<Vec<Color>> = Field::new();
 
     let mut nmove = 0;
     let mut arraying = false;
@@ -117,7 +119,7 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
 
             if SHOW_STACK {
                 println!("{}: stack", k);
-                for val in &stack {
+                for val in stack.clone() {
                     println!("{:?}", val);
                 }
                 if !fake_array.is_empty() {
@@ -130,9 +132,9 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
 
             if SHOW_FIELD {
                 println!("{}: field", k);
-                for row in &field {
+                for row in field.clone() {
                     for color in row {
-                        match *color {
+                        match color {
                             Color::Red => print!("{:?}... ", color),
                             Color::Orange => print!("{:?} ", color),
                             Color::Yellow => print!("{:?} ", color),
@@ -152,69 +154,69 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
             if frames[current_frame] {
                 if stmt.direction == Direction::Up {
                     if stmt.number == Number::One {                                       // 0
-                        if move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(0));
                         }
                     } else if stmt.number == Number::Two {                                // 4
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(4));
                         }
                     } else if stmt.number == Number::Three {                              // 8
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(8));
                         }
                     }
                 } else if stmt.direction == Direction::Down {
                     if stmt.number == Number::One {                                       // 1
-                        if move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(1));
                         }
                     } else if stmt.number == Number::Two {                                // 5
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(5));
                         }
                     } else if stmt.number == Number::Three {                              // 9
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(9));
                         }
                     }
                 } else if stmt.direction == Direction::Left {
                     if stmt.number == Number::One {                                       // 2
-                        if move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(2));
                         }
                     } else if stmt.number == Number::Two {                                // 6
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(6));
                         }
                     } else if stmt.number == Number::Three {                              // true
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Bool(true));
                         }
                     }
                 } else if stmt.direction == Direction::Right {
                     if stmt.number == Number::One {                                       // 3
-                        if move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(3));
                         }
                     } else if stmt.number == Number::Two {                                // 7
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Num(7));
                         }
                     } else if stmt.number == Number::Three {                              // false
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             stack.push(Value::Bool(false));
                         }
                     }
@@ -226,12 +228,12 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
             if frames[current_frame] {
                 if stmt.direction == Direction::Up {
                     if stmt.number == Number::One {                                       // [
-                        if move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack) {
                             arraying = true;
                         }
                     } else if stmt.number == Number::Two {                                // ==
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             let lhs = stack.pop().unwrap_or(Value::Bool(false));
                             let rhs = stack.pop().unwrap_or(Value::Num(1));
                             // oh snap, this will die horribly if either fails
@@ -245,14 +247,14 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
                     }
                 } else if stmt.direction == Direction::Down {
                     if stmt.number == Number::One {                                       // ]
-                        if move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack) {
                             arraying = false;
                             stack.push(Value::Arr(fake_array.clone()));
                             fake_array = vec![];
                         }
                     } else if stmt.number == Number::Two {                                // <
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             let lhs = stack.pop().expect("Stack underflow");
                             let rhs = stack.pop().expect("Stack underflow");
                             if lhs < rhs {
@@ -264,16 +266,16 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
                     }
                 } else if stmt.direction == Direction::Left {
                     if stmt.number == Number::One {                                       // ,
-                        if move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack) {
                             if arraying {
                                 fake_array.push(stack.pop().expect("Stack underflow"));
                             } else {
-                                panic!("Not arraying");
+                                //panic!("Not arraying");
                             }
                         }
                     } else if stmt.number == Number::Two {                                // >
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                             let lhs = stack.pop().expect("Stack underflow");
                             let rhs = stack.pop().expect("Stack underflow");
                             if lhs > rhs {
@@ -285,7 +287,7 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
                     }
                 } else if stmt.direction == Direction::Right {
                     if stmt.number == Number::One {                                       // nth
-                        if move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack) {
                             let arr = stack.pop().expect("Stack underflow");
                             let ind = stack.pop().expect("Stack underflow");
                             if arr.is_arr() && ind.is_num() {
@@ -301,8 +303,8 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
                             }
                         }
                     } else if stmt.number == Number::Two {                                // nothing yet
-                        if move_field(stmt.color, stmt.direction, &mut field)
-                                && move_field(stmt.color, stmt.direction, &mut field) {
+                        if move_field(stmt.color, stmt.direction, field, stack)
+                                && move_field(stmt.color, stmt.direction, field, stack) {
                         }
                     }
                 }
@@ -312,16 +314,16 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
         else if stmt.color == Color::Yellow {
             if frames[current_frame] {
                 if stmt.direction == Direction::Up {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Down {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Left {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Right {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 }
             }
@@ -330,16 +332,16 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
         else if stmt.color == Color::Green {
             if frames[current_frame] {
                 if stmt.direction == Direction::Up {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Down {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Left {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Right {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 }
             }
@@ -348,16 +350,16 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
         else if stmt.color == Color::Blue {
             if frames[current_frame] {
                 if stmt.direction == Direction::Up {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Down {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Left {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 } else if stmt.direction == Direction::Right {
-                    if move_field(stmt.color, stmt.direction, &mut field) {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 }
             }
@@ -365,16 +367,16 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
 
         else if stmt.color == Color::Purple {
             if stmt.direction == Direction::Up {
-                if move_field(stmt.color, stmt.direction, &mut field) {
+                if move_field(stmt.color, stmt.direction, field, stack) {
                 }
             } else if stmt.direction == Direction::Down {
-                if move_field(stmt.color, stmt.direction, &mut field) {
+                if move_field(stmt.color, stmt.direction, field, stack) {
                 }
             } else if stmt.direction == Direction::Left {
-                if move_field(stmt.color, stmt.direction, &mut field) {
+                if move_field(stmt.color, stmt.direction, field, stack) {
                 }
             } else if stmt.direction == Direction::Right {
-                if move_field(stmt.color, stmt.direction, &mut field) {
+                if move_field(stmt.color, stmt.direction, field, stack) {
                 }
             }
         }
@@ -393,7 +395,7 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
 
         if SHOW_FIELD {
             println!("{}: field end", k);
-            for row in &field {
+            for row in field {
                 for color in row {
                     match *color {
                         Color::Red => print!("{:?}... ", color),
@@ -412,7 +414,7 @@ fn eval_prog(prog: Vec<Statement>) { // {{{
     }
 } // }}}
 
-fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> bool { // {{{
+fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>, stack: &mut Vec<Value>) -> bool { // {{{
     let field_height = field.len() - 1;
     let field_width = field[0].len() - 1;
 
@@ -430,7 +432,7 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
                         if field[y - 1][x] <= target {
                             if field[y - 1][x] != Color::Invis {
                                 let tm = field[y - 1][x];
-                                eval_prog(vec![Statement::new(tm, Direction::Up, Number::One)]);
+                                eval_prog(vec![Statement::new(tm, Direction::Up, Number::One)], field, stack);
                             }
                             field[y][x] = Color::Invis;
                             field[y - 1][x] = target;
@@ -443,7 +445,7 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
                         if field[field_height][x] <= target {
                             if field[field_height][x] != Color::Invis {
                                 let tm = field[field_height][x];
-                                eval_prog(vec![Statement::new(tm, Direction::Up, Number::One)]);
+                                eval_prog(vec![Statement::new(tm, Direction::Up, Number::One)], field, stack);
                             }
                             field[y][x] = Color::Invis;
                             field[field_height][x] = target;
@@ -457,7 +459,7 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
                         if field[y + 1][x] <= target {
                             if field[y + 1][x] != Color::Invis {
                                 let tm = field[y + 1][x];
-                                eval_prog(vec![Statement::new(tm, Direction::Down, Number::One)]);
+                                eval_prog(vec![Statement::new(tm, Direction::Down, Number::One)], field, stack);
                             }
                             field[y][x] = Color::Invis;
                             field[y + 1][x] = target;
@@ -469,7 +471,7 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
                         if field[0][x] <= target {
                             if field[0][x] != Color::Invis {
                                 let tm = field[0][x];
-                                eval_prog(vec![Statement::new(tm, Direction::Down, Number::One)]);
+                                eval_prog(vec![Statement::new(tm, Direction::Down, Number::One)], field, stack);
                             }
                             field[y][x] = Color::Invis;
                             field[0][x] = target;
@@ -483,7 +485,7 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
                         if field[y][x - 1] <= target {
                             if field[y][x - 1] != Color::Invis {
                                 let tm = field[y][x - 1];
-                                eval_prog(vec![Statement::new(tm, Direction::Left, Number::One)]);
+                                eval_prog(vec![Statement::new(tm, Direction::Left, Number::One)], field, stack);
                             }
                             field[y][x] = Color::Invis;
                             field[y][x - 1] = target;
@@ -495,7 +497,7 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
                         if field[y][field_width] <= target {
                             if field[y][field_width] != Color::Invis {
                                 let tm = field[y][field_width];
-                                eval_prog(vec![Statement::new(tm, Direction::Left, Number::One)]);
+                                eval_prog(vec![Statement::new(tm, Direction::Left, Number::One)], field, stack);
                             }
                             field[y][x] = Color::Invis;
                             field[y][field_width] = target;
@@ -509,7 +511,7 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
                         if field[y][x + 1] <= target {
                             if field[y][x + 1] != Color::Invis {
                                 let tm = field[y][x + 1];
-                                eval_prog(vec![Statement::new(tm, Direction::Right, Number::One)]);
+                                eval_prog(vec![Statement::new(tm, Direction::Right, Number::One)], field, stack);
                             }
                             field[y][x] = Color::Invis;
                             field[y][x + 1] = target;
@@ -521,7 +523,7 @@ fn move_field(target: Color, dir: Direction, field: &mut Vec<Vec<Color>>) -> boo
                         if field[y][0] <= target {
                             if field[y][0] != Color::Invis {
                                 let tm = field[y][0];
-                                eval_prog(vec![Statement::new(tm, Direction::Left, Number::One)]);
+                                eval_prog(vec![Statement::new(tm, Direction::Left, Number::One)], field, stack);
                             }
                             field[y][x] = Color::Invis;
                             field[y][0] = target;
