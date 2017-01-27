@@ -1,7 +1,7 @@
 /* Stones esoteric programming language
  * (c) 2016 Zack Hixon - see LICENSE.txt */
 
-static VERSION: &'static str = "0.3.0";
+static VERSION: &'static str = "0.4.0";
 
 extern crate argparse;
 extern crate stones;
