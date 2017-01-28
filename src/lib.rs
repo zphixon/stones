@@ -142,9 +142,9 @@ pub fn lex(stokens: Vec<&str>) -> Vec<Token> {
             "down" => Token::Down,
             "left" => Token::Left,
             "right" => Token::Right,
-            "1" => Token::One,
-            "2" => Token::Two,
-            "3" => Token::Three,
+            "one" => Token::One,
+            "two" => Token::Two,
+            "three" => Token::Three,
             _ => Token::Nop
         });
     }
