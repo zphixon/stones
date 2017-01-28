@@ -299,15 +299,35 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
             if frames[current_frame] {
                 if stmt.direction == Direction::Up {                                      // *
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let lhs = stack.pop().expect("Stack underflow");
+                        let rhs = stack.pop().expect("Stack underflow");
+                        if lhs.is_num() && rhs.is_num() {
+                            stack.push(Value::Num(lhs.get_num() * rhs.get_num()));
+                        }
                     }
                 } else if stmt.direction == Direction::Down {                             // +
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let lhs = stack.pop().expect("Stack underflow");
+                        let rhs = stack.pop().expect("Stack underflow");
+                        if lhs.is_num() && rhs.is_num() {
+                            stack.push(Value::Num(lhs.get_num() + rhs.get_num()));
+                        }
                     }
                 } else if stmt.direction == Direction::Left {                             // -
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let lhs = stack.pop().expect("Stack underflow");
+                        let rhs = stack.pop().expect("Stack underflow");
+                        if lhs.is_num() && rhs.is_num() {
+                            stack.push(Value::Num(lhs.get_num() - rhs.get_num()));
+                        }
                     }
                 } else if stmt.direction == Direction::Right {                            // /
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let lhs = stack.pop().expect("Stack underflow");
+                        let rhs = stack.pop().expect("Stack underflow");
+                        if lhs.is_num() && rhs.is_num() {
+                            stack.push(Value::Num(lhs.get_num() / rhs.get_num()));
+                        }
                     }
                 }
             }
