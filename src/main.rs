@@ -18,14 +18,12 @@ use std::error::Error;
 static mut DEBUG: bool = false;
 static mut SHOW_FIELD: bool = false;
 static mut SHOW_STACK: bool = false;
-static mut CREATE_PRINT: bool = false;
 
 fn main() {
     // arguments
     let mut debug = false;
     let mut show_field = false;
     let mut show_stack = false;
-    let mut create_print = false;
     let mut filename: String = "".into();
 
     {
@@ -37,8 +35,6 @@ fn main() {
             .add_option(&["-f", "--field"], StoreTrue, "Show field");
         args.refer(&mut show_stack)
             .add_option(&["-s", "--stack"], StoreTrue, "Show stack");
-        args.refer(&mut create_print)
-            .add_option(&["-p", "--print"], StoreTrue, "Create print");
         args.refer(&mut filename)
             .add_argument("file", Store, "File to run/output to")
             .required();
@@ -51,12 +47,6 @@ fn main() {
         DEBUG = debug;
         SHOW_FIELD = show_field;
         SHOW_STACK = show_stack;
-        CREATE_PRINT = create_print;
-    }
-
-    if create_print {
-        //do_print(filename);
-        std::process::exit(0);
     }
 
     // open file
@@ -80,7 +70,7 @@ fn main() {
     let tlist: Vec<&str> = s.split_whitespace().collect();
 
     let tokens = lex(tlist);
-    let stmts = parse(tokens);//.unwrap_or(panic!("couldn't parse tokens"));
+    let stmts = parse(tokens);
 
     if stmts.is_ok() {
         let mut stack: Vec<Value> = vec![];
@@ -97,10 +87,6 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
 
     let mut whiles = vec![false];
     let mut current_while = whiles.len() - 1;
-
-    //let mut stack: Vec<Value> = vec![];
-
-    //let mut field: Vec<Vec<Color>> = Field::new();
 
     let mut nmove = 0;
     let mut arraying = false;
