@@ -126,6 +126,14 @@ impl Value {
     pub fn same_type(a: &Value, b: &Value) -> bool {
         (a.is_num() && b.is_num()) || (a.is_arr() && b.is_arr()) || (a.is_bool() && b.is_bool())
     }
+
+    pub fn is_truthy(&self) -> bool {
+        if self.is_bool() {
+            self.get_bool()
+        } else {
+            true
+        }
+    }
 }
 
 pub fn lex(stokens: Vec<&str>) -> Vec<Token> {

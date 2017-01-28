@@ -18,7 +18,6 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use std::error::Error;
-use std::io::Write;
 
 static mut DEBUG: bool = false;
 static mut SHOW_FIELD: bool = false;
@@ -92,10 +91,10 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
     let mut frames = vec![true];
     let mut current_frame = frames.len() - 1;
 
-    let mut whiles = vec![false];
+    let mut whiles = vec![0];
     let mut current_while = whiles.len() - 1;
+    let mut jump = false;
 
-    let mut nmove = 0;
     let mut arraying = false;
     let mut fake_array: Vec<Value> = vec![];
 
@@ -429,21 +428,60 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
 
         else if stmt.color == Color::Purple {
             if stmt.direction == Direction::Up {                                          // if
-                if move_field(stmt.color, stmt.direction, field, stack) {
+                if frames[current_frame] {
+                    if move_field(stmt.color, stmt.direction, field, stack) {
+                        if stack.pop().expect("Stack underflow").is_truthy() {
+                            frames.push(true);
+                        } else {
+                            frames.push(false);
+                        }
+                        current_frame += 1;
+                    }
                 }
             } else if stmt.direction == Direction::Down {                                 // else
                 if move_field(stmt.color, stmt.direction, field, stack) {
+                    frames[current_frame] = !frames[current_frame];
                 }
             } else if stmt.direction == Direction::Left {                                 // while
                 if move_field(stmt.color, stmt.direction, field, stack) {
+                    if frames[current_frame] {
+                        if stack.pop().expect("Stack underflow").is_truthy() {
+                            frames.push(true);
+                            whiles.push(k);
+                        } else {
+                            frames.push(false);
+                            whiles.push(0);
+                        }
+                        current_frame += 1;
+                        current_while += 1;
+                    }
                 }
             } else if stmt.direction == Direction::Right {                                // end
                 if move_field(stmt.color, stmt.direction, field, stack) {
+                    if current_frame != 0 {
+                        if whiles[current_while] == 0 {
+                            frames.pop();
+                            current_frame -= 1;
+                        }
+                    } else {
+                        panic!("Mismatching if/else/while/end");
+                    }
+                    if whiles[current_while] != 0 {
+                        jump = true;
+                    } else if current_while != 0 {
+                        whiles.pop();
+                        current_while -= 1;
+                    }
                 }
             }
         }
 
-        k += 1;
+        if jump {
+            k = whiles[current_while];
+            jump = false;
+        } else {
+            k += 1;
+        }
     }
 
     unsafe {
