@@ -4,10 +4,9 @@
 
 An esoteric programming language
 
-# This project is in the works!
+There are two interpreters of the stones programming language.
 Go [here](https://github.com/cheezgi/stones-rewrite) for the scripted
-interpreter. I'm currently working on reviving this one, and maybe even making
-it a compiler! That would be neato.
+interpreter.
 
 ## To do
 
