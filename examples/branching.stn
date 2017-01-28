@@ -5,172 +5,172 @@ Branching test - should print this
 888
 eof
 
-red down 1
+red down one
 purple up condition is true
-    red right 1 do this
-    red down 3
-    red left 1
+    red right one do this
+    red down three
+    red left one
     yellow down
     yellow up
     blue left !
 purple right
 
-red up 1
+red up one
 purple up condition is false
-    red right 1 don't do this
-    red down 3
-    red left 1
+    red right one don't do this
+    red down three
+    red left one
     yellow down
     yellow up
     blue left
 purple down
-    red down 3 do this
-    red down 3
+    red down three do this
+    red down three
     yellow up
     blue left Q
 purple right
 
-red down 1
+red down one
 purple up condition is true
-    red right 1 do this
-    red down 3
-    red left 1
+    red right one do this
+    red down three
+    red left one
     yellow down
     yellow up
     blue left !
 purple down
-    red down 3 don't do this
-    red down 3
+    red down three don't do this
+    red down three
     yellow up
     blue left
 purple right
 
 nested? maybe
 
-red down 1
+red down one
 purple up
-    red down 1
+    red down one
     purple up oh boy
-        red down 3
-        red down 3
+        red down three
+        red down three
         yellow up
         blue left Q
     purple right
 purple right
 
 hey it works! let's try again
-red up 1
+red up one
 purple up
-    red down 3 don't do this
-    red down 3
+    red down three don't do this
+    red down three
     yellow up
     blue left
 purple down
-    red down 1 do this
+    red down one do this
     purple up
-        red right 2 do this
-        red up 3
+        red right two do this
+        red up three
         yellow up
         blue left 8
     purple down
-        red down 3 don't do this
-        red down 3
+        red down three don't do this
+        red down three
         yellow up
         blue left
     purple right
-    red down 2 do this
-    red down 2
+    red down two do this
+    red down two
     yellow down
     blue left \n
 purple right
 
-red right 1 do this
-red left 1
-red down 3
+red right one do this
+red left one
+red down three
 yellow down
 yellow up
 blue left !
 
-red right 3 false
+red right three false
 purple up
-    red down 2 don't do this
-    red down 2
+    red down two don't do this
+    red down two
     yellow down
     blue left
 purple down
-    red right 1 do this
-    red left 1
-    red down 3
+    red right one do this
+    red left one
+    red down three
     yellow down
     yellow up
     blue left !
 purple right
 
-red down 2 do this
-red down 2
+red down two do this
+red down two
 yellow down
 blue left \n
 
-red right 3 false
+red right three false
 purple up
-    red down 2 don't do this
-    red down 2
+    red down two don't do this
+    red down two
     yellow down
     blue left
 purple down
-    red right 1 do this
-    red left 1
-    red down 3
+    red right one do this
+    red left one
+    red down three
     yellow down
     yellow up
     blue left !
-    red right 3 false
+    red right three false
     purple up
-        red down 2 don't do this
-        red down 2
+        red down two don't do this
+        red down two
         yellow down
         blue left
-        red down 2
-        red down 2
+        red down two
+        red down two
         yellow down
         blue left \n
     purple down
-        red right 1 do this
-        red left 1
-        red down 3
+        red right one do this
+        red left one
+        red down three
         yellow down
         yellow up
         blue left !
-        red down 1
+        red down one
         purple up
-            red down 1
+            red down one
             purple up oh boy
-                red down 3
-                red down 3
+                red down three
+                red down three
                 yellow up
                 blue left Q
             purple right
-            red up 1
+            red up one
             purple up
-                red down 3 don't do this
-                red down 3
+                red down three don't do this
+                red down three
                 yellow up
                 blue left
             purple down
-                red down 1 do this
+                red down one do this
                 purple up
-                    red right 2 do this
-                    red up 3
+                    red right two do this
+                    red up three
                     yellow up
                     blue left 8
                 purple down
-                    red down 3 don't do this
-                    red down 3
+                    red down three don't do this
+                    red down three
                     yellow up
                     blue left
                 purple right
-                red down 2 do this
-                red down 2
+                red down two do this
+                red down two
                 yellow down
                 blue left \n
             purple right
@@ -178,38 +178,38 @@ purple down
     purple right
 purple right
 
-red right 2 do this
-red up 3
+red right two do this
+red up three
 yellow up
 blue left 8
 
-red left 3
+red left three
 purple up
-    red right 2 do this
-    red up 3
+    red right two do this
+    red up three
     yellow up
     blue left 8
-    red left 3
+    red left three
     purple up
-        red right 2 do this
-        red up 3
+        red right two do this
+        red up three
         yellow up
         blue left 8
     purple down
-        red down 2 don't
-        red down 2
+        red down two don't
+        red down two
         yellow down
         blue left \n
     purple right
 purple down
-    red down 2 don't
-    red down 2
+    red down two don't
+    red down two
     yellow down
     blue left \n
 purple right
 
-red down 2
-red down 2
+red down two
+red down two
 yellow down
 blue left \n
 

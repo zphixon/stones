@@ -1,139 +1,139 @@
-red down 3    H
-red up 3
+red down three    H
+red up three
 yellow up
 blue left
 
-red down 3    e
-red down 1
+red down three    e
+red down one
 yellow down
-red down 3
-red down 1
+red down three
+red down one
 yellow down
 yellow up
-red down 1   <- This would run in to the Blue stone!
+red down one   <- This would run in to the Blue stone!
 yellow down
 blue left
 
-red down 3    l
-red down 1
+red down three    l
+red down one
 yellow down
-red down 3
-red down 1
+red down three
+red down one
 yellow down
 yellow up
-red up 3
+red up three
 yellow down
 blue left
 
 I don't have the Green stone set Up yet, this will be fixed
-red down 3    l
-red down 1
+red down three    l
+red down one
 yellow down
-red down 3
-red down 1
+red down three
+red down one
 yellow down
 yellow up
-red up 3
+red up three
 yellow down
 blue left
 
-red down 3    o
-red down 1
+red down three    o
+red down one
 yellow down
-red down 3
-red down 1
-yellow down
-yellow up
-red left 1
-red down 3
-yellow down
-yellow down
-blue left
-
-red left 1    ,
-red down 3
-yellow down
-red up 2
-yellow up
-blue left
-
-red up 2    space
-red up 2
-red left 1
-yellow up
-yellow up
-blue left
-
-red down 3    w
-red down 1
-yellow down
-red down 3
-red down 1
+red down three
+red down one
 yellow down
 yellow up
-red up 3
-yellow down
-red down 3
-yellow down
-red left 1
-yellow down
-blue left
-
-red down 3    o
-red down 1
-yellow down
-red down 3
-red down 1
-yellow down
-yellow up
-red left 1
-red down 3
+red left one
+red down three
 yellow down
 yellow down
 blue left
 
-red down 2    r
-red down 2
+red left one    ,
+red down three
 yellow down
-red down 2
-red down 2
+red up two
+yellow up
+blue left
+
+red up two    space
+red up two
+red left one
+yellow up
+yellow up
+blue left
+
+red down three    w
+red down one
+yellow down
+red down three
+red down one
 yellow down
 yellow up
-red left 1
-red right 2
+red up three
+yellow down
+red down three
+yellow down
+red left one
+yellow down
+blue left
+
+red down three    o
+red down one
+yellow down
+red down three
+red down one
+yellow down
+yellow up
+red left one
+red down three
+yellow down
+yellow down
+blue left
+
+red down two    r
+red down two
+yellow down
+red down two
+red down two
+yellow down
+yellow up
+red left one
+red right two
 yellow up
 yellow down
 blue left
 
-red down 3    l
-red down 1
+red down three    l
+red down one
 yellow down
-red down 3
-red down 1
+red down three
+red down one
 yellow down
 yellow up
-red up 3
+red up three
 yellow down
 blue left
 
-red right 1   d
-red right 2
+red right one   d
+red right two
 yellow down
-red up 2
-red left 2
+red up two
+red left two
 yellow down
 yellow up
 blue left
 
-red right 1   !
-red up 3
+red right one   !
+red up three
 yellow down
-red right 1
+red right one
 yellow up
 blue left
 
-red left 1    \n
-red up 3
+red left one    \n
+red up three
 yellow down
 blue left
 
