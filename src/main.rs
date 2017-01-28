@@ -55,9 +55,9 @@ fn main() {
     let mut file = match File::open(&path) {
         Ok(file) => file,
         Err(_) => {
-                println!("File doesn't exist: {}", display);
-                std::process::exit(1);
-            }
+            println!("File doesn't exist: {}", display);
+            std::process::exit(1);
+        }
     };
 
     let mut s = String::new();
