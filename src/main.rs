@@ -337,15 +337,36 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
             if frames[current_frame] {
                 if stmt.direction == Direction::Up {                                      // roll
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let d = stack.pop().expect("Stack underflow");
+                        if d.is_num() && d.get_num() > 0 {
+                            let mut toroll = vec![];
+                            for _ in 0..d.get_num() + 1 {
+                                toroll.push(stack.pop());
+                            }
+                            toroll.reverse();
+                            let top = toroll.pop().expect("Stack underflow");
+                            toroll.insert(0, top);
+                            for elem in &toroll {
+                                stack.push(elem.clone().expect("Stack underflow"));
+                            }
+                        }
                     }
                 } else if stmt.direction == Direction::Down {                             // dup
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let p = stack.pop().expect("Stack underflow");
+                        stack.push(p.clone());
+                        stack.push(p);
                     }
                 } else if stmt.direction == Direction::Left {                             // drop
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        stack.pop();
                     }
                 } else if stmt.direction == Direction::Right {                            // not
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let p = stack.pop().expect("Stack underflow");
+                        if p.is_bool() {
+                            stack.push(Value::Bool(!p.get_bool()));
+                        }
                     }
                 }
             }
