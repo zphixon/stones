@@ -1,19 +1,24 @@
 /* Stones esoteric programming language
  * (c) 2016 Zack Hixon - see LICENSE.txt */
 
-static VERSION: &'static str = "0.4.0";
+static VERSION: &'static str = "0.4.2";
 
 extern crate argparse;
+extern crate rustyline;
+
+use argparse::{ArgumentParser, StoreTrue, Store, Print};
+use rustyline::Editor;
+use rustyline::error::ReadlineError;
+
 extern crate stones;
 
 use stones::*;
-
-use argparse::{ArgumentParser, StoreTrue, Store, Print};
 
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use std::error::Error;
+use std::io::Write;
 
 static mut DEBUG: bool = false;
 static mut SHOW_FIELD: bool = false;
@@ -82,6 +87,8 @@ fn main() {
 }
 
 fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<Value>) { // {{{
+    let mut rl = Editor::<()>::new();
+
     let mut frames = vec![true];
     let mut current_frame = frames.len() - 1;
 
@@ -376,9 +383,44 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
             if frames[current_frame] {
                 if stmt.direction == Direction::Up {                                      // print
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let p = stack.pop().expect("Stack underflow");
+                        if p.is_num() {
+                            print!("{}", p.get_num());
+                        } else if p.is_arr() {
+                            print!("{:?}", p.get_arr());
+                        } else {
+                            print!("{}", p.get_bool());
+                        }
+                        std::io::stdout().flush().unwrap();
                     }
                 } else if stmt.direction == Direction::Down {                             // input
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let read = rl.readline("> ");
+                        let input: String = match read {
+                            Ok(line) => line,
+                            Err(ReadlineError::Interrupted) => {
+                                println!("CTRL-C");
+                                break
+                            },
+                            Err(ReadlineError::Eof) => {
+                                println!("CTRL-D");
+                                break
+                            },
+                            Err(err) => {
+                                println!("Error: {:?}", err);
+                                break
+                            }
+                        };
+                        // jesus everloving christ
+                        // edgar allan poe wrote poems about this shit
+                        let t = Value::Arr(input
+                            .bytes()
+                            .collect::<Vec<u8>>()
+                            .iter()
+                            .cloned()
+                            .map(|x| Value::Num(x as i64))
+                            .collect::<Vec<Value>>());
+                        stack.push(t);
                     }
                 } else if stmt.direction == Direction::Left {                             // printc
                     if move_field(stmt.color, stmt.direction, field, stack) {

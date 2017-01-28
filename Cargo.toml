@@ -1,10 +1,11 @@
 [package]
 name = "stones"
-version = "0.3.0"
+version = "0.4.2"
 authors = ["cheezgi <zackh@firemail.cc>"]
 
 [dependencies]
 argparse = "*"
+rustyline = "*"
 
 [profile.dev]
 debug = true
