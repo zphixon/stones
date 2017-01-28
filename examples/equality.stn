@@ -1,33 +1,3 @@
-Equality check - should print:
-EMEMEM
-
-red down 1
-red down 1
-orange up 2 check if equal
-purple up
-    red down 2
-    red down 2
-    yellow up
-    blue left
-purple right
-
-red down 1
-red left 1
-orange left 2 check if greater
-purple up
-    red down 2
-    red down 2
-    yellow up
-    blue left
-purple right
-
-red left 1
-red down 1
-orange right 2 check if lesser
-purple up
-    red down 2
-    red down 2
-    yellow up
-    blue left
-purple right
-
+red up 3
+red down 3
+orange down 2

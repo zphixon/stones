@@ -220,10 +220,8 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
                     } else if stmt.number == Number::Two {                                // ==
                         if move_field(stmt.color, stmt.direction, field, stack)
                                 && move_field(stmt.color, stmt.direction, field, stack) {
-                            let lhs = stack.pop().unwrap_or(Value::Bool(false));
-                            let rhs = stack.pop().unwrap_or(Value::Num(1));
-                            // oh snap, this will die horribly if either fails
-
+                            let lhs = stack.pop().expect("Stack underflow");
+                            let rhs = stack.pop().expect("Stack underflow");
                             if lhs == rhs {
                                 stack.push(Value::Bool(true));
                             } else {
@@ -243,7 +241,7 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
                                 && move_field(stmt.color, stmt.direction, field, stack) {
                             let lhs = stack.pop().expect("Stack underflow");
                             let rhs = stack.pop().expect("Stack underflow");
-                            if lhs < rhs {
+                            if !(lhs < rhs) { // hold up
                                 stack.push(Value::Bool(true));
                             } else {
                                 stack.push(Value::Bool(false));
@@ -264,7 +262,7 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
                                 && move_field(stmt.color, stmt.direction, field, stack) {
                             let lhs = stack.pop().expect("Stack underflow");
                             let rhs = stack.pop().expect("Stack underflow");
-                            if lhs > rhs {
+                            if !(lhs > rhs) { // what the hell?
                                 stack.push(Value::Bool(true));
                             } else {
                                 stack.push(Value::Bool(false));
@@ -299,16 +297,16 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
 
         else if stmt.color == Color::Yellow {
             if frames[current_frame] {
-                if stmt.direction == Direction::Up {
+                if stmt.direction == Direction::Up {                                      // *
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Down {
+                } else if stmt.direction == Direction::Down {                             // +
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Left {
+                } else if stmt.direction == Direction::Left {                             // -
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Right {
+                } else if stmt.direction == Direction::Right {                            // /
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 }
@@ -317,16 +315,16 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
 
         else if stmt.color == Color::Green {
             if frames[current_frame] {
-                if stmt.direction == Direction::Up {
+                if stmt.direction == Direction::Up {                                      // roll
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Down {
+                } else if stmt.direction == Direction::Down {                             // dup
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Left {
+                } else if stmt.direction == Direction::Left {                             // drop
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Right {
+                } else if stmt.direction == Direction::Right {                            // not
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 }
@@ -335,16 +333,16 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
 
         else if stmt.color == Color::Blue {
             if frames[current_frame] {
-                if stmt.direction == Direction::Up {
+                if stmt.direction == Direction::Up {                                      // print
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Down {
+                } else if stmt.direction == Direction::Down {                             // input
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Left {
+                } else if stmt.direction == Direction::Left {                             // printc
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
-                } else if stmt.direction == Direction::Right {
+                } else if stmt.direction == Direction::Right {                            // nothing yet
                     if move_field(stmt.color, stmt.direction, field, stack) {
                     }
                 }
@@ -352,16 +350,16 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
         }
 
         else if stmt.color == Color::Purple {
-            if stmt.direction == Direction::Up {
+            if stmt.direction == Direction::Up {                                          // if
                 if move_field(stmt.color, stmt.direction, field, stack) {
                 }
-            } else if stmt.direction == Direction::Down {
+            } else if stmt.direction == Direction::Down {                                 // else
                 if move_field(stmt.color, stmt.direction, field, stack) {
                 }
-            } else if stmt.direction == Direction::Left {
+            } else if stmt.direction == Direction::Left {                                 // while
                 if move_field(stmt.color, stmt.direction, field, stack) {
                 }
-            } else if stmt.direction == Direction::Right {
+            } else if stmt.direction == Direction::Right {                                // end
                 if move_field(stmt.color, stmt.direction, field, stack) {
                 }
             }
@@ -377,6 +375,9 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
 
         if SHOW_STACK {
             println!("{}: stack end", k);
+            for val in stack.clone() {
+                println!("{:?}", val);
+            }
         }
 
         if SHOW_FIELD {
