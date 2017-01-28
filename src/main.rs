@@ -384,14 +384,7 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
                 if stmt.direction == Direction::Up {                                      // print
                     if move_field(stmt.color, stmt.direction, field, stack) {
                         let p = stack.pop().expect("Stack underflow");
-                        if p.is_num() {
-                            print!("{}", p.get_num());
-                        } else if p.is_arr() {
-                            print!("{:?}", p.get_arr());
-                        } else {
-                            print!("{}", p.get_bool());
-                        }
-                        std::io::stdout().flush().unwrap();
+                        p.print_as_num();
                     }
                 } else if stmt.direction == Direction::Down {                             // input
                     if move_field(stmt.color, stmt.direction, field, stack) {
@@ -425,15 +418,7 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
                 } else if stmt.direction == Direction::Left {                             // printc
                     if move_field(stmt.color, stmt.direction, field, stack) {
                         let p = stack.pop().expect("Stack underflow");
-                        if p.is_num() {
-                            print!("{}", p.get_num() as u8 as char);
-                        } else if p.is_arr() {
-                            for c in p.get_arr() {
-                                print!("{}", c.get_num() as u8 as char);
-                            }
-                        } else {
-                            print!("{}", p.get_bool());
-                        }
+                        p.print_as_char()
                     }
                 } else if stmt.direction == Direction::Right {                            // nothing yet
                     if move_field(stmt.color, stmt.direction, field, stack) {

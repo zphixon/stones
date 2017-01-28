@@ -55,6 +55,28 @@ impl PartialOrd for Value {
 }
 
 impl Value {
+    pub fn print_as_char(&self) {
+        if self.is_num() {
+            print!("{}", self.get_num() as u8 as char);
+        } else if self.is_arr() {
+            for c in self.get_arr() {
+                c.print_as_char();
+            }
+        } else {
+            print!("{}", self.get_bool());
+        }
+    }
+
+    pub fn print_as_num(&self) {
+        if self.is_num() {
+            print!("{}", self.get_num());
+        } else if self.is_arr() {
+            print!("{:?}", self.get_arr());
+        } else {
+            print!("{}", self.get_bool());
+        }
+    }
+
     pub fn is_num(&self) -> bool {
         match self {
             &Value::Num(_) => true,
