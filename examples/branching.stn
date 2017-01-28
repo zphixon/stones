@@ -1,215 +1,60 @@
 Branching test - should print this
 !Q!Q8
 !!
-!!Q8
-888
-eof
 
-red down one
-purple up condition is true
-    red right one do this
-    red down three
-    red left one
-    yellow down
-    yellow up
-    blue left !
-purple right
-
-red up one
-purple up condition is false
-    red right one don't do this
-    red down three
-    red left one
-    yellow down
-    yellow up
-    blue left
-purple down
-    red down three do this
-    red down three
-    yellow up
-    blue left Q
-purple right
-
-red down one
-purple up condition is true
-    red right one do this
-    red down three
-    red left one
-    yellow down
-    yellow up
-    blue left !
-purple down
-    red down three don't do this
-    red down three
-    yellow up
-    blue left
-purple right
-
-nested? maybe
-
-red down one
-purple up
-    red down one
-    purple up oh boy
-        red down three
-        red down three
-        yellow up
-        blue left Q
-    purple right
-purple right
-
-hey it works! let's try again
-red up one
-purple up
-    red down three don't do this
-    red down three
-    yellow up
-    blue left
-purple down
-    red down one do this
-    purple up
-        red right two do this
-        red up three
-        yellow up
-        blue left 8
-    purple down
-        red down three don't do this
-        red down three
-        yellow up
-        blue left
-    purple right
-    red down two do this
-    red down two
-    yellow down
-    blue left \n
-purple right
-
-red right one do this
+red right one
 red left one
 red down three
 yellow down
 yellow up
+green down
+green down
+green down
 blue left !
 
-red right three false
-purple up
-    red down two don't do this
-    red down two
-    yellow down
-    blue left
-purple down
-    red right one do this
-    red left one
-    red down three
-    yellow down
-    yellow up
-    blue left !
-purple right
-
-red down two do this
-red down two
-yellow down
-blue left \n
-
-red right three false
-purple up
-    red down two don't do this
-    red down two
-    yellow down
-    blue left
-purple down
-    red right one do this
-    red left one
-    red down three
-    yellow down
-    yellow up
-    blue left !
-    red right three false
-    purple up
-        red down two don't do this
-        red down two
-        yellow down
-        blue left
-        red down two
-        red down two
-        yellow down
-        blue left \n
-    purple down
-        red right one do this
-        red left one
-        red down three
-        yellow down
-        yellow up
-        blue left !
-        red down one
-        purple up
-            red down one
-            purple up oh boy
-                red down three
-                red down three
-                yellow up
-                blue left Q
-            purple right
-            red up one
-            purple up
-                red down three don't do this
-                red down three
-                yellow up
-                blue left
-            purple down
-                red down one do this
-                purple up
-                    red right two do this
-                    red up three
-                    yellow up
-                    blue left 8
-                purple down
-                    red down three don't do this
-                    red down three
-                    yellow up
-                    blue left
-                purple right
-                red down two do this
-                red down two
-                yellow down
-                blue left \n
-            purple right
-        purple right
-    purple right
-purple right
-
-red right two do this
-red up three
-yellow up
-blue left 8
-
 red left three
+red right three
+green left
 purple up
-    red right two do this
-    red up three
+    red down three
+    red down three
     yellow up
-    blue left 8
-    red left three
-    purple up
-        red right two do this
-        red up three
-        yellow up
-        blue left 8
-    purple down
-        red down two don't
-        red down two
-        yellow down
-        blue left \n
-    purple right
+    green down
+    blue left Q
+purple right
+
+blue right
+blue left !
+blue left Q
+
+red right three
+purple up
+    yellow down should not crash with underflow
 purple down
-    red down two don't
-    red down two
+    red up three
+    blue up 8 (hah exploded)
+purple right
+
+red right three
+purple up
+purple down
+    red down one
+    red down three
+    yellow down
+    blue left \n
+
+    red right three
+    green right
+    purple up
+        blue left !
+        blue left !
+    purple down
+        orange down two should not crash
+    purple right
+
+    red down one
+    red down three
     yellow down
     blue left \n
 purple right
-
-red down two
-red down two
-yellow down
-blue left \n
 

@@ -419,8 +419,12 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
                         let p = stack.pop().expect("Stack underflow");
                         p.print_as_char()
                     }
-                } else if stmt.direction == Direction::Right {                            // nothing yet
+                } else if stmt.direction == Direction::Right {                            // swap
                     if move_field(stmt.color, stmt.direction, field, stack) {
+                        let a = stack.pop().expect("Stack underflow");
+                        let b = stack.pop().expect("Stack underflow");
+                        stack.push(a);
+                        stack.push(b);
                     }
                 }
             }
