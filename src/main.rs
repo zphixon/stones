@@ -403,13 +403,8 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
                                 break
                             }
                         };
-                        // jesus everloving christ
-                        // edgar allan poe wrote poems about this shit
                         let t = Value::Arr(input
                             .bytes()
-                            .collect::<Vec<u8>>()
-                            .iter()
-                            .cloned()
                             .map(|x| Value::Num(x as i64))
                             .collect::<Vec<Value>>());
                         stack.push(t);
