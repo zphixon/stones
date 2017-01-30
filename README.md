@@ -12,11 +12,11 @@ interpreter.
 
 * [X] Math
 * [X] Stone movement
-* [ ] Another layer of abstraction between execution and parsing/whatever
-* [ ] Arrays
-* [ ] Stack operations
-* [ ] More I/O
-* [ ] Control flow
+* [X] Another layer of abstraction between execution and parsing/whatever
+* [X] Arrays
+* [X] Stack operations
+* [X] More I/O
+* [X] Control flow
 
 ## Disclaimer
 
