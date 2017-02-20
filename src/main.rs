@@ -8,7 +8,6 @@ extern crate rustyline;
 
 use argparse::{ArgumentParser, StoreTrue, Store, Print};
 use rustyline::Editor;
-use rustyline::error::ReadlineError;
 
 extern crate stones;
 
@@ -390,17 +389,8 @@ fn eval_prog(prog: Vec<Statement>, field: &mut Vec<Vec<Color>>, stack: &mut Vec<
                         let read = rl.readline("> ");
                         let input: String = match read {
                             Ok(line) => line,
-                            Err(ReadlineError::Interrupted) => {
-                                println!("CTRL-C");
-                                break
-                            },
-                            Err(ReadlineError::Eof) => {
-                                println!("CTRL-D");
-                                break
-                            },
                             Err(err) => {
-                                println!("Error: {:?}", err);
-                                break
+                                panic!("{}", err);
                             }
                         };
                         let t = Value::Arr(input
