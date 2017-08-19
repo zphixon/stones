@@ -1,139 +1,101 @@
-red down three    H
+
+red down three     H
 red up three
 yellow up
 blue left
 
-red down three    e
+red down three     100 (6)
 red down one
 yellow down
 red down three
 red down one
 yellow down
 yellow up
-red down one   <- This would run in to the Blue stone!
+green down
+green down
+green down
+green down
+green down
+
+red down one       e (5)
 yellow down
 blue left
 
-red down three    l
-red down one
+red up three       ll (4)
 yellow down
-red down three
-red down one
-yellow down
-yellow up
-red up three
-yellow down
+green down
+green down
+blue left
 blue left
 
-I don't have the Green stone set Up yet, this will be fixed
-red down three    l
+blue right         o (3)
 red down one
-yellow down
-red down three
 red down one
-yellow down
-yellow up
-red up three
-yellow down
-blue left
-
-red down three    o
-red down one
-yellow down
-red down three
-red down one
-yellow down
-yellow up
-red left one
 red down three
 yellow down
 yellow down
+yellow down
+green down
 blue left
 
-red left one    ,
-red down three
-yellow down
-red up two
-yellow up
-blue left
-
-red up two    space
-red up two
-red left one
-yellow up
-yellow up
-blue left
-
-red down three    w
-red down one
-yellow down
-red down three
-red down one
-yellow down
-yellow up
-red up three
-yellow down
-red down three
-yellow down
-red left one
-yellow down
-blue left
-
-red down three    o
-red down one
-yellow down
-red down three
-red down one
-yellow down
-yellow up
-red left one
-red down three
-yellow down
-yellow down
-blue left
-
-red down two    r
-red down two
-yellow down
-red down two
-red down two
-yellow down
-yellow up
-red left one
-red right two
-yellow up
-yellow down
-blue left
-
-red down three    l
-red down one
-yellow down
-red down three
-red down one
-yellow down
-yellow up
-red up three
-yellow down
-blue left
-
-red right one   d
-red right two
-yellow down
-red up two
-red left two
-yellow down
-yellow up
-blue left
-
-red right one   !
-red up three
-yellow down
 red right one
+green up
+
+red left one       ,
+red down three
+yellow down
+red up two
 yellow up
 blue left
 
-red left one    \n
+green down         stack mgmt
+green down
+orange down two
+green left
+
+blue right         spc
 red up three
+red up two
+yellow up
+blue left
+
+red down two       w (2)
+red up two
+yellow up
+red down one
+blue right
+yellow left
+yellow down
+blue left
+
+red left one       o
+green up
+red left one
+green up
+blue left
+
+blue right         r
+red right two
+red right two
+yellow down
+yellow down
+blue left
+
+blue left          l
+
+blue left          d
+
+red right one      !
+green left
+red up three
+red up two
+yellow up
+red down one
+yellow down
+blue left
+
+red down three     \n
+red down one
 yellow down
 blue left
 
