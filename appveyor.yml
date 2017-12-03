@@ -9,9 +9,6 @@
     # - rustc -V
     # - cargo -V
 # 
-# build_script:
-    # - cargo build --release
-    # - cargo build
 # 
 # test_script:
     # - cargo test
@@ -57,6 +54,10 @@ install:
 artifacts:
   - path: target\release\stones.exe
     name: release
+
+build_script:
+  - cargo build --release
+  - cargo build
 
 test_script:
   - cargo test --verbose
