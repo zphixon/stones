@@ -1,30 +1,12 @@
 # stones
 
-[![Freaking travis](https://travis-ci.org/cheezgi/stones.svg?branch=master)](https://travis-ci.org/cheezgi/stones) [![Freaking appveyor](https://ci.appveyor.com/api/projects/status/120smgk90ltqhopc?svg=true)](https://ci.appveyor.com/project/cheezgi/stones)
+[![Freaking travis](https://travis-ci.org/zphixon/stones.svg?branch=master)](https://travis-ci.org/zphixon/stones) [![Freaking appveyor](https://ci.appveyor.com/api/projects/status/120smgk90ltqhopc?svg=true)](https://ci.appveyor.com/project/zphixon/stones)
 
 An esoteric programming language
 
 There are two interpreters of the stones programming language.
-Go [here](https://github.com/cheezgi/stones-rewrite) for the scripted
+Go [here](https://github.com/zphixon/stones-rewrite) for the scripted
 interpreter.
-
-## To do
-
-* [X] Math
-* [X] Stone movement
-* [X] Another layer of abstraction between execution and parsing/whatever
-* [X] Arrays
-* [X] Stack operations
-* [X] More I/O
-* [X] Control flow
-
-## Disclaimer
-
-I've never been in an official class on programming, so everything I know is
-mostly self-taught. As a result, this will likely be awful. I know absolutely
-nothing about compiler or interpreter design, and I'm sure it shows. By no
-means use this is as an example. For copyright-related matters, consult
-LICENSE.txt.
 
 ## Specification
 
@@ -73,11 +55,9 @@ b...........
 .......o....
 ```
 
-Each stone has a different weight. The table with the stone colors above is
-sorted by weight. As you can see, the lighter stones can move much further than
-the heavier stones. This introduces an interesting property: When a stone runs
-into another, it is possible that the stone can accidentally push it out of the
-way. This can lead to interesting errors. Consider the following:
+Each stone has a different weight, shown in the table above in increasing order.
+Stones are unable to occupy the same spot on the field due to an unfortunate quirk
+of physics. Consider the following program:
 
 ```
 b.....o.....     start
@@ -96,40 +76,26 @@ b.....o.....
 
 b.....o.....
 ............
-......r.g...     red right one: push 3
-............
+........g...     red down one: push 1
+....r.......
 ....y.....p.
 ............
 
-b.....o.....
-............
-......r.g...
-....y.......     yellow up: *
-..........p.
-............
-
-b.....o.....
-............
-....r...g...     red left two: push 6
-....y.......
-..........p.
-............
 ```
 
-This example pushes a 7 and a 3 on to the stack, then multiplies them. If we
-were then to try to push a 1 on to the stack, the operation would not occur
-because the yellow stone is heavier than the red stone. If we tried to
-multiply again, however, the red stone would be pushed by the yellow stone,
-causing a 0 to be pushed on to the stack, then be multiplied by the 21
-that is already there.
+This example pushes a 7 and a 1 on the stack. If we were to attempt `red down one`
+to push an additional 1 on the stack, the operation will not occur. The yellow
+stone is heavier than the red stone and thus cannot be moved by it. Additionally,
+the operation `yellow up` will not immediately occur because the red stone is
+in the way. First, `red up one` will occur, pushing a zero on the stack, and
+then `yellow up` will occur, multiplying 1 by 0.
 
-When a heavier stone collides with a lighter stone, the lighter stone moves
+In short, when a heavier stone collides with a lighter stone, the lighter stone moves
 first, causing its action to occur, then the heavier stone moves, causing its
-action to occur.
+action to occur. When a lighter stone collides with a heavier stone, nothing
+occurs.
 
-Because of the rudimentary system of parsing stones code, comments are simply
-words that are not used in the stones language, or words not on this list:
-
+Only the following keywords are valid stones code, any other sequence will be ignored:
 * `red`
 * `orange`
 * `yellow`
