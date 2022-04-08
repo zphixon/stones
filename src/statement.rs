@@ -1,6 +1,6 @@
-use color;
-use direction;
-use number;
+use crate::color;
+use crate::direction;
+use crate::number;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Statement {
@@ -10,12 +10,15 @@ pub struct Statement {
 }
 
 impl Statement {
-    pub fn new(color: color::Color, direction: direction::Direction, number: number::Number) -> Statement {
+    pub fn new(
+        color: color::Color,
+        direction: direction::Direction,
+        number: number::Number,
+    ) -> Statement {
         Statement {
             color: color,
             direction: direction,
-            number: number
+            number: number,
         }
     }
 }
-

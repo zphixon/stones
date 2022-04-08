@@ -1,11 +1,12 @@
 [package]
-name = "stones"
-version = "0.5.0"
-authors = ["cheezgi <zackh@firemail.cc>"]
+name = 'stones'
+version = '0.6.0'
+authors = ['Zack <zphixon@gmail.com>']
+edition = '2021'
 
 [dependencies]
-argparse = "*"
-rustyline = "*"
+argparse = '0.2.1'
+rustyline = '1'
 
 [profile.dev]
 debug = true

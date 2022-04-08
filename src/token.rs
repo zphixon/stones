@@ -1,7 +1,6 @@
-
-use color::*;
-use direction::*;
-use number::*;
+use crate::color::*;
+use crate::direction::*;
+use crate::number::*;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Token {
@@ -18,7 +17,7 @@ pub enum Token {
     One,
     Two,
     Three,
-    Nop
+    Nop,
 }
 
 impl Token {
@@ -92,7 +91,7 @@ impl Token {
             Token::Green => true,
             Token::Blue => true,
             Token::Purple => true,
-            _ => false
+            _ => false,
         }
     }
     pub fn is_direction(self) -> bool {
@@ -101,7 +100,7 @@ impl Token {
             Token::Down => true,
             Token::Left => true,
             Token::Right => true,
-            _ => false
+            _ => false,
         }
     }
     pub fn is_number(self) -> bool {
@@ -109,8 +108,7 @@ impl Token {
             Token::One => true,
             Token::Two => true,
             Token::Three => true,
-            _ => false
+            _ => false,
         }
     }
 }
-

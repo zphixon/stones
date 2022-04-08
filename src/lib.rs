@@ -1,17 +1,16 @@
-
 mod color;
 mod direction;
-mod number;
-mod token;
-mod statement;
 mod field;
+mod number;
+mod statement;
+mod token;
 
 pub use color::*;
 pub use direction::*;
-pub use number::*;
-pub use token::*;
-pub use statement::*;
 pub use field::*;
+pub use number::*;
+pub use statement::*;
+pub use token::*;
 
 use std::cmp::Ordering;
 
@@ -19,7 +18,7 @@ use std::cmp::Ordering;
 pub enum Value {
     Num(i64),
     Arr(Vec<Value>),
-    Bool(bool)
+    Bool(bool),
 }
 
 impl PartialEq for Value {
@@ -80,28 +79,28 @@ impl Value {
     pub fn is_num(&self) -> bool {
         match self {
             &Value::Num(_) => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn is_arr(&self) -> bool {
         match self {
             &Value::Arr(_) => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn is_bool(&self) -> bool {
         match self {
             &Value::Bool(_) => true,
-            _ => false
+            _ => false,
         }
     }
 
     pub fn get_num(&self) -> i64 {
         let res = match self {
             &Value::Num(n) => n,
-            _ => panic!("called get_num on non-num")
+            _ => panic!("called get_num on non-num"),
         };
         res
     }
@@ -110,7 +109,7 @@ impl Value {
         // derp derpity derp
         let res = match self {
             &Value::Arr(ref a) => a,
-            _ => panic!("called get_arr on non-arr")
+            _ => panic!("called get_arr on non-arr"),
         };
         res.to_vec()
     }
@@ -118,7 +117,7 @@ impl Value {
     pub fn get_bool(&self) -> bool {
         let res = match self {
             &Value::Bool(b) => b,
-            _ => panic!("called get_bool on non-bool")
+            _ => panic!("called get_bool on non-bool"),
         };
         res
     }
@@ -153,11 +152,15 @@ pub fn lex(stokens: Vec<&str>) -> Vec<Token> {
             "one" => Token::One,
             "two" => Token::Two,
             "three" => Token::Three,
-            _ => Token::Nop
+            _ => Token::Nop,
         });
     }
 
-    ttokens.iter().cloned().filter(|x| *x != Token::Nop).collect()
+    ttokens
+        .iter()
+        .cloned()
+        .filter(|x| *x != Token::Nop)
+        .collect()
 }
 
 pub fn parse(tokens: Vec<Token>) -> Result<Vec<statement::Statement>, ()> {
@@ -180,7 +183,11 @@ pub fn parse(tokens: Vec<Token>) -> Result<Vec<statement::Statement>, ()> {
                             // check if color is orange/red, only they take magnitudes
                             if tokens[i] == Token::Red || tokens[i] == Token::Orange {
                                 // add statement
-                                statements.push(Statement::new(tokens[i].to_stone(), tokens[i + 1].to_direction(), tokens[i + 2].to_number()));
+                                statements.push(Statement::new(
+                                    tokens[i].to_stone(),
+                                    tokens[i + 1].to_direction(),
+                                    tokens[i + 2].to_number(),
+                                ));
                                 i += 3;
                                 k += 1;
                             } else {
@@ -191,7 +198,11 @@ pub fn parse(tokens: Vec<Token>) -> Result<Vec<statement::Statement>, ()> {
                             // if not a number, make sure it didn't need one
                             if tokens[i] != Token::Red && tokens[i] != Token::Orange {
                                 // add statement
-                                statements.push(Statement::new(tokens[i].to_stone(), tokens[i + 1].to_direction(), Number::None));
+                                statements.push(Statement::new(
+                                    tokens[i].to_stone(),
+                                    tokens[i + 1].to_direction(),
+                                    Number::None,
+                                ));
                                 i += 2;
                                 k += 1;
                             } else {
@@ -203,7 +214,11 @@ pub fn parse(tokens: Vec<Token>) -> Result<Vec<statement::Statement>, ()> {
                         // last two tokens
                         if tokens[i] != Token::Red && tokens[i] != Token::Orange {
                             if tokens[i + 1].is_direction() {
-                                statements.push(Statement::new(tokens[i].to_stone(), tokens[i + 1].to_direction(), Number::None));
+                                statements.push(Statement::new(
+                                    tokens[i].to_stone(),
+                                    tokens[i + 1].to_direction(),
+                                    Number::None,
+                                ));
                                 i += 2;
                                 k += 1;
                             } else {
@@ -230,4 +245,3 @@ pub fn parse(tokens: Vec<Token>) -> Result<Vec<statement::Statement>, ()> {
 
     Ok(statements)
 }
-
