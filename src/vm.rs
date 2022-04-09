@@ -112,7 +112,7 @@ impl Stone {
     pub fn to_op(&self) -> OpColor {
         match self {
             Stone::Red => OpColor::Red(RedNumber::One),
-            Stone::Orange => OpColor::Orange(OrangeNumber::Two),
+            Stone::Orange => OpColor::Orange(OrangeNumber::One),
             Stone::Yellow => OpColor::Yellow,
             Stone::Blue => OpColor::Blue,
             Stone::Green => OpColor::Green,
