@@ -150,15 +150,15 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
             let next = self.get(next_row, next_col);
 
             if next > op.color() {
-                println!(
-                    "too heavy {:.<80} < {:<80}",
-                    format!("{op:?}"),
-                    format!("{next:?}")
-                );
+                //println!(
+                //    "too heavy {:.<80} < {:<80}",
+                //    format!("{op:?}"),
+                //    format!("{next:?}")
+                //);
                 // next is heavier, quit early
                 break;
             } else if next == Stone::X {
-                println!("move to   {:.<80} {next_row},{next_col}", format!("{op:?}"));
+                //println!("move to   {:.<80} {next_row},{next_col}", format!("{op:?}"));
                 // next is empty, just move it
             } else if next != Stone::X && next < op.color() {
                 // next is lighter
@@ -166,20 +166,20 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
                     color: next.to_op(),
                     dir: op.dir,
                 };
-                println!(
-                    "pushes    {:.<80} > {:<80}",
-                    format!("{op:?}"),
-                    format!("{next:?}")
-                );
+                //println!(
+                //    "pushes    {:.<80} > {:<80}",
+                //    format!("{op:?}"),
+                //    format!("{next:?}")
+                //);
                 let blocked = self.step_rec(ops, next_op);
                 if blocked {
                     break;
                 }
-                println!(
-                    "done      {:.<80} > {:<80}",
-                    format!("{op:?}"),
-                    format!("{next:?}")
-                );
+                //println!(
+                //    "done      {:.<80} > {:<80}",
+                //    format!("{op:?}"),
+                //    format!("{next:?}")
+                //);
             } else {
                 unreachable!()
             }
@@ -192,20 +192,20 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
         }
 
         if steps_taken == 0 {
-            println!("blocked   {op:?}");
+            //println!("blocked   {op:?}");
             true
             // blocked completely, don't add any operations
         } else if steps_taken == mag {
-            println!("success   {op:?}");
+            //println!("success   {op:?}");
             // fully successful, add our op
             ops.push(op);
             false
         } else if 1 <= steps_taken && steps_taken < mag {
-            println!(
-                "partial   {:.<80} -> {:?}",
-                format!("{op:?}"),
-                op.change_magnitude(steps_taken)
-            );
+            //println!(
+            //    "partial   {:.<80} -> {:?}",
+            //    format!("{op:?}"),
+            //    op.change_magnitude(steps_taken)
+            //);
             // partially successful, add partial op
             ops.push(op.change_magnitude(steps_taken));
             false

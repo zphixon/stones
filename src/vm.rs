@@ -177,24 +177,63 @@ impl Op {
 pub struct Vm {
     #[cfg(test)]
     pub history: Vec<Op>,
+    stack: Vec<crate::Value>,
 }
 
 impl Vm {
     pub fn exec(&mut self, op: Op) {
+        use Dir::*;
+        use OpColor::*;
+        use OrangeNumber as O;
+        use RedNumber as R;
+
         println!("exec {op:?}");
 
         #[cfg(test)]
         self.history.push(op);
 
-        match op.color() {
-            Stone::Red => {}
-            Stone::Orange => {}
-            Stone::Yellow => {}
-            Stone::Blue => {}
-            Stone::Green => {}
-            Stone::Purple => {}
+        match (op.color, op.dir) {
+            (Red(R::One), Up) => {}
+            (Red(R::Two), Up) => {}
+            (Red(R::Three), Up) => {}
+            (Red(R::One), Down) => {}
+            (Red(R::Two), Down) => {}
+            (Red(R::Three), Down) => {}
+            (Red(R::One), Left) => {}
+            (Red(R::Two), Left) => {}
+            (Red(R::Three), Left) => {}
+            (Red(R::One), Right) => {}
+            (Red(R::Two), Right) => {}
+            (Red(R::Three), Right) => {}
 
-            _ => unreachable!(),
+            (Orange(O::One), Up) => {}
+            (Orange(O::Two), Up) => {}
+            (Orange(O::One), Down) => {}
+            (Orange(O::Two), Down) => {}
+            (Orange(O::One), Left) => {}
+            (Orange(O::Two), Left) => {}
+            (Orange(O::One), Right) => {}
+            (Orange(O::Two), Right) => {}
+
+            (Yellow, Up) => {}
+            (Yellow, Down) => {}
+            (Yellow, Left) => {}
+            (Yellow, Right) => {}
+
+            (Green, Up) => {}
+            (Green, Down) => {}
+            (Green, Left) => {}
+            (Green, Right) => {}
+
+            (Blue, Up) => {}
+            (Blue, Down) => {}
+            (Blue, Left) => {}
+            (Blue, Right) => {}
+
+            (Purple, Up) => {}
+            (Purple, Down) => {}
+            (Purple, Left) => {}
+            (Purple, Right) => {}
         }
     }
 }
