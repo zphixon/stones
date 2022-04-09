@@ -14,7 +14,13 @@ fn main() {
 
     println!("init\n{field:?}\n");
     for op in ast {
-        field.step(&mut vm, op).unwrap();
+        let err = field.step(&mut vm, op);
+        if matches!(err, Err(stones::Error::Quine)) {
+            println!("{src}");
+        } else {
+            err.unwrap();
+        }
+
         step += 1;
         println!("{step}\n{field:?}\n{vm:?}\n\n");
     }

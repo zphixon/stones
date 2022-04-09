@@ -220,7 +220,7 @@ impl Vm {
             (Orange(O::One), Down) => println!("todo"),
 
             (Orange(O::Two), Left) => println!("todo"),
-            (Orange(O::Two), Right) => println!("todo"),
+            (Orange(O::Two), Right) => Err(Error::Quine)?,
             (Orange(O::Two), Up) => println!("todo"),
             (Orange(O::Two), Down) => println!("todo"),
 

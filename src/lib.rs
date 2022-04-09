@@ -28,6 +28,7 @@ pub enum Error {
         wanted: &'static str,
         got: &'static str,
     },
+    Quine,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
