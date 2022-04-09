@@ -1,18 +1,150 @@
-mod color;
-mod direction;
-mod field;
-mod number;
-mod statement;
-mod token;
+pub mod field;
+pub mod vm;
 
-pub use color::*;
-pub use direction::*;
-pub use field::*;
-pub use number::*;
-pub use statement::*;
-pub use token::*;
+use std::{cmp::Ordering, iter::Peekable};
 
-use std::cmp::Ordering;
+#[derive(Debug, PartialEq)]
+pub enum Error {
+    UnknownToken { token: String },
+    UnexpectedToken { token: Token },
+    ExpectedColor { got: Token },
+    ExpectedRedNumber { got: Token },
+    ExpectedOrangeNumber { got: Token },
+    ExpectedDir { got: Token },
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum Token {
+    Red,
+    Orange,
+    Yellow,
+    Green,
+    Blue,
+    Purple,
+    Up,
+    Down,
+    Left,
+    Right,
+    One,
+    Two,
+    Three,
+    Eof,
+}
+
+impl Token {
+    pub fn is_color_without_number(&self) -> bool {
+        match self {
+            Token::Red
+            | Token::Orange
+            | Token::Yellow
+            | Token::Green
+            | Token::Blue
+            | Token::Purple => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_number(&self) -> bool {
+        match self {
+            Token::One | Token::Two | Token::Three => true,
+            _ => false,
+        }
+    }
+}
+
+impl TryFrom<&str> for Token {
+    type Error = Error;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            "red" => Ok(Token::Red),
+            "orange" => Ok(Token::Orange),
+            "yellow" => Ok(Token::Yellow),
+            "green" => Ok(Token::Green),
+            "blue" => Ok(Token::Blue),
+            "purple" => Ok(Token::Purple),
+            "up" => Ok(Token::Up),
+            "down" => Ok(Token::Down),
+            "left" => Ok(Token::Left),
+            "right" => Ok(Token::Right),
+            "one" => Ok(Token::One),
+            "two" => Ok(Token::Two),
+            "three" => Ok(Token::Three),
+            _ => Err(Error::UnknownToken {
+                token: value.to_string(),
+            }),
+        }
+    }
+}
+
+pub fn scan(source: &str) -> impl Iterator<Item = Token> + '_ {
+    source
+        .split_whitespace()
+        .filter_map(|sub| Token::try_from(sub).ok())
+}
+
+pub fn parse(source: &str) -> Result<Vec<vm::Op>, Error> {
+    let mut ops = Vec::new();
+    let mut tokens = scan(source).peekable();
+
+    while let Some(op) = parse_command(&mut tokens)? {
+        ops.push(op);
+    }
+
+    Ok(ops)
+}
+
+fn parse_command<I: Iterator<Item = Token>>(
+    scanner: &mut Peekable<I>,
+) -> Result<Option<vm::Op>, Error> {
+    if let Some(&token) = scanner.peek() {
+        let color_token = scanner.next().unwrap();
+        let dir = parse_dir(scanner)?;
+
+        let color = if color_token == Token::Red {
+            let num = parse_red_number(scanner)?;
+            vm::OpColor::Red(num)
+        } else if color_token == Token::Orange {
+            let num = parse_orange_number(scanner)?;
+            vm::OpColor::Orange(num)
+        } else if color_token.is_color_without_number() {
+            color_token.try_into()?
+        } else {
+            return Err(Error::UnexpectedToken { token });
+        };
+
+        Ok(Some(vm::Op { color, dir }))
+    } else {
+        Ok(None)
+    }
+}
+
+fn parse_red_number<I: Iterator<Item = Token>>(
+    scanner: &mut Peekable<I>,
+) -> Result<vm::RedNumber, Error> {
+    if let Some(token) = scanner.next() {
+        token.try_into()
+    } else {
+        Err(Error::ExpectedRedNumber { got: Token::Eof })
+    }
+}
+
+fn parse_orange_number<I: Iterator<Item = Token>>(
+    scanner: &mut Peekable<I>,
+) -> Result<vm::OrangeNumber, Error> {
+    if let Some(token) = scanner.next() {
+        token.try_into()
+    } else {
+        Err(Error::ExpectedOrangeNumber { got: Token::Eof })
+    }
+}
+
+fn parse_dir<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<vm::Dir, Error> {
+    if let Some(token) = scanner.next() {
+        Ok(token.try_into()?)
+    } else {
+        Err(Error::ExpectedColor { got: Token::Eof })
+    }
+}
 
 #[derive(Clone, Debug)]
 pub enum Value {
@@ -133,115 +265,4 @@ impl Value {
             true
         }
     }
-}
-
-pub fn lex(stokens: Vec<&str>) -> Vec<Token> {
-    let mut ttokens: Vec<Token> = vec![];
-    for token in stokens {
-        ttokens.push(match token {
-            "red" => Token::Red,
-            "orange" => Token::Orange,
-            "yellow" => Token::Yellow,
-            "green" => Token::Green,
-            "blue" => Token::Blue,
-            "purple" => Token::Purple,
-            "up" => Token::Up,
-            "down" => Token::Down,
-            "left" => Token::Left,
-            "right" => Token::Right,
-            "one" => Token::One,
-            "two" => Token::Two,
-            "three" => Token::Three,
-            _ => Token::Nop,
-        });
-    }
-
-    ttokens
-        .iter()
-        .cloned()
-        .filter(|x| *x != Token::Nop)
-        .collect()
-}
-
-pub fn parse(tokens: Vec<Token>) -> Result<Vec<statement::Statement>, ()> {
-    let mut statements: Vec<statement::Statement> = vec![];
-    let mut i = 0;
-    let mut k = 0;
-
-    // loop through list of tokens
-    while i < tokens.len() {
-        // check if color
-        if tokens[i].is_color() {
-            // out of bounds check
-            if i + 1 < tokens.len() {
-                // check if direction
-                if tokens[i + 1].is_direction() {
-                    // out of bounds check
-                    if i + 2 < tokens.len() {
-                        // check if number
-                        if tokens[i + 2].is_number() {
-                            // check if color is orange/red, only they take magnitudes
-                            if tokens[i] == Token::Red || tokens[i] == Token::Orange {
-                                // add statement
-                                statements.push(Statement::new(
-                                    tokens[i].to_stone(),
-                                    tokens[i + 1].to_direction(),
-                                    tokens[i + 2].to_number(),
-                                ));
-                                i += 3;
-                                k += 1;
-                            } else {
-                                println!("{} Did not expect number for {:?}", k, tokens[i]);
-                                return Err(());
-                            }
-                        } else {
-                            // if not a number, make sure it didn't need one
-                            if tokens[i] != Token::Red && tokens[i] != Token::Orange {
-                                // add statement
-                                statements.push(Statement::new(
-                                    tokens[i].to_stone(),
-                                    tokens[i + 1].to_direction(),
-                                    Number::None,
-                                ));
-                                i += 2;
-                                k += 1;
-                            } else {
-                                println!("{} Expected number for {:?}", k, tokens[i]);
-                                return Err(());
-                            }
-                        }
-                    } else {
-                        // last two tokens
-                        if tokens[i] != Token::Red && tokens[i] != Token::Orange {
-                            if tokens[i + 1].is_direction() {
-                                statements.push(Statement::new(
-                                    tokens[i].to_stone(),
-                                    tokens[i + 1].to_direction(),
-                                    Number::None,
-                                ));
-                                i += 2;
-                                k += 1;
-                            } else {
-                                println!("{} Expected direction for {:?}", k, tokens[i]);
-                                return Err(());
-                            }
-                        } else {
-                            println!("{} Expected number for {:?}", k, tokens[i]);
-                            return Err(());
-                        }
-                    }
-                } else {
-                    println!("{} Expected direction for {:?}", k, tokens[i]);
-                }
-            } else {
-                // last token
-                i += 1;
-            }
-        } else {
-            println!("{} Expected color at {:?}", k, tokens[i]);
-            return Err(());
-        }
-    }
-
-    Ok(statements)
 }
