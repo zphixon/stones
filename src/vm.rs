@@ -177,12 +177,19 @@ impl Op {
 pub struct Vm {
     #[cfg(test)]
     pub history: Vec<Op>,
-    stack: Vec<crate::Value>,
+    stack: Vec<Value>,
+    array_in_progress: Option<Vec<Value>>,
 }
 
 impl Vm {
     fn pop(&mut self) -> Result<Value, Error> {
         self.stack.pop().ok_or(Error::StackUnderflow)
+    }
+
+    fn peek(&mut self, depth: usize) -> Result<&Value, Error> {
+        self.stack
+            .get(self.stack.len() - depth - 1)
+            .ok_or(Error::StackUnderflow)
     }
 
     pub fn exec(&mut self, op: Op, print_op: bool) -> Result<(), Error> {
@@ -227,10 +234,34 @@ impl Vm {
                 Down => Value::Num(9),
             }),
 
-            (Orange(O::One), Left) => my_todo!(),
-            (Orange(O::One), Right) => my_todo!(),
-            (Orange(O::One), Up) => my_todo!(),
-            (Orange(O::One), Down) => my_todo!(),
+            (Orange(O::One), Left) => {
+                // I didn't remember how useless arrays were in this language lol
+                let in_progress = self.array_in_progress.take();
+                if let Some(mut in_progress) = in_progress {
+                    in_progress.push(self.pop()?);
+                } else {
+                    my_todo!();
+                }
+            }
+            (Orange(O::One), Right) => {
+                let idx: i64 = self.pop()?.try_into()?;
+                let maybe_arr = self.peek(0)?;
+                let arr: &[Value] = maybe_arr.get_slice().ok_or(Error::TypeMismatch {
+                    wanted: "array",
+                    got: maybe_arr.type_name(),
+                })?;
+                let dup = arr[idx as usize].clone();
+                self.stack.push(dup);
+            }
+            (Orange(O::One), Up) => self.array_in_progress = Some(Vec::new()),
+            (Orange(O::One), Down) => {
+                let arr = self
+                    .array_in_progress
+                    .take()
+                    .ok_or_else(|| my_todo!())
+                    .unwrap();
+                self.stack.push(Value::Arr(arr));
+            }
 
             (Orange(O::Two), Right) => Err(Error::Quine)?,
             (Orange(O::Two), dir) => {
