@@ -213,27 +213,36 @@ impl Vm {
         }
 
         match (op.color, op.dir) {
+            // constants
             (Red(R::One), dir) => self.stack.push(Value::Num(match dir {
-                Left => 2,
-                Right => 3,
                 Up => 0,
                 Down => 1,
+                Left => 2,
+                Right => 3,
             })),
-
             (Red(R::Two), dir) => self.stack.push(Value::Num(match dir {
-                Left => 6,
-                Right => 7,
                 Up => 4,
                 Down => 5,
+                Left => 6,
+                Right => 7,
             })),
-
             (Red(R::Three), dir) => self.stack.push(match dir {
-                Left => Value::Bool(true),
-                Right => Value::Bool(false),
                 Up => Value::Num(8),
                 Down => Value::Num(9),
+                Left => Value::Bool(true),
+                Right => Value::Bool(false),
             }),
 
+            // arrays
+            (Orange(O::One), Up) => self.array_in_progress = Some(Vec::new()),
+            (Orange(O::One), Down) => {
+                let arr = self
+                    .array_in_progress
+                    .take()
+                    .ok_or_else(|| my_todo!())
+                    .unwrap();
+                self.stack.push(Value::Arr(arr));
+            }
             (Orange(O::One), Left) => {
                 // I didn't remember how useless arrays were in this language lol
                 let in_progress = self.array_in_progress.take();
@@ -253,46 +262,33 @@ impl Vm {
                 let dup = arr[idx as usize].clone();
                 self.stack.push(dup);
             }
-            (Orange(O::One), Up) => self.array_in_progress = Some(Vec::new()),
-            (Orange(O::One), Down) => {
-                let arr = self
-                    .array_in_progress
-                    .take()
-                    .ok_or_else(|| my_todo!())
-                    .unwrap();
-                self.stack.push(Value::Arr(arr));
-            }
 
+            // comparisons (feat. idiotic lhs/rhs semantics)
             (Orange(O::Two), Right) => Err(Error::Quine)?,
             (Orange(O::Two), dir) => {
                 let lhs = self.pop()?;
                 let rhs = self.pop()?;
                 self.stack.push(Value::Bool(match dir {
-                    Left => !(lhs > rhs) && lhs != rhs,
                     Up => lhs == rhs,
                     Down => !(lhs < rhs) && lhs != rhs,
+                    Left => !(lhs > rhs) && lhs != rhs,
                     _ => unreachable!(),
                 }))
             }
 
+            // math (feat. idiotic lhs/rhs semantics)
             (Yellow, dir) => {
                 let lhs: i64 = self.pop()?.try_into()?;
                 let rhs: i64 = self.pop()?.try_into()?;
                 self.stack.push(Value::Num(match dir {
-                    Left => lhs - rhs,
-                    Right => lhs / rhs,
                     Up => lhs * rhs,
                     Down => lhs + rhs,
+                    Left => lhs - rhs,
+                    Right => lhs / rhs,
                 }));
             }
 
-            (Green, Left) => {
-                let _ = self.pop()?;
-            }
-            (Green, Right) => {
-                let bool = self.pop()?.is_truthy();
-                self.stack.push(Value::Bool(!bool));
-            }
+            // stack operations
             (Green, Up) => {
                 let d: i64 = self.pop()?.try_into()?;
                 if d > 0 {
@@ -313,14 +309,15 @@ impl Vm {
                 self.stack.push(dup.clone());
                 self.stack.push(dup);
             }
-
-            (Blue, Left) => self.pop()?.print_as_char(),
-            (Blue, Right) => {
-                let a = self.pop()?;
-                let b = self.pop()?;
-                self.stack.push(a);
-                self.stack.push(b);
+            (Green, Left) => {
+                let _ = self.pop()?;
             }
+            (Green, Right) => {
+                let bool = self.pop()?.is_truthy();
+                self.stack.push(Value::Bool(!bool));
+            }
+
+            // i/o
             (Blue, Up) => self.pop()?.print_as_num(),
             (Blue, Down) => {
                 let mut line = String::new();
@@ -334,11 +331,19 @@ impl Vm {
                     my_todo!();
                 }
             }
+            (Blue, Left) => self.pop()?.print_as_char(),
+            (Blue, Right) => {
+                let a = self.pop()?;
+                let b = self.pop()?;
+                self.stack.push(a);
+                self.stack.push(b);
+            }
 
-            (Purple, Left) => my_todo!(),
-            (Purple, Right) => my_todo!(),
+            // control flow
             (Purple, Up) => my_todo!(),
             (Purple, Down) => my_todo!(),
+            (Purple, Left) => my_todo!(),
+            (Purple, Right) => my_todo!(),
         }
 
         Ok(())
