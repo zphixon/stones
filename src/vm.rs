@@ -15,6 +15,17 @@ impl RedNumber {
     }
 }
 
+impl From<usize> for RedNumber {
+    fn from(i: usize) -> Self {
+        match i {
+            1 => RedNumber::One,
+            2 => RedNumber::Two,
+            3 => RedNumber::Three,
+            _ => unreachable!(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum OrangeNumber {
     One,
@@ -26,6 +37,16 @@ impl OrangeNumber {
         match self {
             OrangeNumber::One => 1,
             OrangeNumber::Two => 2,
+        }
+    }
+}
+
+impl From<usize> for OrangeNumber {
+    fn from(i: usize) -> Self {
+        match i {
+            1 => OrangeNumber::One,
+            2 => OrangeNumber::Two,
+            _ => unreachable!(),
         }
     }
 }
@@ -54,6 +75,12 @@ pub struct Op {
     dir: Dir,
 }
 
+impl std::fmt::Display for Op {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?} {:?}", self.color, self.dir)
+    }
+}
+
 impl Op {
     pub fn color(&self) -> Stone {
         match self.color {
@@ -71,6 +98,20 @@ impl Op {
             OpColor::Red(step) => step.magnitude(),
             OpColor::Orange(step) => step.magnitude(),
             OpColor::Yellow | OpColor::Blue | OpColor::Green | OpColor::Purple => 1,
+        }
+    }
+
+    pub fn change_magnitude(self, new_magnitude: usize) -> Op {
+        match self.color {
+            OpColor::Red(_) => Op {
+                color: OpColor::Red(new_magnitude.into()),
+                ..self
+            },
+            OpColor::Orange(_) => Op {
+                color: OpColor::Orange(new_magnitude.into()),
+                ..self
+            },
+            OpColor::Yellow | OpColor::Blue | OpColor::Green | OpColor::Purple => self,
         }
     }
 }
@@ -142,37 +183,6 @@ impl<const W: usize, const H: usize> std::fmt::Debug for Field<W, H> {
     }
 }
 
-pub struct Wrap {
-    left: bool,
-    right: bool,
-    up: bool,
-    down: bool,
-}
-
-impl Wrap {
-    pub fn left(&self) -> bool {
-        self.left && !self.right && !self.up && !self.down
-    }
-
-    pub fn right(&self) -> bool {
-        !self.left && self.right && !self.up && !self.down
-    }
-
-    pub fn up(&self) -> bool {
-        !self.left && !self.right && self.up && !self.down
-    }
-
-    pub fn down(&self) -> bool {
-        !self.left && !self.right && !self.up && self.down
-    }
-}
-
-pub struct NewPosition {
-    pub wrap: Wrap,
-    pub new_row: usize,
-    pub new_col: usize,
-}
-
 impl Field<12, 6> {
     #[rustfmt::skip]
     pub fn new() -> Field {
@@ -206,11 +216,11 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
     }
 
     fn set(&mut self, color: Stone, row: usize, col: usize) {
-        self.field[row % Height][col % Width] = color;
+        self.field[row][col] = color;
     }
 
     fn get(&mut self, row: usize, col: usize) -> Stone {
-        self.field[row % Height][col % Width]
+        self.field[row][col]
     }
 
     pub const fn width(&self) -> usize {
@@ -221,57 +231,88 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
         Height
     }
 
-    pub fn step(&mut self, vm: &mut Vm, op: Op) {
+    fn next_row(row: usize, dir: Dir) -> usize {
+        if dir == Dir::Up {
+            if row == 0 {
+                Height - 1
+            } else {
+                row - 1
+            }
+        } else if dir == Dir::Down {
+            if row + 1 == Height {
+                0
+            } else {
+                row + 1
+            }
+        } else {
+            row
+        }
+    }
+
+    fn next_col(col: usize, dir: Dir) -> usize {
+        if dir == Dir::Left {
+            if col == 0 {
+                Width - 1
+            } else {
+                col - 1
+            }
+        } else if dir == Dir::Right {
+            if col + 1 == Width {
+                0
+            } else {
+                col + 1
+            }
+        } else {
+            col
+        }
+    }
+
+    pub fn step(&mut self, vm: &mut Vm, mut op: Op) {
         let (row_idx, col_idx) = self.find(op.color());
         let mag = op.magnitude();
-        println!("step {op:?}@{row_idx},{col_idx}");
+        println!("****** begin");
+        println!("called step {mag}x{op}@{row_idx},{col_idx}");
+        println!("{self:?}");
+        println!("******");
 
-        for _ in 1..=mag {
-            let new_col = if op.dir == Dir::Left {
-                if col_idx == 0 {
-                    Width - 1
-                } else {
-                    col_idx - 1
-                }
-            } else if op.dir == Dir::Right {
-                col_idx + 1
+        let (mut current_row, mut current_col) = (row_idx, col_idx);
+        for steps_taken in 1..=mag {
+            let next_row = Self::next_row(current_row, op.dir);
+            let next_col = Self::next_col(current_col, op.dir);
+            let next = self.get(next_row, next_col);
+            //println!(
+            //    "  {:?}{steps_taken} steps to {next_row},{next_col}={next:?}",
+            //    op.color()
+            //);
+            println!("next is {next:?}@{next_row},{next_col}");
+
+            if next != Stone::X && next < op.color() {
+                //println!("    pushing out of the way");
+                let next_op = Op {
+                    color: next.to_op(),
+                    dir: op.dir,
+                };
+
+                println!("call step({next_op:?}) because {next:?} in way while stepping {op:?}",);
+                println!("###### recur");
+                println!("{self:?}");
+                self.step(vm, next_op);
+                println!("{self:?}");
+                println!("###### end recur (moving {next:?}) to make way for {op:?}",);
+            } else if next != Stone::X && next > op.color() {
+                //println!("    too heavy");
+                println!("{next:?} is heaver than {op:?}");
+                break;
             } else {
-                col_idx
-            };
-
-            let new_row = if op.dir == Dir::Up {
-                if row_idx == 0 {
-                    Height - 1
-                } else {
-                    row_idx - 1
-                }
-            } else if op.dir == Dir::Down {
-                row_idx + 1
-            } else {
-                row_idx
-            };
-            println!("  -> {new_row},{new_col}");
-
-            let there = self.get(new_row, new_col);
-
-            if there != Stone::X {
-                if there < op.color() {
-                    println!("  collide with {there:?}, power through");
-                    self.step(
-                        vm,
-                        Op {
-                            color: there.to_op(),
-                            dir: op.dir,
-                        },
-                    );
-                } else {
-                    println!("  collide with {there:?}, too weak");
-                    break;
-                }
+                //println!("    unoccupied");
             }
 
-            self.set(op.color(), new_row, new_col);
-            self.set(Stone::X, row_idx, col_idx);
+            self.set(Stone::X, current_row, current_col);
+            self.set(op.color(), next_row, next_col);
+            println!("set {next_row},{next_col} to {:?}", op.color());
+
+            current_row = next_row;
+            current_col = next_col;
         }
 
         vm.exec(op);
@@ -281,6 +322,35 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    macro_rules! oplist {
+        ($(($color:expr, $dir:ident),)*) => {
+            vec![$(Op {
+                color: $color,
+                dir: Dir::$dir,
+            },)*]
+        };
+    }
+
+    macro_rules! mktest {
+        (($color:expr, $dir:ident), $field:expr, $expfield:expr, $expvm:expr) => {
+            let op = Op {
+                color: $color,
+                dir: Dir::$dir,
+            };
+            let mut vm = Vm::default();
+            let mut field = Field { field: $field };
+
+            println!("before\n{field:?}");
+            field.step(&mut vm, op);
+            println!("after\n{field:?}");
+
+            println!("vm: {vm:?}");
+
+            assert_eq!($expfield, field.field);
+            assert_eq!($expvm, vm.history);
+        };
+    }
 
     #[test]
     fn cmp() {
@@ -293,92 +363,258 @@ mod test {
     }
 
     #[test]
-    fn regular_step() {
-        let op = Op {
-            color: OpColor::Red(RedNumber::One),
-            dir: Dir::Right,
-        };
-        let mut vm = Vm::default();
-        let mut field = Field {
-            field: [[Stone::Red, Stone::X]],
-        };
-        field.step(&mut vm, op);
-
-        assert_eq!(field.field, [[Stone::X, Stone::Red]]);
-    }
-
-    #[test]
-    fn wrap_left() {
-        let op = Op {
-            color: OpColor::Red(RedNumber::One),
-            dir: Dir::Left,
-        };
-        let mut vm = Vm::default();
-        let mut field = Field {
-            field: [[Stone::Red, Stone::X]],
-        };
-        field.step(&mut vm, op);
-
-        assert_eq!(field.field, [[Stone::X, Stone::Red]]);
-    }
-
-    #[test]
-    fn wrap_right() {
-        let op = Op {
-            color: OpColor::Red(RedNumber::Two),
-            dir: Dir::Left,
-        };
-        let mut vm = Vm::default();
-        let mut field = Field {
-            field: [[Stone::Red, Stone::X]],
-        };
-        field.step(&mut vm, op);
-
-        assert_eq!(field.field, [[Stone::Red, Stone::X]]);
-    }
-
-    #[test]
-    fn step2() {
-        let op = Op {
-            color: OpColor::Blue,
-            dir: Dir::Right,
-        };
-        let mut vm = Vm::default();
-        let mut field = Field {
-            field: [[Stone::Blue, Stone::Red, Stone::X]],
-        };
-        field.step(&mut vm, op);
-
-        assert_eq!(field.field, [[Stone::X, Stone::Blue, Stone::Red]]);
-        assert_eq!(
-            vm.history,
-            vec![
-                Op {
-                    color: OpColor::Red(RedNumber::One),
-                    dir: Dir::Right,
-                },
-                Op {
-                    color: OpColor::Blue,
-                    dir: Dir::Right,
-                }
-            ]
+    fn simple() {
+        mktest!(
+            (OpColor::Blue, Right),
+            [[Stone::Blue, Stone::X]],
+            [[Stone::X, Stone::Blue]],
+            oplist!((OpColor::Blue, Right),)
         );
     }
 
     #[test]
-    fn step3() {
-        let op = Op {
-            color: OpColor::Red(RedNumber::Two),
-            dir: Dir::Left,
-        };
-        let mut vm = Vm::default();
-        let mut field = Field {
-            field: [[Stone::Red, Stone::X, Stone::X, Stone::Blue, Stone::X]],
-        };
-        println!("{field:?}");
-        field.step(&mut vm, op);
-        println!("{field:?}");
+    fn non_interfere_left() {}
+    #[test]
+    fn non_interfere_right() {}
+    #[test]
+    fn non_interfere_up() {}
+    #[test]
+    fn non_interfere_down() {}
+    #[test]
+    fn non_interfere_left_wrap() {}
+    #[test]
+    fn non_interfere_right_wrap() {}
+    #[test]
+    fn non_interfere_up_wrap() {}
+    #[test]
+    fn non_interfere_down_wrap() {}
 
-        panic!("{vm:?}");
+    #[test]
+    fn left_wrap() {
+        mktest!(
+            (OpColor::Green, Left),
+            [[Stone::Green, Stone::X, Stone::X]],
+            [[Stone::X, Stone::X, Stone::Green]],
+            oplist!((OpColor::Green, Left),)
+        );
+    }
+
+    #[test]
+    fn right_wrap() {
+        mktest!(
+            (OpColor::Green, Right),
+            [[Stone::X, Stone::X, Stone::Green]],
+            [[Stone::Green, Stone::X, Stone::X]],
+            oplist!((OpColor::Green, Right),)
+        );
+    }
+
+    #[test]
+    fn up_wrap() {
+        mktest!(
+            (OpColor::Green, Up),
+            [
+                [Stone::X, Stone::Green],
+                [Stone::X, Stone::X],
+                [Stone::X, Stone::X],
+            ],
+            [
+                [Stone::X, Stone::X],
+                [Stone::X, Stone::X],
+                [Stone::X, Stone::Green]
+            ],
+            oplist!((OpColor::Green, Up),)
+        );
+    }
+
+    #[test]
+    fn down_wrap() {
+        mktest!(
+            (OpColor::Green, Down),
+            [
+                [Stone::X, Stone::X],
+                [Stone::X, Stone::X],
+                [Stone::X, Stone::Green],
+            ],
+            [
+                [Stone::X, Stone::Green],
+                [Stone::X, Stone::X],
+                [Stone::X, Stone::X],
+            ],
+            oplist!((OpColor::Green, Down),)
+        );
+    }
+
+    #[test]
+    fn push_left() {
+        mktest!(
+            (OpColor::Green, Left),
+            [[Stone::X, Stone::Yellow, Stone::Green]],
+            [[Stone::Yellow, Stone::Green, Stone::X]],
+            oplist!((OpColor::Yellow, Left), (OpColor::Green, Left),)
+        );
+    }
+
+    #[test]
+    fn push_right() {
+        mktest!(
+            (OpColor::Green, Right),
+            [[Stone::Green, Stone::Yellow, Stone::X]],
+            [[Stone::X, Stone::Green, Stone::Yellow]],
+            oplist!((OpColor::Yellow, Right), (OpColor::Green, Right),)
+        );
+    }
+
+    #[test]
+    fn push_up() {
+        mktest!(
+            (OpColor::Green, Up),
+            [
+                [Stone::X, Stone::X],
+                [Stone::Yellow, Stone::X],
+                [Stone::Green, Stone::X],
+            ],
+            [
+                [Stone::Yellow, Stone::X],
+                [Stone::Green, Stone::X],
+                [Stone::X, Stone::X]
+            ],
+            oplist!((OpColor::Yellow, Up), (OpColor::Green, Up),)
+        );
+    }
+
+    #[test]
+    fn push_down() {
+        mktest!(
+            (OpColor::Green, Down),
+            [
+                [Stone::Green, Stone::X],
+                [Stone::Yellow, Stone::X],
+                [Stone::X, Stone::X],
+            ],
+            [
+                [Stone::X, Stone::X],
+                [Stone::Green, Stone::X],
+                [Stone::Yellow, Stone::X],
+            ],
+            oplist!((OpColor::Yellow, Down), (OpColor::Green, Down),)
+        );
+    }
+
+    #[test]
+    fn push_left_wrap() {
+        mktest!(
+            (OpColor::Green, Left),
+            [[Stone::Yellow, Stone::Green, Stone::X]],
+            [[Stone::Green, Stone::X, Stone::Yellow]],
+            oplist!((OpColor::Yellow, Left), (OpColor::Green, Left),)
+        );
+    }
+
+    #[test]
+    fn push_right_wrap() {
+        mktest!(
+            (OpColor::Green, Right),
+            [[Stone::X, Stone::Green, Stone::Yellow]],
+            [[Stone::Yellow, Stone::X, Stone::Green]],
+            oplist!((OpColor::Yellow, Right), (OpColor::Green, Right),)
+        );
+    }
+
+    #[test]
+    fn push_up_wrap() {
+        mktest!(
+            (OpColor::Green, Up),
+            [
+                [Stone::Yellow, Stone::X],
+                [Stone::Green, Stone::X],
+                [Stone::X, Stone::X],
+            ],
+            [
+                [Stone::Green, Stone::X],
+                [Stone::X, Stone::X],
+                [Stone::Yellow, Stone::X],
+            ],
+            oplist!((OpColor::Yellow, Up), (OpColor::Green, Up),)
+        );
+    }
+
+    #[test]
+    fn push_down_wrap() {
+        mktest!(
+            (OpColor::Green, Down),
+            [
+                [Stone::X, Stone::X],
+                [Stone::Green, Stone::X],
+                [Stone::Yellow, Stone::X],
+            ],
+            [
+                [Stone::Yellow, Stone::X],
+                [Stone::X, Stone::X],
+                [Stone::Green, Stone::X],
+            ],
+            oplist!((OpColor::Yellow, Down), (OpColor::Green, Down),)
+        );
+    }
+
+    #[test]
+    fn double_push_left() {
+        mktest!(
+            (OpColor::Orange(OrangeNumber::Two), Right),
+            [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
+            [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
+            oplist!(
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Orange(OrangeNumber::Two), Right),
+            )
+        );
+    }
+
+    #[test]
+    fn double_push_right() {
+        mktest!(
+            (OpColor::Orange(OrangeNumber::Two), Right),
+            [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
+            [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
+            oplist!(
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Orange(OrangeNumber::Two), Right),
+            )
+        );
+    }
+
+    #[test]
+    fn choo_choo() {
+        mktest!(
+            (OpColor::Purple, Left),
+            [[
+                Stone::X,
+                Stone::Red,
+                Stone::Orange,
+                Stone::Yellow,
+                Stone::Green,
+                Stone::Blue,
+                Stone::Purple,
+            ]],
+            [[
+                Stone::Red,
+                Stone::Orange,
+                Stone::Yellow,
+                Stone::Green,
+                Stone::Blue,
+                Stone::Purple,
+                Stone::X,
+            ]],
+            oplist!(
+                (OpColor::Red(RedNumber::One), Left),
+                (OpColor::Orange(OrangeNumber::One), Left),
+                (OpColor::Yellow, Left),
+                (OpColor::Green, Left),
+                (OpColor::Blue, Left),
+                (OpColor::Purple, Left),
+            )
+        );
     }
 }
