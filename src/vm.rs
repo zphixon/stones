@@ -61,6 +61,16 @@ pub enum OpColor {
     Purple,
 }
 
+impl OpColor {
+    pub fn magnitude(&self) -> usize {
+        match self {
+            OpColor::Red(step) => step.magnitude(),
+            OpColor::Orange(step) => step.magnitude(),
+            OpColor::Yellow | OpColor::Blue | OpColor::Green | OpColor::Purple => 1,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Dir {
     Left,
@@ -94,11 +104,7 @@ impl Op {
     }
 
     pub fn magnitude(&self) -> usize {
-        match self.color {
-            OpColor::Red(step) => step.magnitude(),
-            OpColor::Orange(step) => step.magnitude(),
-            OpColor::Yellow | OpColor::Blue | OpColor::Green | OpColor::Purple => 1,
-        }
+        self.color.magnitude()
     }
 
     pub fn change_magnitude(self, new_magnitude: usize) -> Op {
@@ -267,7 +273,7 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
         }
     }
 
-    pub fn step(&mut self, vm: &mut Vm, mut op: Op) {
+    pub fn step(&mut self, vm: &mut Vm, mut op: Op) -> Option<Op> {
         let (row_idx, col_idx) = self.find(op.color());
         let mag = op.magnitude();
         println!("****** begin");
@@ -296,12 +302,30 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
                 println!("call step({next_op:?}) because {next:?} in way while stepping {op:?}",);
                 println!("###### recur");
                 println!("{self:?}");
-                self.step(vm, next_op);
+                let rec = self.step(vm, next_op);
                 println!("{self:?}");
                 println!("###### end recur (moving {next:?}) to make way for {op:?}",);
+
+                if let Some(rec) = rec {
+                    if rec == next_op {
+                        println!("rec fully successful");
+                    } else {
+                        println!("rec partially successful");
+                    }
+                } else {
+                    println!("rec fully failed");
+                    break;
+                }
             } else if next != Stone::X && next > op.color() {
                 //println!("    too heavy");
                 println!("{next:?} is heaver than {op:?}");
+                if steps_taken - 1 == 0 {
+                    println!("should not execute");
+                    return None;
+                } else {
+                    println!("should execute {:?}", op.change_magnitude(steps_taken - 1));
+                    op = op.change_magnitude(steps_taken - 1)
+                }
                 break;
             } else {
                 //println!("    unoccupied");
@@ -316,6 +340,7 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
         }
 
         vm.exec(op);
+        Some(op)
     }
 }
 
@@ -347,8 +372,8 @@ mod test {
 
             println!("vm: {vm:?}");
 
-            assert_eq!($expfield, field.field);
-            assert_eq!($expvm, vm.history);
+            assert_eq!($expfield, field.field, "expected left, got right");
+            assert_eq!($expvm, vm.history, "expected left, got right");
         };
     }
 
@@ -373,21 +398,58 @@ mod test {
     }
 
     #[test]
-    fn non_interfere_left() {}
+    fn cancelled() {
+        mktest!(
+            (OpColor::Red(RedNumber::One), Right),
+            [[Stone::Red, Stone::Blue, Stone::X]],
+            [[Stone::Red, Stone::Blue, Stone::X]],
+            Vec::<Op>::new()
+        );
+    }
+
     #[test]
-    fn non_interfere_right() {}
-    #[test]
-    fn non_interfere_up() {}
-    #[test]
-    fn non_interfere_down() {}
-    #[test]
-    fn non_interfere_left_wrap() {}
-    #[test]
-    fn non_interfere_right_wrap() {}
-    #[test]
-    fn non_interfere_up_wrap() {}
-    #[test]
-    fn non_interfere_down_wrap() {}
+    fn double_cancelled() {
+        mktest!(
+            (OpColor::Orange(OrangeNumber::Two), Right),
+            [[Stone::Orange, Stone::X, Stone::Purple]],
+            [[Stone::X, Stone::Orange, Stone::Purple]],
+            oplist!((OpColor::Orange(OrangeNumber::One), Right),)
+        );
+    }
+
+    // TODO necessary?
+    //#[test]
+    //fn non_interfere_left() {}
+    //#[test]
+    //fn non_interfere_right() {}
+    //#[test]
+    //fn non_interfere_up() {}
+    //#[test]
+    //fn non_interfere_down() {}
+    //#[test]
+    //fn non_interfere_left_wrap() {}
+    //#[test]
+    //fn non_interfere_right_wrap() {}
+    //#[test]
+    //fn non_interfere_up_wrap() {}
+    //#[test]
+    //fn non_interfere_down_wrap() {}
+    //#[test]
+    //fn non_interfere_push_left() {}
+    //#[test]
+    //fn non_interfere_push_right() {}
+    //#[test]
+    //fn non_interfere_push_up() {}
+    //#[test]
+    //fn non_interfere_push_down() {}
+    //#[test]
+    //fn non_interfere_push_left_wrap() {}
+    //#[test]
+    //fn non_interfere_push_right_wrap() {}
+    //#[test]
+    //fn non_interfere_push_up_wrap() {}
+    //#[test]
+    //fn non_interfere_push_down_wrap() {}
 
     #[test]
     fn left_wrap() {
@@ -581,6 +643,60 @@ mod test {
                 (OpColor::Red(RedNumber::One), Right),
                 (OpColor::Red(RedNumber::One), Right),
                 (OpColor::Orange(OrangeNumber::Two), Right),
+            )
+        );
+    }
+
+    #[test]
+    fn double_push_left_wrap() {
+        mktest!(
+            (OpColor::Orange(OrangeNumber::Two), Right),
+            [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
+            [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
+            oplist!(
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Orange(OrangeNumber::Two), Right),
+            )
+        );
+    }
+
+    #[test]
+    fn double_push_right_wrap() {
+        mktest!(
+            (OpColor::Orange(OrangeNumber::Two), Right),
+            [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
+            [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
+            oplist!(
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Orange(OrangeNumber::Two), Right),
+            )
+        );
+    }
+
+    #[test]
+    fn double_push_cancelled() {
+        mktest!(
+            (OpColor::Orange(OrangeNumber::Two), Right),
+            [[Stone::Orange, Stone::Red, Stone::X, Stone::Blue]],
+            [[Stone::X, Stone::Orange, Stone::Red, Stone::Blue]],
+            oplist!(
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Orange(OrangeNumber::One), Right),
+            )
+        );
+    }
+
+    #[test]
+    fn double_push_cancelled_wrap() {
+        mktest!(
+            (OpColor::Orange(OrangeNumber::Two), Right),
+            [[Stone::X, Stone::Blue, Stone::Orange, Stone::Red]],
+            [[Stone::Red, Stone::Blue, Stone::X, Stone::Orange]],
+            oplist!(
+                (OpColor::Red(RedNumber::One), Right),
+                (OpColor::Orange(OrangeNumber::One), Right),
             )
         );
     }
