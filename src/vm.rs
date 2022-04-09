@@ -1,4 +1,4 @@
-use crate::{field::Stone, Error, Token};
+use crate::{field::Stone, Error, Token, Value};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum RedNumber {
@@ -181,7 +181,7 @@ pub struct Vm {
 }
 
 impl Vm {
-    pub fn exec(&mut self, op: Op) {
+    pub fn exec(&mut self, op: Op) -> Result<(), Error> {
         use Dir::*;
         use OpColor::*;
         use OrangeNumber as O;
@@ -193,20 +193,20 @@ impl Vm {
         self.history.push(op);
 
         match (op.color, op.dir) {
-            (Red(R::One), Left) => {}
-            (Red(R::One), Right) => {}
-            (Red(R::One), Up) => {}
-            (Red(R::One), Down) => {}
+            (Red(R::One), Left) => self.stack.push(Value::Num(0)),
+            (Red(R::One), Right) => self.stack.push(Value::Num(1)),
+            (Red(R::One), Up) => self.stack.push(Value::Num(2)),
+            (Red(R::One), Down) => self.stack.push(Value::Num(3)),
 
-            (Red(R::Two), Left) => {}
-            (Red(R::Two), Right) => {}
-            (Red(R::Two), Up) => {}
-            (Red(R::Two), Down) => {}
+            (Red(R::Two), Left) => self.stack.push(Value::Num(4)),
+            (Red(R::Two), Right) => self.stack.push(Value::Num(5)),
+            (Red(R::Two), Up) => self.stack.push(Value::Num(6)),
+            (Red(R::Two), Down) => self.stack.push(Value::Num(7)),
 
-            (Red(R::Three), Left) => {}
-            (Red(R::Three), Right) => {}
-            (Red(R::Three), Up) => {}
-            (Red(R::Three), Down) => {}
+            (Red(R::Three), Left) => self.stack.push(Value::Num(8)),
+            (Red(R::Three), Right) => self.stack.push(Value::Num(9)),
+            (Red(R::Three), Up) => self.stack.push(Value::Bool(true)),
+            (Red(R::Three), Down) => self.stack.push(Value::Bool(false)),
 
             (Orange(O::One), Left) => {}
             (Orange(O::One), Right) => {}
@@ -218,7 +218,11 @@ impl Vm {
             (Orange(O::Two), Up) => {}
             (Orange(O::Two), Down) => {}
 
-            (Yellow, Left) => {}
+            (Yellow, Left) => {
+                let rhs: i64 = self.stack.pop().ok_or(Error::StackUnderflow)?.try_into()?;
+                let lhs: i64 = self.stack.pop().ok_or(Error::StackUnderflow)?.try_into()?;
+                self.stack.push(Value::Num(lhs + rhs));
+            }
             (Yellow, Right) => {}
             (Yellow, Up) => {}
             (Yellow, Down) => {}
@@ -238,5 +242,7 @@ impl Vm {
             (Purple, Up) => {}
             (Purple, Down) => {}
         }
+
+        Ok(())
     }
 }

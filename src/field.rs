@@ -130,12 +130,14 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
     }
 
     // returns whether the move was blocked
-    pub fn step(&mut self, vm: &mut Vm, op: Op) {
+    pub fn step(&mut self, vm: &mut Vm, op: Op) -> Result<(), crate::Error> {
         let mut ops = Vec::new();
         self.step_rec(&mut ops, op);
         for op in ops {
-            vm.exec(op);
+            vm.exec(op)?;
         }
+
+        Ok(())
     }
 
     fn step_rec(&mut self, ops: &mut Vec<Op>, op: Op) -> bool {

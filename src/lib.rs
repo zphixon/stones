@@ -5,12 +5,29 @@ use std::{cmp::Ordering, iter::Peekable};
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
-    UnknownToken { token: String },
-    UnexpectedToken { token: Token },
-    ExpectedColor { got: Token },
-    ExpectedRedNumber { got: Token },
-    ExpectedOrangeNumber { got: Token },
-    ExpectedDir { got: Token },
+    UnknownToken {
+        token: String,
+    },
+    UnexpectedToken {
+        token: Token,
+    },
+    ExpectedColor {
+        got: Token,
+    },
+    ExpectedRedNumber {
+        got: Token,
+    },
+    ExpectedOrangeNumber {
+        got: Token,
+    },
+    ExpectedDir {
+        got: Token,
+    },
+    StackUnderflow,
+    TypeMismatch {
+        wanted: &'static str,
+        got: &'static str,
+    },
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -155,37 +172,83 @@ pub enum Value {
 
 impl PartialEq for Value {
     fn eq(&self, rhs: &Value) -> bool {
-        if !Value::same_type(self, rhs) {
-            false
+        if self.is_num() && rhs.is_num() {
+            self.get_num() == rhs.get_num()
+        } else if self.is_arr() && rhs.is_arr() {
+            self.get_arr() == rhs.get_arr()
+        } else if self.is_bool() && rhs.is_bool() {
+            self.get_bool() == rhs.get_bool()
         } else {
-            if self.is_num() {
-                self.get_num() == rhs.get_num()
-            } else if self.is_arr() {
-                self.get_arr() == rhs.get_arr()
-            } else {
-                self.get_bool() == rhs.get_bool()
-            }
+            false
         }
     }
 }
 
 impl PartialOrd for Value {
     fn partial_cmp(&self, rhs: &Value) -> Option<Ordering> {
-        if !Value::same_type(self, rhs) {
-            None
+        if self.is_bool() || rhs.is_bool() {
+            self.get_bool().partial_cmp(&rhs.get_bool())
+        } else if self.is_arr() && rhs.is_arr() {
+            self.get_arr().partial_cmp(&rhs.get_arr())
+        } else if self.is_num() && rhs.is_num() {
+            Some(self.get_num().cmp(&rhs.get_num()))
         } else {
-            if self.is_bool() {
-                None
-            } else if self.is_arr() {
-                self.get_arr().partial_cmp(&rhs.get_arr())
-            } else {
-                Some(self.get_num().cmp(&rhs.get_num()))
-            }
+            None
+        }
+    }
+}
+
+impl TryInto<i64> for Value {
+    type Error = Error;
+    fn try_into(self) -> Result<i64, Self::Error> {
+        if self.is_num() {
+            Ok(self.get_num())
+        } else {
+            Err(Error::TypeMismatch {
+                wanted: "number",
+                got: self.type_name(),
+            })
+        }
+    }
+}
+
+impl TryInto<Vec<Value>> for Value {
+    type Error = Error;
+    fn try_into(self) -> Result<Vec<Value>, Self::Error> {
+        if self.is_arr() {
+            Ok(self.get_arr())
+        } else {
+            Err(Error::TypeMismatch {
+                wanted: "array",
+                got: self.type_name(),
+            })
+        }
+    }
+}
+
+impl TryInto<bool> for Value {
+    type Error = Error;
+    fn try_into(self) -> Result<bool, Self::Error> {
+        if self.is_bool() {
+            Ok(self.get_bool())
+        } else {
+            Err(Error::TypeMismatch {
+                wanted: "bool",
+                got: self.type_name(),
+            })
         }
     }
 }
 
 impl Value {
+    pub fn type_name(&self) -> &'static str {
+        match self {
+            Value::Num(_) => "number",
+            Value::Arr(_) => "array",
+            Value::Bool(_) => "bool",
+        }
+    }
+
     pub fn print_as_char(&self) {
         if self.is_num() {
             print!("{}", self.get_num() as u8 as char);
@@ -209,53 +272,39 @@ impl Value {
     }
 
     pub fn is_num(&self) -> bool {
-        match self {
-            &Value::Num(_) => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_arr(&self) -> bool {
-        match self {
-            &Value::Arr(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Num(_))
     }
 
     pub fn is_bool(&self) -> bool {
-        match self {
-            &Value::Bool(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Bool(_))
+    }
+
+    pub fn is_arr(&self) -> bool {
+        matches!(self, Value::Arr(_))
     }
 
     pub fn get_num(&self) -> i64 {
-        let res = match self {
-            &Value::Num(n) => n,
-            _ => panic!("called get_num on non-num"),
-        };
-        res
-    }
-
-    pub fn get_arr(&self) -> Vec<Value> {
-        // derp derpity derp
-        let res = match self {
-            &Value::Arr(ref a) => a,
-            _ => panic!("called get_arr on non-arr"),
-        };
-        res.to_vec()
+        assert!(self.is_num());
+        match self {
+            Value::Num(n) => *n,
+            _ => unreachable!(),
+        }
     }
 
     pub fn get_bool(&self) -> bool {
-        let res = match self {
-            &Value::Bool(b) => b,
-            _ => panic!("called get_bool on non-bool"),
-        };
-        res
+        assert!(self.is_bool());
+        match self {
+            Value::Bool(b) => *b,
+            _ => unreachable!(),
+        }
     }
 
-    pub fn same_type(a: &Value, b: &Value) -> bool {
-        (a.is_num() && b.is_num()) || (a.is_arr() && b.is_arr()) || (a.is_bool() && b.is_bool())
+    pub fn get_arr(&self) -> Vec<Value> {
+        assert!(self.is_arr());
+        match self {
+            Value::Arr(a) => a.to_vec(),
+            _ => unreachable!(),
+        }
     }
 
     pub fn is_truthy(&self) -> bool {

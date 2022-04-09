@@ -11,6 +11,6 @@ fn main() {
     let mut vm = stones::vm::Vm::default();
     let mut field = stones::field::Field::new();
     for op in ast {
-        field.step(&mut vm, op);
+        field.step(&mut vm, op).unwrap();
     }
 }
