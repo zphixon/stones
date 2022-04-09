@@ -181,13 +181,15 @@ pub struct Vm {
 }
 
 impl Vm {
-    pub fn exec(&mut self, op: Op) -> Result<(), Error> {
+    pub fn exec(&mut self, op: Op, print_op: bool) -> Result<(), Error> {
         use Dir::*;
         use OpColor::*;
         use OrangeNumber as O;
         use RedNumber as R;
 
-        println!("exec {op:?}");
+        if print_op {
+            println!("exec {op:?}");
+        }
 
         #[cfg(test)]
         self.history.push(op);

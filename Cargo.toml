@@ -5,7 +5,7 @@ authors = ['Zack <zphixon@gmail.com>']
 edition = '2021'
 
 [dependencies]
-argparse = '0.2.1'
+gumdrop = '0.8.1'
 rustyline = '1'
 
 [profile.dev]
