@@ -1,4 +1,5 @@
-use crate::vm::{Dir, Op, OpColor, OrangeNumber, RedNumber, Vm};
+use crate::vm::{Dir, Op, OpColor, OrangeNumber, RedNumber};
+use crate::{Error, Token};
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub enum Stone {
@@ -19,9 +20,32 @@ impl Stone {
             Stone::Yellow => OpColor::Yellow,
             Stone::Blue => OpColor::Blue,
             Stone::Green => OpColor::Green,
-            Stone::Purple => OpColor::Purple,
 
+            // cannot get purple, it is the heaviest
+            // cannot get X, it has no op
             _ => unreachable!(),
+        }
+    }
+
+    pub fn has_number(&self) -> bool {
+        match self {
+            Stone::Red | Stone::Orange => true,
+            _ => false,
+        }
+    }
+}
+
+impl TryFrom<Token> for Stone {
+    type Error = Error;
+    fn try_from(value: Token) -> Result<Stone, Self::Error> {
+        match value {
+            Token::Red => Ok(Stone::Red),
+            Token::Orange => Ok(Stone::Orange),
+            Token::Yellow => Ok(Stone::Yellow),
+            Token::Green => Ok(Stone::Green),
+            Token::Blue => Ok(Stone::Blue),
+            Token::Purple => Ok(Stone::Purple),
+            _ => Err(Error::ExpectedColor { got: value }),
         }
     }
 }
@@ -129,21 +153,13 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
         }
     }
 
-    // returns whether the move was blocked
-    pub fn step(&mut self, vm: &mut Vm, op: Op, print_op: bool) -> Result<(), crate::Error> {
+    pub fn ops_for(&mut self, op: Op, print_op: bool) -> Vec<Op> {
         let mut ops = Vec::new();
         self.step_rec(&mut ops, op, print_op);
-        for op in ops {
-            #[cfg(test)]
-            let _ = vm.exec(op, print_op);
-
-            #[cfg(not(test))]
-            vm.exec(op, print_op)?;
-        }
-
-        Ok(())
+        ops
     }
 
+    // returns whether the move was blocked
     fn step_rec(&mut self, ops: &mut Vec<Op>, op: Op, print_op: bool) -> bool {
         let (row_idx, col_idx) = self.find(op.color());
         let (mut current_row, mut current_col) = (row_idx, col_idx);
@@ -230,17 +246,14 @@ mod test {
                 dir: Dir::$dir,
                 side_effect: false,
             };
-            let mut vm = Vm::default();
             let mut field = Field { field: $field };
 
             println!("before\n{field:?}");
-            let _ = field.step(&mut vm, op, true);
+            let ops = field.ops_for(op, true);
             println!("after\n{field:?}");
 
-            println!("vm: {vm:?}");
-
             assert_eq!($expfield, field.field, "expected left, got right");
-            assert_eq!($expvm, vm.history, "expected left, got right");
+            assert_eq!($expvm, ops, "expected left, got right");
         };
     }
 

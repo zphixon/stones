@@ -174,15 +174,24 @@ impl Op {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct Vm {
-    #[cfg(test)]
-    pub history: Vec<Op>,
+    program: Vec<Op>,
+    ip: usize,
     stack: Vec<Value>,
     array_in_progress: Option<Vec<Value>>,
 }
 
 impl Vm {
+    pub fn new(program: Vec<Op>) -> Vm {
+        Vm {
+            program,
+            ip: 0,
+            stack: Vec::new(),
+            array_in_progress: None,
+        }
+    }
+
     fn pop(&mut self) -> Result<Value, Error> {
         self.stack.pop().ok_or(Error::StackUnderflow)
     }
@@ -198,7 +207,14 @@ impl Vm {
             .ok_or(Error::StackUnderflow)
     }
 
-    pub fn exec(&mut self, op: Op, print_op: bool) -> Result<(), Error> {
+    pub fn step(&mut self, print_op: bool) -> Result<(), Error> {
+        let op = self.program[self.ip];
+        self.ip += 1;
+
+        self.exec(op, print_op)
+    }
+
+    fn exec(&mut self, op: Op, print_op: bool) -> Result<(), Error> {
         use Dir::*;
         use OpColor::*;
         use OrangeNumber as O;
@@ -207,9 +223,6 @@ impl Vm {
         if print_op {
             println!("exec {op:?}");
         }
-
-        #[cfg(test)]
-        self.history.push(op);
 
         macro_rules! my_todo {
             () => {{

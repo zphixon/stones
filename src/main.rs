@@ -57,7 +57,7 @@ fn main() {
         return;
     }
 
-    let mut vm = stones::vm::Vm::default();
+    //let mut vm = stones::vm::Vm::new(ast);
     let mut field = stones::field::Field::new();
     let mut step = 0;
 
@@ -65,20 +65,32 @@ fn main() {
         println!("init\n{field:?}\n");
     }
 
-    for op in ast {
-        let err = field.step(&mut vm, op, args.operation);
-        if matches!(err, Err(stones::Error::Quine)) {
-            println!("{source}");
-        } else {
-            err.unwrap();
-        }
+    // should be like
+    // vm.step(mut field, op) {
+    //   necessary_ops = field.step(op) {
+    //     let ops = mut vec
+    //     steprec(ops)
+    //     return ops
+    //   }
+    //   for op inn necops {
+    //     self.exec(op)
+    //   }
+    // }
 
-        step += 1;
-        if args.field {
-            println!("{step}\n{field:?}");
-        }
-        if args.stack {
-            println!("{vm:?}");
-        }
-    }
+    //for op in ast {
+    //    //let err = field.step(&mut vm, op, args.operation);
+    //    if matches!(err, Err(stones::Error::Quine)) {
+    //        println!("{source}");
+    //    } else {
+    //        err.unwrap();
+    //    }
+
+    //    step += 1;
+    //    if args.field {
+    //        println!("{step}\n{field:?}");
+    //    }
+    //    if args.stack {
+    //        println!("{vm:?}");
+    //    }
+    //}
 }

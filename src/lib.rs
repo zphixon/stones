@@ -3,6 +3,9 @@ pub mod vm;
 
 use std::{cmp::Ordering, iter::Peekable};
 
+use field::Stone;
+use vm::{Dir, Op, OrangeNumber, RedNumber};
+
 #[derive(Debug)]
 pub enum Error {
     UnknownToken {
@@ -11,7 +14,11 @@ pub enum Error {
     UnexpectedToken {
         token: Token,
     },
+    UnexpectedEof,
     ExpectedColor {
+        got: Token,
+    },
+    ExpectedNumber {
         got: Token,
     },
     ExpectedRedNumber {
@@ -59,7 +66,7 @@ pub enum Token {
 }
 
 impl Token {
-    pub fn is_color_without_number(&self) -> bool {
+    pub fn is_color(&self) -> bool {
         match self {
             Token::Red
             | Token::Orange
@@ -103,78 +110,117 @@ impl TryFrom<&str> for Token {
     }
 }
 
+#[derive(Debug)]
+pub enum Ast {
+    While {
+        color: Token,
+        dir: Dir,
+        stmts: Vec<Ast>,
+        end: Token,
+    },
+    If {
+        color: Token,
+        dir: Token,
+        true_body: Vec<Ast>,
+        else_: Option<Token>,
+        false_body: Vec<Ast>,
+        end: Token,
+    },
+    Red {
+        color: Token,
+        number: RedNumber,
+        dir: Dir,
+    },
+    Orange {
+        color: Token,
+        number: OrangeNumber,
+        dir: Dir,
+    },
+    Normal {
+        color: Token,
+        dir: Dir,
+    },
+}
+
+pub enum EitherNumber {
+    Red(RedNumber),
+    Orange(OrangeNumber),
+}
+
+pub struct Number {
+    number: EitherNumber,
+    number_token: Token,
+}
+
+pub struct Command {
+    color: Stone,
+    color_token: Token,
+    dir: Dir,
+    dir_token: Token,
+    number: Option<Number>,
+}
+
 pub fn scan(source: &str) -> impl Iterator<Item = Token> + '_ {
     source
         .split_whitespace()
         .filter_map(|sub| Token::try_from(sub).ok())
 }
 
-pub fn parse(source: &str) -> Result<Vec<vm::Op>, Error> {
+pub fn parse(source: &str) -> Result<Vec<Op>, Error> {
     let mut ops = Vec::new();
     let mut tokens = scan(source).peekable();
 
-    while let Some(op) = parse_command(&mut tokens)? {
-        ops.push(op);
+    while !matches!(tokens.peek(), Some(Token::Eof)) {
+        let command = parse_command(&mut tokens)?;
+        if command.color == Stone::Purple {}
     }
 
     Ok(ops)
 }
 
-fn parse_command<I: Iterator<Item = Token>>(
-    scanner: &mut Peekable<I>,
-) -> Result<Option<vm::Op>, Error> {
-    if let Some(&token) = scanner.peek() {
-        let color_token = scanner.next().unwrap();
-        let dir = parse_dir(scanner)?;
+fn parse_command<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Command, Error> {
+    let color_token = next(scanner)?;
+    let color = color_token.try_into()?;
+    let dir_token = next(scanner)?;
+    let dir = dir_token.try_into()?;
+    let number = parse_number(scanner, color)?;
 
-        let color = if color_token == Token::Red {
-            let num = parse_red_number(scanner)?;
-            vm::OpColor::Red(num)
-        } else if color_token == Token::Orange {
-            let num = parse_orange_number(scanner)?;
-            vm::OpColor::Orange(num)
-        } else if color_token.is_color_without_number() {
-            color_token.try_into()?
-        } else {
-            return Err(Error::UnexpectedToken { token });
-        };
-
-        Ok(Some(vm::Op {
-            color,
-            dir,
-            side_effect: false,
-        }))
-    } else {
-        Ok(None)
-    }
+    Ok(Command {
+        color,
+        color_token,
+        dir,
+        dir_token,
+        number,
+    })
 }
 
-fn parse_red_number<I: Iterator<Item = Token>>(
-    scanner: &mut Peekable<I>,
-) -> Result<vm::RedNumber, Error> {
-    if let Some(token) = scanner.next() {
-        token.try_into()
-    } else {
-        Err(Error::ExpectedRedNumber { got: Token::Eof })
-    }
+fn next<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Token, Error> {
+    scanner.next().ok_or(Error::UnexpectedEof)
 }
 
-fn parse_orange_number<I: Iterator<Item = Token>>(
+fn parse_number<I: Iterator<Item = Token>>(
     scanner: &mut Peekable<I>,
-) -> Result<vm::OrangeNumber, Error> {
-    if let Some(token) = scanner.next() {
-        token.try_into()
-    } else {
-        Err(Error::ExpectedOrangeNumber { got: Token::Eof })
+    color: Stone,
+) -> Result<Option<Number>, Error> {
+    if !color.has_number() {
+        return Ok(None);
     }
-}
 
-fn parse_dir<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<vm::Dir, Error> {
-    if let Some(token) = scanner.next() {
-        Ok(token.try_into()?)
-    } else {
-        Err(Error::ExpectedColor { got: Token::Eof })
+    let number_token = next(scanner)?;
+    if !number_token.is_number() {
+        return Err(Error::ExpectedNumber { got: number_token });
     }
+
+    let number = match color {
+        Stone::Red => EitherNumber::Red(number_token.try_into()?),
+        Stone::Orange => EitherNumber::Orange(number_token.try_into()?),
+        _ => unreachable!(),
+    };
+
+    Ok(Some(Number {
+        number,
+        number_token,
+    }))
 }
 
 #[derive(Clone, Debug)]
