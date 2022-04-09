@@ -165,6 +165,7 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
                 let next_op = Op {
                     color: next.to_op(),
                     dir: op.dir,
+                    side_effect: true,
                 };
                 let blocked = self.step_rec(ops, next_op, print_op);
                 if blocked {
@@ -213,10 +214,11 @@ mod test {
     use super::*;
 
     macro_rules! oplist {
-        ($(($color:expr, $dir:ident),)*) => {
+        ($(($color:expr, $dir:ident, $side_effect:expr),)*) => {
             vec![$(Op {
                 color: $color,
                 dir: Dir::$dir,
+                side_effect: $side_effect,
             },)*]
         };
     }
@@ -226,6 +228,7 @@ mod test {
             let op = Op {
                 color: $color,
                 dir: Dir::$dir,
+                side_effect: false,
             };
             let mut vm = Vm::default();
             let mut field = Field { field: $field };
@@ -257,7 +260,7 @@ mod test {
             (OpColor::Blue, Right),
             [[Stone::Blue, Stone::X]],
             [[Stone::X, Stone::Blue]],
-            oplist!((OpColor::Blue, Right),)
+            oplist!((OpColor::Blue, Right, false),)
         );
     }
 
@@ -277,7 +280,7 @@ mod test {
             (OpColor::Orange(OrangeNumber::Two), Right),
             [[Stone::Orange, Stone::X, Stone::Purple]],
             [[Stone::X, Stone::Orange, Stone::Purple]],
-            oplist!((OpColor::Orange(OrangeNumber::One), Right),)
+            oplist!((OpColor::Orange(OrangeNumber::One), Right, false),)
         );
     }
 
@@ -321,7 +324,7 @@ mod test {
             (OpColor::Green, Left),
             [[Stone::Green, Stone::X, Stone::X]],
             [[Stone::X, Stone::X, Stone::Green]],
-            oplist!((OpColor::Green, Left),)
+            oplist!((OpColor::Green, Left, false),)
         );
     }
 
@@ -331,7 +334,7 @@ mod test {
             (OpColor::Green, Right),
             [[Stone::X, Stone::X, Stone::Green]],
             [[Stone::Green, Stone::X, Stone::X]],
-            oplist!((OpColor::Green, Right),)
+            oplist!((OpColor::Green, Right, false),)
         );
     }
 
@@ -349,7 +352,7 @@ mod test {
                 [Stone::X, Stone::X],
                 [Stone::X, Stone::Green]
             ],
-            oplist!((OpColor::Green, Up),)
+            oplist!((OpColor::Green, Up, false),)
         );
     }
 
@@ -367,7 +370,7 @@ mod test {
                 [Stone::X, Stone::X],
                 [Stone::X, Stone::X],
             ],
-            oplist!((OpColor::Green, Down),)
+            oplist!((OpColor::Green, Down, false),)
         );
     }
 
@@ -377,7 +380,7 @@ mod test {
             (OpColor::Green, Left),
             [[Stone::X, Stone::Yellow, Stone::Green]],
             [[Stone::Yellow, Stone::Green, Stone::X]],
-            oplist!((OpColor::Yellow, Left), (OpColor::Green, Left),)
+            oplist!((OpColor::Yellow, Left, true), (OpColor::Green, Left, false),)
         );
     }
 
@@ -387,7 +390,10 @@ mod test {
             (OpColor::Green, Right),
             [[Stone::Green, Stone::Yellow, Stone::X]],
             [[Stone::X, Stone::Green, Stone::Yellow]],
-            oplist!((OpColor::Yellow, Right), (OpColor::Green, Right),)
+            oplist!(
+                (OpColor::Yellow, Right, true),
+                (OpColor::Green, Right, false),
+            )
         );
     }
 
@@ -405,7 +411,7 @@ mod test {
                 [Stone::Green, Stone::X],
                 [Stone::X, Stone::X]
             ],
-            oplist!((OpColor::Yellow, Up), (OpColor::Green, Up),)
+            oplist!((OpColor::Yellow, Up, true), (OpColor::Green, Up, false),)
         );
     }
 
@@ -423,7 +429,7 @@ mod test {
                 [Stone::Green, Stone::X],
                 [Stone::Yellow, Stone::X],
             ],
-            oplist!((OpColor::Yellow, Down), (OpColor::Green, Down),)
+            oplist!((OpColor::Yellow, Down, true), (OpColor::Green, Down, false),)
         );
     }
 
@@ -433,7 +439,7 @@ mod test {
             (OpColor::Green, Left),
             [[Stone::Yellow, Stone::Green, Stone::X]],
             [[Stone::Green, Stone::X, Stone::Yellow]],
-            oplist!((OpColor::Yellow, Left), (OpColor::Green, Left),)
+            oplist!((OpColor::Yellow, Left, true), (OpColor::Green, Left, false),)
         );
     }
 
@@ -443,7 +449,10 @@ mod test {
             (OpColor::Green, Right),
             [[Stone::X, Stone::Green, Stone::Yellow]],
             [[Stone::Yellow, Stone::X, Stone::Green]],
-            oplist!((OpColor::Yellow, Right), (OpColor::Green, Right),)
+            oplist!(
+                (OpColor::Yellow, Right, true),
+                (OpColor::Green, Right, false),
+            )
         );
     }
 
@@ -461,7 +470,7 @@ mod test {
                 [Stone::X, Stone::X],
                 [Stone::Yellow, Stone::X],
             ],
-            oplist!((OpColor::Yellow, Up), (OpColor::Green, Up),)
+            oplist!((OpColor::Yellow, Up, true), (OpColor::Green, Up, false),)
         );
     }
 
@@ -479,7 +488,7 @@ mod test {
                 [Stone::X, Stone::X],
                 [Stone::Green, Stone::X],
             ],
-            oplist!((OpColor::Yellow, Down), (OpColor::Green, Down),)
+            oplist!((OpColor::Yellow, Down, true), (OpColor::Green, Down, false),)
         );
     }
 
@@ -490,9 +499,9 @@ mod test {
             [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
             [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
             oplist!(
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Orange(OrangeNumber::Two), Right),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Orange(OrangeNumber::Two), Right, false),
             )
         );
     }
@@ -504,9 +513,9 @@ mod test {
             [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
             [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
             oplist!(
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Orange(OrangeNumber::Two), Right),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Orange(OrangeNumber::Two), Right, false),
             )
         );
     }
@@ -518,9 +527,9 @@ mod test {
             [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
             [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
             oplist!(
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Orange(OrangeNumber::Two), Right),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Orange(OrangeNumber::Two), Right, false),
             )
         );
     }
@@ -532,9 +541,9 @@ mod test {
             [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
             [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
             oplist!(
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Orange(OrangeNumber::Two), Right),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Orange(OrangeNumber::Two), Right, false),
             )
         );
     }
@@ -546,8 +555,8 @@ mod test {
             [[Stone::Orange, Stone::Red, Stone::X, Stone::Blue]],
             [[Stone::X, Stone::Orange, Stone::Red, Stone::Blue]],
             oplist!(
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Orange(OrangeNumber::One), Right),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Orange(OrangeNumber::One), Right, false),
             )
         );
     }
@@ -559,8 +568,8 @@ mod test {
             [[Stone::X, Stone::Blue, Stone::Orange, Stone::Red]],
             [[Stone::Red, Stone::Blue, Stone::X, Stone::Orange]],
             oplist!(
-                (OpColor::Red(RedNumber::One), Right),
-                (OpColor::Orange(OrangeNumber::One), Right),
+                (OpColor::Red(RedNumber::One), Right, true),
+                (OpColor::Orange(OrangeNumber::One), Right, false),
             )
         );
     }
@@ -588,12 +597,12 @@ mod test {
                 Stone::X,
             ]],
             oplist!(
-                (OpColor::Red(RedNumber::One), Left),
-                (OpColor::Orange(OrangeNumber::One), Left),
-                (OpColor::Yellow, Left),
-                (OpColor::Green, Left),
-                (OpColor::Blue, Left),
-                (OpColor::Purple, Left),
+                (OpColor::Red(RedNumber::One), Left, true),
+                (OpColor::Orange(OrangeNumber::One), Left, true),
+                (OpColor::Yellow, Left, true),
+                (OpColor::Green, Left, true),
+                (OpColor::Blue, Left, true),
+                (OpColor::Purple, Left, false),
             )
         );
     }

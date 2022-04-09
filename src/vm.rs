@@ -134,6 +134,7 @@ impl TryFrom<Token> for Dir {
 pub struct Op {
     pub color: OpColor,
     pub dir: Dir,
+    pub side_effect: bool,
 }
 
 impl std::fmt::Display for Op {
@@ -186,7 +187,12 @@ impl Vm {
         self.stack.pop().ok_or(Error::StackUnderflow)
     }
 
+    #[cfg_attr(test, allow(unused_variables))]
     fn peek(&mut self, depth: usize) -> Result<&Value, Error> {
+        #[cfg(test)]
+        return Ok(&Value::Num(0));
+
+        #[cfg_attr(test, allow(unreachable_code))]
         self.stack
             .get(self.stack.len() - depth - 1)
             .ok_or(Error::StackUnderflow)

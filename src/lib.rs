@@ -139,7 +139,11 @@ fn parse_command<I: Iterator<Item = Token>>(
             return Err(Error::UnexpectedToken { token });
         };
 
-        Ok(Some(vm::Op { color, dir }))
+        Ok(Some(vm::Op {
+            color,
+            dir,
+            side_effect: false,
+        }))
     } else {
         Ok(None)
     }
