@@ -3,7 +3,7 @@ pub mod vm;
 
 use std::{cmp::Ordering, iter::Peekable};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub enum Error {
     UnknownToken {
         token: String,
@@ -29,6 +29,15 @@ pub enum Error {
         got: &'static str,
     },
     Quine,
+    IoError {
+        err: std::io::Error,
+    },
+}
+
+impl From<std::io::Error> for Error {
+    fn from(err: std::io::Error) -> Self {
+        Error::IoError { err }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -203,7 +212,7 @@ impl TryInto<i64> for Value {
     type Error = Error;
     fn try_into(self) -> Result<i64, Self::Error> {
         if self.is_num() {
-            Ok(self.get_num())
+            Ok(self.as_num())
         } else {
             Err(Error::TypeMismatch {
                 wanted: "number",
@@ -217,7 +226,7 @@ impl TryInto<Vec<Value>> for Value {
     type Error = Error;
     fn try_into(self) -> Result<Vec<Value>, Self::Error> {
         if self.is_arr() {
-            Ok(self.get_arr())
+            Ok(self.as_arr())
         } else {
             Err(Error::TypeMismatch {
                 wanted: "array",
@@ -231,7 +240,7 @@ impl TryInto<bool> for Value {
     type Error = Error;
     fn try_into(self) -> Result<bool, Self::Error> {
         if self.is_bool() {
-            Ok(self.get_bool())
+            Ok(self.as_bool())
         } else {
             Err(Error::TypeMismatch {
                 wanted: "bool",
@@ -252,23 +261,27 @@ impl Value {
 
     pub fn print_as_char(&self) {
         if self.is_num() {
-            print!("{}", self.get_num() as u8 as char);
+            print!("{}", self.as_num() as u8 as char);
         } else if self.is_arr() {
-            for c in self.get_arr() {
+            for c in self.as_arr() {
                 c.print_as_char();
             }
+        } else if self.is_bool() {
+            print!("{}", self.as_bool());
         } else {
-            print!("{}", self.get_bool());
+            print!("null");
         }
     }
 
     pub fn print_as_num(&self) {
         if self.is_num() {
-            print!("{}", self.get_num());
+            print!("{}", self.as_num());
         } else if self.is_arr() {
-            print!("{:?}", self.get_arr());
+            print!("{:?}", self.as_arr());
+        } else if self.is_bool() {
+            print!("{}", self.as_bool());
         } else {
-            print!("{}", self.get_bool());
+            print!("null");
         }
     }
 
@@ -284,33 +297,45 @@ impl Value {
         matches!(self, Value::Arr(_))
     }
 
-    pub fn get_num(&self) -> i64 {
+    pub fn as_num(&self) -> i64 {
         assert!(self.is_num());
-        match self {
-            Value::Num(n) => *n,
-            _ => unreachable!(),
-        }
+        self.get_num().unwrap()
     }
 
-    pub fn get_bool(&self) -> bool {
+    pub fn as_bool(&self) -> bool {
         assert!(self.is_bool());
+        self.get_bool().unwrap()
+    }
+
+    pub fn as_arr(&self) -> Vec<Value> {
+        assert!(self.is_arr());
+        self.get_arr().unwrap()
+    }
+
+    pub fn get_num(&self) -> Option<i64> {
         match self {
-            Value::Bool(b) => *b,
-            _ => unreachable!(),
+            Value::Num(n) => Some(*n),
+            _ => None,
         }
     }
 
-    pub fn get_arr(&self) -> Vec<Value> {
-        assert!(self.is_arr());
+    pub fn get_bool(&self) -> Option<bool> {
         match self {
-            Value::Arr(a) => a.to_vec(),
-            _ => unreachable!(),
+            Value::Bool(b) => Some(*b),
+            _ => None,
+        }
+    }
+
+    pub fn get_arr(&self) -> Option<Vec<Value>> {
+        match self {
+            Value::Arr(a) => Some(a.to_vec()),
+            _ => None,
         }
     }
 
     pub fn is_truthy(&self) -> bool {
         if self.is_bool() {
-            self.get_bool()
+            self.as_bool()
         } else {
             true
         }

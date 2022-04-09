@@ -181,6 +181,10 @@ pub struct Vm {
 }
 
 impl Vm {
+    fn pop(&mut self) -> Result<Value, Error> {
+        self.stack.pop().ok_or(Error::StackUnderflow)
+    }
+
     pub fn exec(&mut self, op: Op, print_op: bool) -> Result<(), Error> {
         use Dir::*;
         use OpColor::*;
@@ -193,6 +197,13 @@ impl Vm {
 
         #[cfg(test)]
         self.history.push(op);
+
+        macro_rules! my_todo {
+            () => {{
+                #[cfg(not(test))]
+                todo!();
+            }};
+        }
 
         match (op.color, op.dir) {
             (Red(R::One), dir) => self.stack.push(Value::Num(match dir {
@@ -216,19 +227,26 @@ impl Vm {
                 Down => Value::Num(9),
             }),
 
-            (Orange(O::One), Left) => println!("todo"),
-            (Orange(O::One), Right) => println!("todo"),
-            (Orange(O::One), Up) => println!("todo"),
-            (Orange(O::One), Down) => println!("todo"),
+            (Orange(O::One), Left) => my_todo!(),
+            (Orange(O::One), Right) => my_todo!(),
+            (Orange(O::One), Up) => my_todo!(),
+            (Orange(O::One), Down) => my_todo!(),
 
-            (Orange(O::Two), Left) => println!("todo"),
             (Orange(O::Two), Right) => Err(Error::Quine)?,
-            (Orange(O::Two), Up) => println!("todo"),
-            (Orange(O::Two), Down) => println!("todo"),
+            (Orange(O::Two), dir) => {
+                let lhs = self.pop()?;
+                let rhs = self.pop()?;
+                self.stack.push(Value::Bool(match dir {
+                    Left => !(lhs > rhs) && lhs != rhs,
+                    Up => lhs == rhs,
+                    Down => !(lhs < rhs) && lhs != rhs,
+                    _ => unreachable!(),
+                }))
+            }
 
             (Yellow, dir) => {
-                let rhs: i64 = self.stack.pop().ok_or(Error::StackUnderflow)?.try_into()?;
-                let lhs: i64 = self.stack.pop().ok_or(Error::StackUnderflow)?.try_into()?;
+                let lhs: i64 = self.pop()?.try_into()?;
+                let rhs: i64 = self.pop()?.try_into()?;
                 self.stack.push(Value::Num(match dir {
                     Left => lhs - rhs,
                     Right => lhs / rhs,
@@ -237,25 +255,59 @@ impl Vm {
                 }));
             }
 
-            (Green, Left) => println!("todo"),
-            (Green, Right) => println!("todo"),
-            (Green, Up) => println!("todo"),
-            (Green, Down) => println!("todo"),
+            (Green, Left) => {
+                let _ = self.pop()?;
+            }
+            (Green, Right) => {
+                let bool = self.pop()?.is_truthy();
+                self.stack.push(Value::Bool(!bool));
+            }
+            (Green, Up) => {
+                let d: i64 = self.pop()?.try_into()?;
+                if d > 0 {
+                    let mut to_roll = Vec::new();
+                    for _ in 0..d + 1 {
+                        to_roll.push(self.pop()?);
+                    }
+                    to_roll.reverse();
+                    let top = to_roll.pop().unwrap();
+                    to_roll.insert(0, top);
+                    for elem in to_roll {
+                        self.stack.push(elem);
+                    }
+                }
+            }
+            (Green, Down) => {
+                let dup = self.pop()?;
+                self.stack.push(dup.clone());
+                self.stack.push(dup);
+            }
 
-            (Blue, Left) => self
-                .stack
-                .pop()
-                .ok_or(Error::StackUnderflow)?
-                .print_as_char(),
+            (Blue, Left) => self.pop()?.print_as_char(),
+            (Blue, Right) => {
+                let a = self.pop()?;
+                let b = self.pop()?;
+                self.stack.push(a);
+                self.stack.push(b);
+            }
+            (Blue, Up) => self.pop()?.print_as_num(),
+            (Blue, Down) => {
+                let mut line = String::new();
+                std::io::stdin().read_line(&mut line)?;
+                let line = line.trim();
+                if let Ok(num) = line.parse() {
+                    self.stack.push(Value::Num(num));
+                } else if let Ok(bool) = line.parse() {
+                    self.stack.push(Value::Bool(bool));
+                } else {
+                    my_todo!();
+                }
+            }
 
-            (Blue, Right) => println!("todo"),
-            (Blue, Up) => println!("todo"),
-            (Blue, Down) => println!("todo"),
-
-            (Purple, Left) => println!("todo"),
-            (Purple, Right) => println!("todo"),
-            (Purple, Up) => println!("todo"),
-            (Purple, Down) => println!("todo"),
+            (Purple, Left) => my_todo!(),
+            (Purple, Right) => my_todo!(),
+            (Purple, Up) => my_todo!(),
+            (Purple, Down) => my_todo!(),
         }
 
         Ok(())

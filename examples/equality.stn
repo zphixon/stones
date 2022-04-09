@@ -1,2 +1,45 @@
-blue down
-blue left
+2 == 3
+    red left one
+    red right one
+    orange up two
+    blue left
+newline
+    red down two
+    green down
+    yellow down
+    blue left
+
+2 == 2
+    red left one
+    green down
+    orange up two
+    blue left
+newline
+    red down two
+    red down two
+    yellow down
+    blue left
+
+2 < 2
+    red left one
+    green down
+    orange down two
+    blue left
+newline
+    red down two
+    red down two
+    yellow down
+    blue left
+
+2 < 3
+    red left one
+    red right one
+    blue right blue right
+    orange down two
+    blue left
+newline
+    red down two
+    red down two
+    blue right blue right
+    yellow down
+    blue left
