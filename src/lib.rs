@@ -14,6 +14,9 @@ pub enum Error {
     UnexpectedToken {
         token: Token,
     },
+    SyntaxError {
+        why: String,
+    },
     UnexpectedEof,
     ExpectedColor {
         got: Token,
@@ -111,47 +114,56 @@ impl TryFrom<&str> for Token {
 }
 
 #[derive(Debug)]
+pub struct Else {
+    else_: Command,
+    body: Vec<Ast>,
+}
+
+#[derive(Debug)]
 pub enum Ast {
     While {
-        color: Token,
-        dir: Dir,
-        stmts: Vec<Ast>,
-        end: Token,
+        begin: Command,
+        body: Vec<Ast>,
+        end: Command,
     },
     If {
-        color: Token,
-        dir: Token,
-        true_body: Vec<Ast>,
-        else_: Option<Token>,
-        false_body: Vec<Ast>,
-        end: Token,
-    },
-    Red {
-        color: Token,
-        number: RedNumber,
-        dir: Dir,
-    },
-    Orange {
-        color: Token,
-        number: OrangeNumber,
-        dir: Dir,
+        begin: Command,
+        body: Vec<Ast>,
+        else_: Option<Else>,
+        end: Command,
     },
     Normal {
-        color: Token,
-        dir: Dir,
+        command: Command,
     },
 }
 
+impl Ast {
+    fn command(&self) -> Command {
+        match self {
+            Ast::If { begin, .. } => *begin,
+            Ast::While { begin, .. } => *begin,
+            Ast::Normal { command, .. } => *command,
+        }
+    }
+
+    fn is_end(&self) -> bool {
+        self.command().is_end()
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum EitherNumber {
     Red(RedNumber),
     Orange(OrangeNumber),
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct Number {
     number: EitherNumber,
     number_token: Token,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct Command {
     color: Stone,
     color_token: Token,
@@ -160,42 +172,69 @@ pub struct Command {
     number: Option<Number>,
 }
 
+impl Command {
+    fn is_end(&self) -> bool {
+        self.color == Stone::Purple && self.dir == Dir::Right
+    }
+}
+
 pub fn scan(source: &str) -> impl Iterator<Item = Token> + '_ {
     source
         .split_whitespace()
         .filter_map(|sub| Token::try_from(sub).ok())
 }
 
-pub fn parse(source: &str) -> Result<Vec<Op>, Error> {
-    let mut ops = Vec::new();
+pub fn parse(source: &str) -> Result<Vec<Ast>, Error> {
+    let mut ast = Vec::new();
     let mut tokens = scan(source).peekable();
+    let scanner = &mut tokens;
 
-    while !matches!(tokens.peek(), Some(Token::Eof)) {
-        let command = parse_command(&mut tokens)?;
-        if command.color == Stone::Purple {}
+    while scanner.peek().is_some() {
+        ast.push(parse_statement(scanner)?);
     }
 
-    Ok(ops)
+    Ok(ast)
 }
 
-fn parse_command<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Command, Error> {
-    let color_token = next(scanner)?;
-    let color = color_token.try_into()?;
-    let dir_token = next(scanner)?;
-    let dir = dir_token.try_into()?;
-    let number = parse_number(scanner, color)?;
-
-    Ok(Command {
-        color,
-        color_token,
-        dir,
-        dir_token,
-        number,
-    })
+fn parse_statement<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Ast, Error> {
+    parse_statement_rec(scanner, false)
 }
 
-fn next<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Token, Error> {
-    scanner.next().ok_or(Error::UnexpectedEof)
+fn parse_statement_rec<I: Iterator<Item = Token>>(
+    scanner: &mut Peekable<I>,
+    in_while_or_if: bool,
+) -> Result<Ast, Error> {
+    let command = consume_command(scanner)?;
+    match (command.color, command.dir, command.number) {
+        (Stone::Purple, Dir::Up, None) => todo!(),
+
+        (Stone::Purple, Dir::Left, None) => {
+            let mut next = parse_statement_rec(scanner, true)?;
+            let mut body = Vec::new();
+            while !next.is_end() {
+                body.push(next);
+                next = parse_statement_rec(scanner, true)?;
+            }
+
+            Ok(Ast::While {
+                begin: command,
+                body,
+                end: next.command(),
+            })
+        }
+
+        (Stone::Purple, dir @ (Dir::Right | Dir::Down), None) if !in_while_or_if => {
+            Err(Error::SyntaxError {
+                why: format!("purple {dir:?} without corresponding purple up or purple left"),
+            })
+        }
+
+        (Stone::Red, _, Some(_)) | (Stone::Orange, _, Some(_)) | (_, _, None) => {
+            Ok(Ast::Normal { command })
+        }
+
+        (_, _, Some(_)) => unreachable!("non-red/non-orange with number"),
+    }
 }
 
 fn parse_number<I: Iterator<Item = Token>>(
@@ -221,6 +260,26 @@ fn parse_number<I: Iterator<Item = Token>>(
         number,
         number_token,
     }))
+}
+
+fn consume_command<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Command, Error> {
+    let color_token = next(scanner)?;
+    let color = color_token.try_into()?;
+    let dir_token = next(scanner)?;
+    let dir = dir_token.try_into()?;
+    let number = parse_number(scanner, color)?;
+
+    Ok(Command {
+        color,
+        color_token,
+        dir,
+        dir_token,
+        number,
+    })
+}
+
+fn next<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Token, Error> {
+    scanner.next().ok_or(Error::UnexpectedEof)
 }
 
 #[derive(Clone, Debug)]
