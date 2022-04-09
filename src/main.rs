@@ -9,14 +9,22 @@ struct Args {
     filename: Option<String>,
 
     #[options(
-        help = "If no filename is present, show the tokens scanned from each line of REPL input, or if given a filename show the tokens scanned from the file and exit."
+        help = "If no filename is present, show the tokens scanned from each line of REPL input, or if given a filename show the tokens scanned from the file and exit.",
+        short = "t"
     )]
     print_tokens: bool,
 
     #[options(
-        help = "If no filename is present, show the AST parsed from each line of REPL input, or if given a filename show the AST parsed from the file and exit."
+        help = "If no filename is present, show the AST parsed from each line of REPL input, or if given a filename show the AST parsed from the file and exit.",
+        short = "a"
     )]
     print_ast: bool,
+
+    #[options(
+        help = "If no filename is present, show the operations compiled from the AST from each line of REPL input, or if given a filename show the operations compiled from the file and exit.",
+        short = "c"
+    )]
+    print_compiled: bool,
 
     #[options(help = "Print the operation being executed.")]
     operation: bool,
@@ -42,18 +50,21 @@ fn main() {
     }
 
     let source = std::fs::read_to_string(args.filename.as_ref().unwrap()).unwrap();
-
     if args.print_tokens {
         println!("{:#?}", stones::scan(&source).collect::<Vec<_>>());
     }
 
     let ast = stones::parse(&source).unwrap();
-
     if args.print_ast {
         println!("{ast:#?}");
     }
 
-    if args.filename.is_some() && (args.print_tokens || args.print_ast) {
+    let program = stones::compile(&ast);
+    if args.print_compiled {
+        println!("{program:#?}");
+    }
+
+    if args.filename.is_some() && (args.print_tokens || args.print_ast || args.print_compiled) {
         return;
     }
 
