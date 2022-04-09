@@ -10,7 +10,12 @@ fn main() {
 
     let mut vm = stones::vm::Vm::default();
     let mut field = stones::field::Field::new();
+    let mut step = 0;
+
+    println!("init\n{field:?}\n");
     for op in ast {
         field.step(&mut vm, op).unwrap();
+        step += 1;
+        println!("{step}\n{field:?}\n{vm:?}\n\n");
     }
 }

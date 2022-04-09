@@ -193,54 +193,67 @@ impl Vm {
         self.history.push(op);
 
         match (op.color, op.dir) {
-            (Red(R::One), Left) => self.stack.push(Value::Num(0)),
-            (Red(R::One), Right) => self.stack.push(Value::Num(1)),
-            (Red(R::One), Up) => self.stack.push(Value::Num(2)),
-            (Red(R::One), Down) => self.stack.push(Value::Num(3)),
+            (Red(R::One), dir) => self.stack.push(Value::Num(match dir {
+                Left => 2,
+                Right => 3,
+                Up => 0,
+                Down => 1,
+            })),
 
-            (Red(R::Two), Left) => self.stack.push(Value::Num(4)),
-            (Red(R::Two), Right) => self.stack.push(Value::Num(5)),
-            (Red(R::Two), Up) => self.stack.push(Value::Num(6)),
-            (Red(R::Two), Down) => self.stack.push(Value::Num(7)),
+            (Red(R::Two), dir) => self.stack.push(Value::Num(match dir {
+                Left => 6,
+                Right => 7,
+                Up => 4,
+                Down => 5,
+            })),
 
-            (Red(R::Three), Left) => self.stack.push(Value::Num(8)),
-            (Red(R::Three), Right) => self.stack.push(Value::Num(9)),
-            (Red(R::Three), Up) => self.stack.push(Value::Bool(true)),
-            (Red(R::Three), Down) => self.stack.push(Value::Bool(false)),
+            (Red(R::Three), dir) => self.stack.push(match dir {
+                Left => Value::Bool(true),
+                Right => Value::Bool(false),
+                Up => Value::Num(8),
+                Down => Value::Num(9),
+            }),
 
-            (Orange(O::One), Left) => {}
-            (Orange(O::One), Right) => {}
-            (Orange(O::One), Up) => {}
-            (Orange(O::One), Down) => {}
+            (Orange(O::One), Left) => println!("todo"),
+            (Orange(O::One), Right) => println!("todo"),
+            (Orange(O::One), Up) => println!("todo"),
+            (Orange(O::One), Down) => println!("todo"),
 
-            (Orange(O::Two), Left) => {}
-            (Orange(O::Two), Right) => {}
-            (Orange(O::Two), Up) => {}
-            (Orange(O::Two), Down) => {}
+            (Orange(O::Two), Left) => println!("todo"),
+            (Orange(O::Two), Right) => println!("todo"),
+            (Orange(O::Two), Up) => println!("todo"),
+            (Orange(O::Two), Down) => println!("todo"),
 
-            (Yellow, Left) => {
+            (Yellow, dir) => {
                 let rhs: i64 = self.stack.pop().ok_or(Error::StackUnderflow)?.try_into()?;
                 let lhs: i64 = self.stack.pop().ok_or(Error::StackUnderflow)?.try_into()?;
-                self.stack.push(Value::Num(lhs + rhs));
+                self.stack.push(Value::Num(match dir {
+                    Left => lhs - rhs,
+                    Right => lhs / rhs,
+                    Up => lhs * rhs,
+                    Down => lhs + rhs,
+                }));
             }
-            (Yellow, Right) => {}
-            (Yellow, Up) => {}
-            (Yellow, Down) => {}
 
-            (Green, Left) => {}
-            (Green, Right) => {}
-            (Green, Up) => {}
-            (Green, Down) => {}
+            (Green, Left) => println!("todo"),
+            (Green, Right) => println!("todo"),
+            (Green, Up) => println!("todo"),
+            (Green, Down) => println!("todo"),
 
-            (Blue, Left) => {}
-            (Blue, Right) => {}
-            (Blue, Up) => {}
-            (Blue, Down) => {}
+            (Blue, Left) => self
+                .stack
+                .pop()
+                .ok_or(Error::StackUnderflow)?
+                .print_as_char(),
 
-            (Purple, Left) => {}
-            (Purple, Right) => {}
-            (Purple, Up) => {}
-            (Purple, Down) => {}
+            (Blue, Right) => println!("todo"),
+            (Blue, Up) => println!("todo"),
+            (Blue, Down) => println!("todo"),
+
+            (Purple, Left) => println!("todo"),
+            (Purple, Right) => println!("todo"),
+            (Purple, Up) => println!("todo"),
+            (Purple, Down) => println!("todo"),
         }
 
         Ok(())
