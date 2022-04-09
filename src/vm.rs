@@ -124,13 +124,17 @@ impl Op {
 
 #[derive(Default, Debug)]
 pub struct Vm {
+    #[cfg(test)]
     pub history: Vec<Op>,
 }
 
 impl Vm {
     fn exec(&mut self, op: Op) {
         println!("exec {op:?}");
+
+        #[cfg(test)]
         self.history.push(op);
+
         match op.color() {
             Stone::Red => {}
             Stone::Orange => {}
@@ -273,74 +277,89 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
         }
     }
 
-    pub fn step(&mut self, vm: &mut Vm, mut op: Op) -> Option<Op> {
-        let (row_idx, col_idx) = self.find(op.color());
-        let mag = op.magnitude();
-        println!("****** begin");
-        println!("called step {mag}x{op}@{row_idx},{col_idx}");
-        println!("{self:?}");
-        println!("******");
+    // returns whether the move was blocked
+    pub fn step(&mut self, vm: &mut Vm, op: Op) {
+        let mut ops = Vec::new();
+        self.step_rec(&mut ops, op);
+        for op in ops {
+            vm.exec(op);
+        }
+    }
 
+    fn step_rec(&mut self, ops: &mut Vec<Op>, op: Op) -> bool {
+        let (row_idx, col_idx) = self.find(op.color());
         let (mut current_row, mut current_col) = (row_idx, col_idx);
-        for steps_taken in 1..=mag {
+
+        let mag = op.magnitude();
+        let mut steps_taken = 0;
+        for _ in 1..=mag {
             let next_row = Self::next_row(current_row, op.dir);
             let next_col = Self::next_col(current_col, op.dir);
             let next = self.get(next_row, next_col);
-            //println!(
-            //    "  {:?}{steps_taken} steps to {next_row},{next_col}={next:?}",
-            //    op.color()
-            //);
-            println!("next is {next:?}@{next_row},{next_col}");
 
-            if next != Stone::X && next < op.color() {
-                //println!("    pushing out of the way");
+            if next > op.color() {
+                println!(
+                    "too heavy {:.<80} < {:<80}",
+                    format!("{op:?}"),
+                    format!("{next:?}")
+                );
+                // next is heavier, quit early
+                break;
+            } else if next == Stone::X {
+                println!("move to   {:.<80} {next_row},{next_col}", format!("{op:?}"));
+                // next is empty, just move it
+            } else if next != Stone::X && next < op.color() {
+                // next is lighter
                 let next_op = Op {
                     color: next.to_op(),
                     dir: op.dir,
                 };
-
-                println!("call step({next_op:?}) because {next:?} in way while stepping {op:?}",);
-                println!("###### recur");
-                println!("{self:?}");
-                let rec = self.step(vm, next_op);
-                println!("{self:?}");
-                println!("###### end recur (moving {next:?}) to make way for {op:?}",);
-
-                if let Some(rec) = rec {
-                    if rec == next_op {
-                        println!("rec fully successful");
-                    } else {
-                        println!("rec partially successful");
-                    }
-                } else {
-                    println!("rec fully failed");
+                println!(
+                    "pushes    {:.<80} > {:<80}",
+                    format!("{op:?}"),
+                    format!("{next:?}")
+                );
+                let blocked = self.step_rec(ops, next_op);
+                if blocked {
                     break;
                 }
-            } else if next != Stone::X && next > op.color() {
-                //println!("    too heavy");
-                println!("{next:?} is heaver than {op:?}");
-                if steps_taken - 1 == 0 {
-                    println!("should not execute");
-                    return None;
-                } else {
-                    println!("should execute {:?}", op.change_magnitude(steps_taken - 1));
-                    op = op.change_magnitude(steps_taken - 1)
-                }
-                break;
+                println!(
+                    "done      {:.<80} > {:<80}",
+                    format!("{op:?}"),
+                    format!("{next:?}")
+                );
             } else {
-                //println!("    unoccupied");
+                unreachable!()
             }
 
             self.set(Stone::X, current_row, current_col);
             self.set(op.color(), next_row, next_col);
-            println!("set {next_row},{next_col} to {:?}", op.color());
-
             current_row = next_row;
             current_col = next_col;
+            steps_taken += 1;
         }
 
-        vm.exec(op);
-        Some(op)
+        if steps_taken == 0 {
+            println!("blocked   {op:?}");
+            true
+            // blocked completely, don't add any operations
+        } else if steps_taken == mag {
+            println!("success   {op:?}");
+            // fully successful, add our op
+            ops.push(op);
+            false
+        } else if 1 <= steps_taken && steps_taken < mag {
+            println!(
+                "partial   {:.<80} -> {:?}",
+                format!("{op:?}"),
+                op.change_magnitude(steps_taken)
+            );
+            // partially successful, add partial op
+            ops.push(op.change_magnitude(steps_taken));
+            false
+        } else {
+            unreachable!()
+        }
     }
 }
 
