@@ -185,7 +185,7 @@ impl PartialEq for Value {
         if self.is_num() && rhs.is_num() {
             self.get_num() == rhs.get_num()
         } else if self.is_arr() && rhs.is_arr() {
-            self.get_arr() == rhs.get_arr()
+            self.get_slice() == rhs.get_slice()
         } else if self.is_bool() && rhs.is_bool() {
             self.get_bool() == rhs.get_bool()
         } else {
@@ -199,7 +199,7 @@ impl PartialOrd for Value {
         if self.is_bool() || rhs.is_bool() {
             self.get_bool().partial_cmp(&rhs.get_bool())
         } else if self.is_arr() && rhs.is_arr() {
-            self.get_arr().partial_cmp(&rhs.get_arr())
+            self.get_slice().partial_cmp(&rhs.get_slice())
         } else if self.is_num() && rhs.is_num() {
             Some(self.get_num().cmp(&rhs.get_num()))
         } else {
@@ -263,7 +263,7 @@ impl Value {
         if self.is_num() {
             print!("{}", self.as_num() as u8 as char);
         } else if self.is_arr() {
-            for c in self.as_arr() {
+            for c in self.as_slice() {
                 c.print_as_char();
             }
         } else if self.is_bool() {
@@ -277,7 +277,7 @@ impl Value {
         if self.is_num() {
             print!("{}", self.as_num());
         } else if self.is_arr() {
-            print!("{:?}", self.as_arr());
+            print!("{:?}", self.as_slice());
         } else if self.is_bool() {
             print!("{}", self.as_bool());
         } else {
@@ -312,6 +312,11 @@ impl Value {
         self.get_arr().unwrap()
     }
 
+    pub fn as_slice(&self) -> &[Value] {
+        assert!(self.is_arr());
+        self.get_slice().unwrap()
+    }
+
     pub fn get_num(&self) -> Option<i64> {
         match self {
             Value::Num(n) => Some(*n),
@@ -329,6 +334,13 @@ impl Value {
     pub fn get_arr(&self) -> Option<Vec<Value>> {
         match self {
             Value::Arr(a) => Some(a.to_vec()),
+            _ => None,
+        }
+    }
+
+    pub fn get_slice(&self) -> Option<&[Value]> {
+        match self {
+            Value::Arr(a) => Some(a),
             _ => None,
         }
     }
