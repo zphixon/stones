@@ -193,47 +193,50 @@ impl Vm {
         self.history.push(op);
 
         match (op.color, op.dir) {
-            (Red(R::One), Up) => {}
-            (Red(R::Two), Up) => {}
-            (Red(R::Three), Up) => {}
-            (Red(R::One), Down) => {}
-            (Red(R::Two), Down) => {}
-            (Red(R::Three), Down) => {}
             (Red(R::One), Left) => {}
-            (Red(R::Two), Left) => {}
-            (Red(R::Three), Left) => {}
             (Red(R::One), Right) => {}
+            (Red(R::One), Up) => {}
+            (Red(R::One), Down) => {}
+
+            (Red(R::Two), Left) => {}
             (Red(R::Two), Right) => {}
+            (Red(R::Two), Up) => {}
+            (Red(R::Two), Down) => {}
+
+            (Red(R::Three), Left) => {}
             (Red(R::Three), Right) => {}
+            (Red(R::Three), Up) => {}
+            (Red(R::Three), Down) => {}
 
-            (Orange(O::One), Up) => {}
-            (Orange(O::Two), Up) => {}
-            (Orange(O::One), Down) => {}
-            (Orange(O::Two), Down) => {}
             (Orange(O::One), Left) => {}
-            (Orange(O::Two), Left) => {}
             (Orange(O::One), Right) => {}
-            (Orange(O::Two), Right) => {}
+            (Orange(O::One), Up) => {}
+            (Orange(O::One), Down) => {}
 
-            (Yellow, Up) => {}
-            (Yellow, Down) => {}
+            (Orange(O::Two), Left) => {}
+            (Orange(O::Two), Right) => {}
+            (Orange(O::Two), Up) => {}
+            (Orange(O::Two), Down) => {}
+
             (Yellow, Left) => {}
             (Yellow, Right) => {}
+            (Yellow, Up) => {}
+            (Yellow, Down) => {}
 
-            (Green, Up) => {}
-            (Green, Down) => {}
             (Green, Left) => {}
             (Green, Right) => {}
+            (Green, Up) => {}
+            (Green, Down) => {}
 
-            (Blue, Up) => {}
-            (Blue, Down) => {}
             (Blue, Left) => {}
             (Blue, Right) => {}
+            (Blue, Up) => {}
+            (Blue, Down) => {}
 
-            (Purple, Up) => {}
-            (Purple, Down) => {}
             (Purple, Left) => {}
             (Purple, Right) => {}
+            (Purple, Up) => {}
+            (Purple, Down) => {}
         }
     }
 }
