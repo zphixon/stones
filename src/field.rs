@@ -132,15 +132,19 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
     // returns whether the move was blocked
     pub fn step(&mut self, vm: &mut Vm, op: Op, print_op: bool) -> Result<(), crate::Error> {
         let mut ops = Vec::new();
-        self.step_rec(&mut ops, op);
+        self.step_rec(&mut ops, op, print_op);
         for op in ops {
+            #[cfg(test)]
+            let _ = vm.exec(op, print_op);
+
+            #[cfg(not(test))]
             vm.exec(op, print_op)?;
         }
 
         Ok(())
     }
 
-    fn step_rec(&mut self, ops: &mut Vec<Op>, op: Op) -> bool {
+    fn step_rec(&mut self, ops: &mut Vec<Op>, op: Op, print_op: bool) -> bool {
         let (row_idx, col_idx) = self.find(op.color());
         let (mut current_row, mut current_col) = (row_idx, col_idx);
 
@@ -152,15 +156,9 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
             let next = self.get(next_row, next_col);
 
             if next > op.color() {
-                //println!(
-                //    "too heavy {:.<80} < {:<80}",
-                //    format!("{op:?}"),
-                //    format!("{next:?}")
-                //);
                 // next is heavier, quit early
                 break;
             } else if next == Stone::X {
-                //println!("move to   {:.<80} {next_row},{next_col}", format!("{op:?}"));
                 // next is empty, just move it
             } else if next != Stone::X && next < op.color() {
                 // next is lighter
@@ -168,20 +166,13 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
                     color: next.to_op(),
                     dir: op.dir,
                 };
-                //println!(
-                //    "pushes    {:.<80} > {:<80}",
-                //    format!("{op:?}"),
-                //    format!("{next:?}")
-                //);
-                let blocked = self.step_rec(ops, next_op);
+                let blocked = self.step_rec(ops, next_op, print_op);
                 if blocked {
                     break;
                 }
-                //println!(
-                //    "done      {:.<80} > {:<80}",
-                //    format!("{op:?}"),
-                //    format!("{next:?}")
-                //);
+                if print_op {
+                    println!("pushed {op:?} > {next:?}");
+                }
             } else {
                 unreachable!()
             }
@@ -194,22 +185,22 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
         }
 
         if steps_taken == 0 {
-            //println!("blocked   {op:?}");
-            true
             // blocked completely, don't add any operations
+            if print_op {
+                println!("blocked {op:?}");
+            }
+            true
         } else if steps_taken == mag {
-            //println!("success   {op:?}");
             // fully successful, add our op
             ops.push(op);
             false
         } else if 1 <= steps_taken && steps_taken < mag {
-            //println!(
-            //    "partial   {:.<80} -> {:?}",
-            //    format!("{op:?}"),
-            //    op.change_magnitude(steps_taken)
-            //);
             // partially successful, add partial op
-            ops.push(op.change_magnitude(steps_taken));
+            let new_op = op.change_magnitude(steps_taken);
+            if print_op {
+                println!("partially blocked {op:?} -> {new_op:?}");
+            }
+            ops.push(new_op);
             false
         } else {
             unreachable!()
@@ -240,7 +231,7 @@ mod test {
             let mut field = Field { field: $field };
 
             println!("before\n{field:?}");
-            field.step(&mut vm, op);
+            let _ = field.step(&mut vm, op, true);
             println!("after\n{field:?}");
 
             println!("vm: {vm:?}");
