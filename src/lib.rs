@@ -83,6 +83,35 @@ impl TryFrom<Token> for Dir {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum EitherNumber {
+    Red(RedNumber),
+    Orange(OrangeNumber),
+}
+
+impl EitherNumber {
+    pub fn magnitude(&self) -> usize {
+        match self {
+            EitherNumber::Red(number) => number.magnitude(),
+            EitherNumber::Orange(number) => number.magnitude(),
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! red {
+    ($num:ident) => {
+        crate::EitherNumber::Red(crate::RedNumber::$num)
+    };
+}
+
+#[macro_export]
+macro_rules! orange {
+    ($num:ident) => {
+        crate::EitherNumber::Orange(crate::OrangeNumber::$num)
+    };
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum RedNumber {
     One,
@@ -346,35 +375,6 @@ impl From<AstCommand> for Command {
             dir: value.dir,
             number: value.number.map(|number| number.number),
             side_effect: false,
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! red {
-    ($num:ident) => {
-        crate::EitherNumber::Red(crate::RedNumber::$num)
-    };
-}
-
-#[macro_export]
-macro_rules! orange {
-    ($num:ident) => {
-        crate::EitherNumber::Orange(crate::OrangeNumber::$num)
-    };
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum EitherNumber {
-    Red(RedNumber),
-    Orange(OrangeNumber),
-}
-
-impl EitherNumber {
-    pub fn magnitude(&self) -> usize {
-        match self {
-            EitherNumber::Red(number) => number.magnitude(),
-            EitherNumber::Orange(number) => number.magnitude(),
         }
     }
 }
