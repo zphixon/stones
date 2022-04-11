@@ -221,8 +221,8 @@ impl Stone {
 
     pub fn number_one(&self) -> Option<EitherNumber> {
         match self {
-            Stone::Red => Some(red!(One)),
-            Stone::Orange => Some(orange!(One)),
+            Stone::Red => red!(One),
+            Stone::Orange => orange!(One),
             _ => None,
         }
     }

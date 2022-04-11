@@ -234,7 +234,7 @@ mod test {
     #[test]
     fn cancelled() {
         mktest!(
-            (Stone::Red, Right, Some(red!(One))),
+            (Stone::Red, Right, red!(One)),
             [[Stone::Red, Stone::Blue, Stone::X]],
             [[Stone::Red, Stone::Blue, Stone::X]],
             Vec::<Command>::new()
@@ -244,10 +244,10 @@ mod test {
     #[test]
     fn double_cancelled() {
         mktest!(
-            (Stone::Orange, Right, Some(orange!(One))),
+            (Stone::Orange, Right, orange!(One)),
             [[Stone::Orange, Stone::X, Stone::Purple]],
             [[Stone::X, Stone::Orange, Stone::Purple]],
-            oplist!((Stone::Orange, Right, Some(orange!(One)), false),)
+            oplist!((Stone::Orange, Right, orange!(One), false),)
         );
     }
 
@@ -480,13 +480,13 @@ mod test {
     #[test]
     fn double_push_left() {
         mktest!(
-            (Stone::Orange, Right, Some(orange!(Two))),
+            (Stone::Orange, Right, orange!(Two)),
             [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
             [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
             oplist!(
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Orange, Right, Some(orange!(Two)), false),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Orange, Right, orange!(Two), false),
             )
         );
     }
@@ -494,13 +494,13 @@ mod test {
     #[test]
     fn double_push_right() {
         mktest!(
-            (Stone::Orange, Right, Some(orange!(Two))),
+            (Stone::Orange, Right, orange!(Two)),
             [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
             [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
             oplist!(
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Orange, Right, Some(orange!(Two)), false),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Orange, Right, orange!(Two), false),
             )
         );
     }
@@ -508,13 +508,13 @@ mod test {
     #[test]
     fn double_push_left_wrap() {
         mktest!(
-            (Stone::Orange, Right, Some(orange!(Two))),
+            (Stone::Orange, Right, orange!(Two)),
             [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
             [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
             oplist!(
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Orange, Right, Some(orange!(Two)), false),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Orange, Right, orange!(Two), false),
             )
         );
     }
@@ -522,13 +522,13 @@ mod test {
     #[test]
     fn double_push_right_wrap() {
         mktest!(
-            (Stone::Orange, Right, Some(orange!(Two))),
+            (Stone::Orange, Right, orange!(Two)),
             [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
             [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
             oplist!(
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Orange, Right, Some(orange!(Two)), false),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Orange, Right, orange!(Two), false),
             )
         );
     }
@@ -536,12 +536,12 @@ mod test {
     #[test]
     fn double_push_cancelled() {
         mktest!(
-            (Stone::Orange, Right, Some(orange!(Two))),
+            (Stone::Orange, Right, orange!(Two)),
             [[Stone::Orange, Stone::Red, Stone::X, Stone::Blue]],
             [[Stone::X, Stone::Orange, Stone::Red, Stone::Blue]],
             oplist!(
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Orange, Right, Some(orange!(One)), false),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Orange, Right, orange!(One), false),
             )
         );
     }
@@ -549,12 +549,12 @@ mod test {
     #[test]
     fn double_push_cancelled_wrap() {
         mktest!(
-            (Stone::Orange, Right, Some(orange!(Two))),
+            (Stone::Orange, Right, orange!(Two)),
             [[Stone::X, Stone::Blue, Stone::Orange, Stone::Red]],
             [[Stone::Red, Stone::Blue, Stone::X, Stone::Orange]],
             oplist!(
-                (Stone::Red, Right, Some(red!(One)), true),
-                (Stone::Orange, Right, Some(orange!(One)), false),
+                (Stone::Red, Right, red!(One), true),
+                (Stone::Orange, Right, orange!(One), false),
             )
         );
     }
@@ -582,8 +582,8 @@ mod test {
                 Stone::X,
             ]],
             oplist!(
-                (Stone::Red, Left, Some(red!(One)), true),
-                (Stone::Orange, Left, Some(orange!(One)), true),
+                (Stone::Red, Left, red!(One), true),
+                (Stone::Orange, Left, orange!(One), true),
                 (Stone::Yellow, Left, None, true),
                 (Stone::Green, Left, None, true),
                 (Stone::Blue, Left, None, true),

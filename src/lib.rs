@@ -10,14 +10,18 @@ use vm::Opcode;
 #[macro_export]
 macro_rules! red {
     ($num:ident) => {
-        crate::command::EitherNumber::Red(crate::command::RedNumber::$num)
+        Some(crate::command::EitherNumber::Red(
+            crate::command::RedNumber::$num,
+        ))
     };
 }
 
 #[macro_export]
 macro_rules! orange {
     ($num:ident) => {
-        crate::command::EitherNumber::Orange(crate::command::OrangeNumber::$num)
+        Some(crate::command::EitherNumber::Orange(
+            crate::command::OrangeNumber::$num,
+        ))
     };
 }
 
