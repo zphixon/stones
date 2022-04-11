@@ -1,6 +1,6 @@
 use crate::{
     orange, red,
-    vm::{OpColor, Opcode},
+    vm::{Comparison, Math, OpColor, Opcode},
     AstCommand, Error, Token,
 };
 
@@ -35,143 +35,77 @@ impl Command {
     }
 
     pub fn to_opcode(&self) -> Opcode {
-        todo!();
-        //use Dir::*;
-        //use Stone::*;
+        use Dir::*;
+        use Opcode::*;
+        use Stone::*;
 
-        //match (self.color, self.dir, self.number) {
-        //    // constants
-        //    (Red(R::One), dir) => self.stack.push(Value::Num(match dir {
-        //        Up => 0,
-        //        Down => 1,
-        //        Left => 2,
-        //        Right => 3,
-        //    })),
-        //    (Red(R::Two), dir) => self.stack.push(Value::Num(match dir {
-        //        Up => 4,
-        //        Down => 5,
-        //        Left => 6,
-        //        Right => 7,
-        //    })),
-        //    (Red(R::Three), dir) => self.stack.push(match dir {
-        //        Up => Value::Num(8),
-        //        Down => Value::Num(9),
-        //        Left => Value::Bool(true),
-        //        Right => Value::Bool(false),
-        //    }),
+        match (self.color, self.dir, self.number) {
+            // constants
+            (Red, dir, red!(One)) => PushNumber(match dir {
+                Up => 0,
+                Down => 1,
+                Left => 2,
+                Right => 3,
+            }),
+            (Red, dir, red!(Two)) => PushNumber(match dir {
+                Up => 4,
+                Down => 5,
+                Left => 6,
+                Right => 7,
+            }),
+            (Red, dir, red!(Three)) => match dir {
+                Up => PushNumber(8),
+                Down => PushNumber(9),
+                Left => PushBool(true),
+                Right => PushBool(false),
+            },
 
-        //    // arrays
-        //    (Orange(O::One), Up) => self.array_in_progress = Some(Vec::new()),
-        //    (Orange(O::One), Down) => {
-        //        let arr = self
-        //            .array_in_progress
-        //            .take()
-        //            .ok_or_else(|| my_todo!())
-        //            .unwrap();
-        //        self.stack.push(Value::Arr(arr));
-        //    }
-        //    (Orange(O::One), Left) => {
-        //        // I didn't remember how useless arrays were in this language lol
-        //        let in_progress = self.array_in_progress.take();
-        //        if let Some(mut in_progress) = in_progress {
-        //            in_progress.push(self.pop()?);
-        //        } else {
-        //            my_todo!();
-        //        }
-        //    }
-        //    (Orange(O::One), Right) => {
-        //        let idx: i64 = self.pop()?.try_into()?;
-        //        let maybe_arr = self.peek(0)?;
-        //        let arr: &[Value] = maybe_arr.get_slice().ok_or(Error::TypeMismatch {
-        //            wanted: "array",
-        //            got: maybe_arr.type_name(),
-        //        })?;
-        //        let dup = arr[idx as usize].clone();
-        //        self.stack.push(dup);
-        //    }
+            // arrays
+            (Orange, Up, orange!(One)) => StartArray,
+            (Orange, Down, orange!(One)) => EndArray,
+            (Orange, Left, orange!(One)) => PushArray,
+            (Orange, Right, orange!(One)) => NthArray,
 
-        //    // comparisons (feat. idiotic lhs/rhs semantics)
-        //    (Orange(O::Two), Right) => Err(Error::Quine)?,
-        //    (Orange(O::Two), dir) => {
-        //        let lhs = self.pop()?;
-        //        let rhs = self.pop()?;
-        //        self.stack.push(Value::Bool(match dir {
-        //            Up => lhs == rhs,
-        //            Down => !(lhs < rhs) && lhs != rhs,
-        //            Left => !(lhs > rhs) && lhs != rhs,
-        //            _ => unreachable!(),
-        //        }))
-        //    }
+            // comparisons (feat. idiotic lhs/rhs semantics)
+            (Orange, Right, orange!(Two)) => Quine,
+            (Orange, dir, orange!(Two)) => Comparison(match dir {
+                Up => crate::vm::Comparison::Equal,
+                Down => crate::vm::Comparison::LessThan,
+                Left => crate::vm::Comparison::GreaterThan,
+                _ => unreachable!(),
+            }),
 
-        //    // math (feat. idiotic lhs/rhs semantics)
-        //    (Yellow, dir) => {
-        //        let lhs: i64 = self.pop()?.try_into()?;
-        //        let rhs: i64 = self.pop()?.try_into()?;
-        //        self.stack.push(Value::Num(match dir {
-        //            Up => lhs * rhs,
-        //            Down => lhs + rhs,
-        //            Left => lhs - rhs,
-        //            Right => lhs / rhs,
-        //        }));
-        //    }
+            // math (feat. idiotic lhs/rhs semantics)
+            (Yellow, dir, None) => Math(match dir {
+                Up => crate::vm::Math::Multiply,
+                Down => crate::vm::Math::Add,
+                Left => crate::vm::Math::Subtract,
+                Right => crate::vm::Math::Divide,
+            }),
 
-        //    // stack operations
-        //    (Green, Up) => {
-        //        let d: i64 = self.pop()?.try_into()?;
-        //        if d > 0 {
-        //            let mut to_roll = Vec::new();
-        //            for _ in 0..d + 1 {
-        //                to_roll.push(self.pop()?);
-        //            }
-        //            to_roll.reverse();
-        //            let top = to_roll.pop().unwrap();
-        //            to_roll.insert(0, top);
-        //            for elem in to_roll {
-        //                self.stack.push(elem);
-        //            }
-        //        }
-        //    }
-        //    (Green, Down) => {
-        //        let dup = self.pop()?;
-        //        self.stack.push(dup.clone());
-        //        self.stack.push(dup);
-        //    }
-        //    (Green, Left) => {
-        //        let _ = self.pop()?;
-        //    }
-        //    (Green, Right) => {
-        //        let bool = self.pop()?.is_truthy();
-        //        self.stack.push(Value::Bool(!bool));
-        //    }
+            // stack operations
+            (Green, Up, None) => Roll,
+            (Green, Down, None) => Dup,
+            (Green, Left, None) => Drop,
+            (Green, Right, None) => Not,
 
-        //    // i/o
-        //    (Blue, Up) => self.pop()?.print_as_num(),
-        //    (Blue, Down) => {
-        //        let mut line = String::new();
-        //        std::io::stdin().read_line(&mut line)?;
-        //        let line = line.trim();
-        //        if let Ok(num) = line.parse() {
-        //            self.stack.push(Value::Num(num));
-        //        } else if let Ok(bool) = line.parse() {
-        //            self.stack.push(Value::Bool(bool));
-        //        } else {
-        //            my_todo!();
-        //        }
-        //    }
-        //    (Blue, Left) => self.pop()?.print_as_char(),
-        //    (Blue, Right) => {
-        //        let a = self.pop()?;
-        //        let b = self.pop()?;
-        //        self.stack.push(a);
-        //        self.stack.push(b);
-        //    }
+            // i/o
+            (Blue, Up, None) => Print,
+            (Blue, Down, None) => Input,
+            (Blue, Left, None) => Printc,
+            (Blue, Right, None) => Swap,
 
-        //    // control flow
-        //    (Purple, Up) => my_todo!(),
-        //    (Purple, Down) => my_todo!(),
-        //    (Purple, Left) => my_todo!(),
-        //    (Purple, Right) => my_todo!(),
-        //}
+            // control flow
+            (Purple, dir, None) => match dir {
+                Up => Roll,
+                Down => Roll,
+                Left => Roll,
+                Right => Roll,
+            },
+
+            (_, _, Some(_)) => todo!(),
+            (_, _, None) => unreachable!(),
+        }
     }
 }
 

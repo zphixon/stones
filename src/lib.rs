@@ -151,7 +151,7 @@ pub enum Ast {
 }
 
 impl Ast {
-    fn command(&self) -> AstCommand {
+    pub fn command(&self) -> AstCommand {
         match self {
             Ast::PurpleUp { begin, .. } => *begin,
             Ast::PurpleLeft { begin, .. } => *begin,
@@ -159,11 +159,11 @@ impl Ast {
         }
     }
 
-    fn is_end(&self) -> bool {
+    pub fn is_end(&self) -> bool {
         self.command().is_end()
     }
 
-    fn is_else(&self) -> bool {
+    pub fn is_else(&self) -> bool {
         self.command().is_else()
     }
 }
@@ -338,25 +338,49 @@ pub fn compile(ast: &[Ast]) -> Vec<Opcode> {
     let mut ops = Vec::new();
 
     for node in ast {
-        compile_node(node, &mut ops);
+        compile_node(&mut ops, node);
     }
 
     ops
 }
 
-fn compile_node(node: &Ast, ops: &mut Vec<Opcode>) {
+fn compile_node(ops: &mut Vec<Opcode>, node: &Ast) {
     match node {
-        Ast::PurpleLeft { body, .. } => compile_while(ops, body),
-        Ast::PurpleUp { body, else_, .. } => compile_if(ops, body, else_.as_ref()),
+        Ast::PurpleLeft {
+            begin, body, end, ..
+        } => compile_while(ops, *begin, body, *end),
+        Ast::PurpleUp {
+            begin, body, else_, ..
+        } => compile_if(ops, *begin, body, else_.as_ref()),
         Ast::Normal { command } => compile_normal(ops, *command),
     }
 }
 
-fn compile_while(ops: &mut Vec<Opcode>, body: &[Ast]) {}
+fn compile_while(ops: &mut Vec<Opcode>, begin: AstCommand, body: &[Ast], end: AstCommand) {
+    ops.push(Command::from(begin).to_opcode());
+    for command in body {
+        compile_node(ops, command);
+    }
+    ops.push(Command::from(end).to_opcode());
+}
 
-fn compile_if(ops: &mut Vec<Opcode>, body: &[Ast], else_: Option<&Else>) {}
+fn compile_if(ops: &mut Vec<Opcode>, begin: AstCommand, body: &[Ast], else_: Option<&Else>) {
+    ops.push(Command::from(begin).to_opcode());
+    for command in body {
+        compile_node(ops, command);
+    }
 
-fn compile_normal(ops: &mut Vec<Opcode>, command: AstCommand) {}
+    if let Some(else_) = else_ {
+        ops.push(Command::from(else_.else_).to_opcode());
+        for command in else_.body.iter() {
+            compile_node(ops, &command);
+        }
+    }
+}
+
+fn compile_normal(ops: &mut Vec<Opcode>, command: AstCommand) {
+    ops.push(Command::from(command).to_opcode());
+}
 
 #[derive(Clone, Debug)]
 pub enum Value {
