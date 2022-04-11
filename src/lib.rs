@@ -367,13 +367,13 @@ fn compile_while(ops: &mut Vec<Opcode>, _begin: AstCommand, body: &[Ast], _end: 
 }
 
 fn compile_if(ops: &mut Vec<Opcode>, begin: AstCommand, body: &[Ast], else_: Option<&Else>) {
-    ops.push(Command::from(begin).to_opcode());
+    ops.push(Command::from(begin).get_opcode());
     for command in body {
         compile_node(ops, command);
     }
 
     if let Some(else_) = else_ {
-        ops.push(Command::from(else_.else_).to_opcode());
+        ops.push(Command::from(else_.else_).get_opcode());
         for command in else_.body.iter() {
             compile_node(ops, &command);
         }
@@ -381,7 +381,7 @@ fn compile_if(ops: &mut Vec<Opcode>, begin: AstCommand, body: &[Ast], else_: Opt
 }
 
 fn compile_normal(ops: &mut Vec<Opcode>, command: AstCommand) {
-    ops.push(Command::from(command).to_opcode());
+    ops.push(Command::from(command).get_opcode());
 }
 
 #[derive(Clone, Debug)]

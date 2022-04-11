@@ -34,7 +34,7 @@ impl Command {
         }
     }
 
-    pub fn to_opcode(&self) -> Opcode {
+    pub fn get_opcode(&self) -> Opcode {
         use Dir::*;
         use Opcode::*;
         use Stone::*;
@@ -95,16 +95,12 @@ impl Command {
             (Blue, Left, None) => Printc,
             (Blue, Right, None) => Swap,
 
-            // control flow
-            (Purple, dir, None) => match dir {
-                Up => Roll,
-                Down => Roll,
-                Left => Roll,
-                Right => Roll,
-            },
+            // purple instructions need to be manually patched in the compiler
+            (Purple, _, None) => unreachable!("purple asked for opcode"),
 
-            (_, _, Some(_)) => todo!(),
-            (_, _, None) => unreachable!(),
+            (_, _, None) | (_, _, Some(_)) => {
+                unreachable!("invalid command asked for opcode {self:?}")
+            }
         }
     }
 }
