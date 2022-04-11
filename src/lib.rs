@@ -115,30 +115,30 @@ impl TryFrom<&str> for Token {
 
 #[derive(Debug)]
 pub struct Else {
-    else_: Command,
+    else_: AstCommand,
     body: Vec<Ast>,
 }
 
 #[derive(Debug)]
 pub enum Ast {
     PurpleLeft {
-        begin: Command,
+        begin: AstCommand,
         body: Vec<Ast>,
-        end: Command,
+        end: AstCommand,
     },
     PurpleUp {
-        begin: Command,
+        begin: AstCommand,
         body: Vec<Ast>,
         else_: Option<Else>,
-        end: Command,
+        end: AstCommand,
     },
     Normal {
-        command: Command,
+        command: AstCommand,
     },
 }
 
 impl Ast {
-    fn command(&self) -> Command {
+    fn command(&self) -> AstCommand {
         match self {
             Ast::PurpleUp { begin, .. } => *begin,
             Ast::PurpleLeft { begin, .. } => *begin,
@@ -168,7 +168,7 @@ pub struct Number {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct Command {
+pub struct AstCommand {
     color: Stone,
     color_token: Token,
     dir: Dir,
@@ -176,7 +176,7 @@ pub struct Command {
     number: Option<Number>,
 }
 
-impl Command {
+impl AstCommand {
     fn is_end(&self) -> bool {
         self.color == Stone::Purple && self.dir == Dir::Right
     }
@@ -206,7 +206,7 @@ fn compile_node(node: &Ast, ops: &mut Vec<Op>) {
 
 fn compile_while(ops: &mut Vec<Op>, body: &[Ast]) {}
 fn compile_if(ops: &mut Vec<Op>, body: &[Ast], else_: Option<&Else>) {}
-fn compile_normal(ops: &mut Vec<Op>, command: Command) {}
+fn compile_normal(ops: &mut Vec<Op>, command: AstCommand) {}
 
 pub fn scan(source: &str) -> impl Iterator<Item = Token> + '_ {
     source
@@ -321,14 +321,16 @@ fn parse_number<I: Iterator<Item = Token>>(
     }))
 }
 
-fn consume_command<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Command, Error> {
+fn consume_command<I: Iterator<Item = Token>>(
+    scanner: &mut Peekable<I>,
+) -> Result<AstCommand, Error> {
     let color_token = next(scanner)?;
     let color = color_token.try_into()?;
     let dir_token = next(scanner)?;
     let dir = dir_token.try_into()?;
     let number = parse_number(scanner, color)?;
 
-    Ok(Command {
+    Ok(AstCommand {
         color,
         color_token,
         dir,
