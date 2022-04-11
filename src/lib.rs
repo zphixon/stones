@@ -37,6 +37,14 @@ impl Stone {
             _ => false,
         }
     }
+
+    pub fn number_one(&self) -> Option<EitherNumber> {
+        match self {
+            Stone::Red => Some(red!(One)),
+            Stone::Orange => Some(orange!(One)),
+            _ => None,
+        }
+    }
 }
 
 impl TryFrom<Token> for Stone {
@@ -300,11 +308,35 @@ pub struct Else {
     body: Vec<Ast>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Command {
     color: Stone,
     dir: Dir,
     number: Option<EitherNumber>,
+    side_effect: bool,
+}
+
+impl Command {
+    pub fn magnitude(&self) -> usize {
+        self.number.map(|number| number.magnitude()).unwrap_or(1)
+    }
+
+    pub fn change_magnitude(self, new_magnitude: usize) -> Command {
+        match self.color {
+            Stone::Red => Command {
+                color: Stone::Red,
+                number: Some(EitherNumber::Red(new_magnitude.into())),
+                ..self
+            },
+            Stone::Orange => Command {
+                color: Stone::Orange,
+                number: Some(EitherNumber::Orange(new_magnitude.into())),
+                ..self
+            },
+            Stone::Yellow | Stone::Blue | Stone::Green | Stone::Purple => self,
+            Stone::X => unreachable!(),
+        }
+    }
 }
 
 impl From<AstCommand> for Command {
@@ -313,14 +345,38 @@ impl From<AstCommand> for Command {
             color: value.color,
             dir: value.dir,
             number: value.number.map(|number| number.number),
+            side_effect: false,
         }
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[macro_export]
+macro_rules! red {
+    ($num:ident) => {
+        crate::EitherNumber::Red(crate::RedNumber::$num)
+    };
+}
+
+#[macro_export]
+macro_rules! orange {
+    ($num:ident) => {
+        crate::EitherNumber::Orange(crate::OrangeNumber::$num)
+    };
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum EitherNumber {
     Red(RedNumber),
     Orange(OrangeNumber),
+}
+
+impl EitherNumber {
+    pub fn magnitude(&self) -> usize {
+        match self {
+            EitherNumber::Red(number) => number.magnitude(),
+            EitherNumber::Orange(number) => number.magnitude(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
