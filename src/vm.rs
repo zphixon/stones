@@ -37,6 +37,7 @@ pub enum Opcode {
     JumpFalse(usize),    // always forward: head of if/while
     JumpForward(usize),  // else command of if
     JumpBackward(usize), // end of while
+    Die,
 }
 
 // vm runs on vec<command>

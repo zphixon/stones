@@ -356,12 +356,14 @@ fn compile_node(ops: &mut Vec<Opcode>, node: &Ast) {
     }
 }
 
-fn compile_while(ops: &mut Vec<Opcode>, begin: AstCommand, body: &[Ast], end: AstCommand) {
-    ops.push(Command::from(begin).to_opcode());
+fn compile_while(ops: &mut Vec<Opcode>, _begin: AstCommand, body: &[Ast], _end: AstCommand) {
+    let repeat_idx = ops.len();
+    ops.push(Opcode::Die);
     for command in body {
         compile_node(ops, command);
     }
-    ops.push(Command::from(end).to_opcode());
+    ops.push(Opcode::JumpBackward(repeat_idx + 1));
+    ops[repeat_idx] = Opcode::JumpFalse(ops.len());
 }
 
 fn compile_if(ops: &mut Vec<Opcode>, begin: AstCommand, body: &[Ast], else_: Option<&Else>) {
