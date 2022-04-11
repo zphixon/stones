@@ -1,6 +1,52 @@
 use crate::{Dir, Error, OrangeNumber, RedNumber, Stone, Token, Value};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Comparison {
+    Equal,
+    LessThan,
+    GreaterThan,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Math {
+    Multiply,
+    Add,
+    Subtract,
+    Divide,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Opcode {
+    PushNumber(isize),
+    PushBool(bool),
+    StartArray,
+    PushArray,
+    EndArray,
+    NthArray,
+    Comparison(Comparison),
+    Quine,
+    Math(Math),
+    Roll,
+    Dup,
+    Drop,
+    Not,
+    Print,
+    Input,
+    Printc,
+    Swap,
+    JumpFalse(usize),    // always forward: head of if/while
+    JumpForward(usize),  // else command of if
+    JumpBackward(usize), // end of while
+}
+
+// vm runs on vec<command>
+// for each command
+//   field.commands_for(command)
+//   for each new command
+//     op = command.into()
+//     match op
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum OpColor {
     Red(RedNumber),
     Orange(OrangeNumber),

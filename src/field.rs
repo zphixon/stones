@@ -1,4 +1,4 @@
-use crate::{vm::Op, Command, Dir, Stone};
+use crate::{Command, Dir, Stone};
 
 pub struct Field<const W: usize = 12, const H: usize = 6> {
     field: [[Stone; W]; H],
