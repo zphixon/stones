@@ -1,4 +1,4 @@
-use crate::{field::Stone, Error, OrangeNumber, RedNumber, Token, Value};
+use crate::{Dir, Error, OrangeNumber, RedNumber, Stone, Token, Value};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum OpColor {
@@ -29,27 +29,6 @@ impl TryFrom<Token> for OpColor {
             Token::Blue => Ok(OpColor::Blue),
             Token::Purple => Ok(OpColor::Purple),
             _ => Err(Error::ExpectedColor { got: value }),
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Dir {
-    Left,
-    Right,
-    Up,
-    Down,
-}
-
-impl TryFrom<Token> for Dir {
-    type Error = Error;
-    fn try_from(value: Token) -> Result<Self, Self::Error> {
-        match value {
-            Token::Left => Ok(Dir::Left),
-            Token::Right => Ok(Dir::Right),
-            Token::Up => Ok(Dir::Up),
-            Token::Down => Ok(Dir::Down),
-            _ => Err(Error::ExpectedDir { got: value }),
         }
     }
 }
