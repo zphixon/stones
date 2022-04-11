@@ -156,6 +156,23 @@ impl Ast {
 }
 
 #[derive(Debug, Clone, Copy)]
+pub struct Command {
+    color: Stone,
+    dir: Dir,
+    number: Option<EitherNumber>,
+}
+
+impl From<AstCommand> for Command {
+    fn from(value: AstCommand) -> Self {
+        Command {
+            color: value.color,
+            dir: value.dir,
+            number: value.number.map(|number| number.number),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum EitherNumber {
     Red(RedNumber),
     Orange(OrangeNumber),
