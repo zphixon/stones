@@ -1,191 +1,24 @@
+pub mod command;
 pub mod field;
 pub mod vm;
 
 use std::{cmp::Ordering, iter::Peekable};
 
-use vm::{Op, OpColor};
-
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
-pub enum Stone {
-    X,
-    Red,
-    Orange,
-    Yellow,
-    Green,
-    Blue,
-    Purple,
-}
-
-impl Stone {
-    pub fn to_op(&self) -> OpColor {
-        match self {
-            Stone::Red => OpColor::Red(RedNumber::One),
-            Stone::Orange => OpColor::Orange(OrangeNumber::One),
-            Stone::Yellow => OpColor::Yellow,
-            Stone::Blue => OpColor::Blue,
-            Stone::Green => OpColor::Green,
-
-            // cannot get purple, it is the heaviest
-            // cannot get X, it has no op
-            _ => unreachable!(),
-        }
-    }
-
-    pub fn has_number(&self) -> bool {
-        match self {
-            Stone::Red | Stone::Orange => true,
-            _ => false,
-        }
-    }
-
-    pub fn number_one(&self) -> Option<EitherNumber> {
-        match self {
-            Stone::Red => Some(red!(One)),
-            Stone::Orange => Some(orange!(One)),
-            _ => None,
-        }
-    }
-}
-
-impl TryFrom<Token> for Stone {
-    type Error = Error;
-    fn try_from(value: Token) -> Result<Stone, Self::Error> {
-        match value {
-            Token::Red => Ok(Stone::Red),
-            Token::Orange => Ok(Stone::Orange),
-            Token::Yellow => Ok(Stone::Yellow),
-            Token::Green => Ok(Stone::Green),
-            Token::Blue => Ok(Stone::Blue),
-            Token::Purple => Ok(Stone::Purple),
-            _ => Err(Error::ExpectedColor { got: value }),
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Dir {
-    Left,
-    Right,
-    Up,
-    Down,
-}
-
-impl TryFrom<Token> for Dir {
-    type Error = Error;
-    fn try_from(value: Token) -> Result<Self, Self::Error> {
-        match value {
-            Token::Left => Ok(Dir::Left),
-            Token::Right => Ok(Dir::Right),
-            Token::Up => Ok(Dir::Up),
-            Token::Down => Ok(Dir::Down),
-            _ => Err(Error::ExpectedDir { got: value }),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum EitherNumber {
-    Red(RedNumber),
-    Orange(OrangeNumber),
-}
-
-impl EitherNumber {
-    pub fn magnitude(&self) -> usize {
-        match self {
-            EitherNumber::Red(number) => number.magnitude(),
-            EitherNumber::Orange(number) => number.magnitude(),
-        }
-    }
-}
+use command::{Command, Dir, EitherNumber, OrangeNumber, RedNumber, Stone};
+use vm::Opcode;
 
 #[macro_export]
 macro_rules! red {
     ($num:ident) => {
-        crate::EitherNumber::Red(crate::RedNumber::$num)
+        crate::command::EitherNumber::Red(crate::command::RedNumber::$num)
     };
 }
 
 #[macro_export]
 macro_rules! orange {
     ($num:ident) => {
-        crate::EitherNumber::Orange(crate::OrangeNumber::$num)
+        crate::command::EitherNumber::Orange(crate::command::OrangeNumber::$num)
     };
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum RedNumber {
-    One,
-    Two,
-    Three,
-}
-
-impl RedNumber {
-    fn magnitude(&self) -> usize {
-        match self {
-            RedNumber::One => 1,
-            RedNumber::Two => 2,
-            RedNumber::Three => 3,
-        }
-    }
-}
-
-impl From<usize> for RedNumber {
-    fn from(i: usize) -> Self {
-        match i {
-            1 => RedNumber::One,
-            2 => RedNumber::Two,
-            3 => RedNumber::Three,
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl TryFrom<Token> for RedNumber {
-    type Error = Error;
-    fn try_from(value: Token) -> Result<Self, Self::Error> {
-        match value {
-            Token::One => Ok(RedNumber::One),
-            Token::Two => Ok(RedNumber::Two),
-            Token::Three => Ok(RedNumber::Three),
-            _ => Err(Error::ExpectedRedNumber { got: value }),
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum OrangeNumber {
-    One,
-    Two,
-}
-
-impl OrangeNumber {
-    fn magnitude(&self) -> usize {
-        match self {
-            OrangeNumber::One => 1,
-            OrangeNumber::Two => 2,
-        }
-    }
-}
-
-impl From<usize> for OrangeNumber {
-    fn from(i: usize) -> Self {
-        match i {
-            1 => OrangeNumber::One,
-            2 => OrangeNumber::Two,
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl TryFrom<Token> for OrangeNumber {
-    type Error = Error;
-    fn try_from(value: Token) -> Result<Self, Self::Error> {
-        match value {
-            Token::One => Ok(OrangeNumber::One),
-            Token::Two => Ok(OrangeNumber::Two),
-            _ => Err(Error::ExpectedOrangeNumber { got: value }),
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -335,48 +168,6 @@ impl Ast {
 pub struct Else {
     else_: AstCommand,
     body: Vec<Ast>,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Command {
-    color: Stone,
-    dir: Dir,
-    number: Option<EitherNumber>,
-    side_effect: bool,
-}
-
-impl Command {
-    pub fn magnitude(&self) -> usize {
-        self.number.map(|number| number.magnitude()).unwrap_or(1)
-    }
-
-    pub fn change_magnitude(self, new_magnitude: usize) -> Command {
-        match self.color {
-            Stone::Red => Command {
-                color: Stone::Red,
-                number: Some(EitherNumber::Red(new_magnitude.into())),
-                ..self
-            },
-            Stone::Orange => Command {
-                color: Stone::Orange,
-                number: Some(EitherNumber::Orange(new_magnitude.into())),
-                ..self
-            },
-            Stone::Yellow | Stone::Blue | Stone::Green | Stone::Purple => self,
-            Stone::X => unreachable!(),
-        }
-    }
-}
-
-impl From<AstCommand> for Command {
-    fn from(value: AstCommand) -> Self {
-        Command {
-            color: value.color,
-            dir: value.dir,
-            number: value.number.map(|number| number.number),
-            side_effect: false,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -539,7 +330,7 @@ fn next<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Token, E
     scanner.next().ok_or(Error::UnexpectedEof)
 }
 
-pub fn compile(ast: &[Ast]) -> Vec<Op> {
+pub fn compile(ast: &[Ast]) -> Vec<Opcode> {
     let mut ops = Vec::new();
 
     for node in ast {
@@ -549,7 +340,7 @@ pub fn compile(ast: &[Ast]) -> Vec<Op> {
     ops
 }
 
-fn compile_node(node: &Ast, ops: &mut Vec<Op>) {
+fn compile_node(node: &Ast, ops: &mut Vec<Opcode>) {
     match node {
         Ast::PurpleLeft { body, .. } => compile_while(ops, body),
         Ast::PurpleUp { body, else_, .. } => compile_if(ops, body, else_.as_ref()),
@@ -557,9 +348,11 @@ fn compile_node(node: &Ast, ops: &mut Vec<Op>) {
     }
 }
 
-fn compile_while(ops: &mut Vec<Op>, body: &[Ast]) {}
-fn compile_if(ops: &mut Vec<Op>, body: &[Ast], else_: Option<&Else>) {}
-fn compile_normal(ops: &mut Vec<Op>, command: AstCommand) {}
+fn compile_while(ops: &mut Vec<Opcode>, body: &[Ast]) {}
+
+fn compile_if(ops: &mut Vec<Opcode>, body: &[Ast], else_: Option<&Else>) {}
+
+fn compile_normal(ops: &mut Vec<Opcode>, command: AstCommand) {}
 
 #[derive(Clone, Debug)]
 pub enum Value {
