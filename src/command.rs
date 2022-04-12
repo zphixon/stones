@@ -128,7 +128,7 @@ impl std::fmt::Display for Command {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{} {}{}",
+            "{} {}{}{}",
             match self.color {
                 Stone::X => "X",
                 Stone::Red => "red",
@@ -151,6 +151,11 @@ impl std::fmt::Display for Command {
                 orange!(One) => " one",
                 orange!(Two) => " two",
                 None => "",
+            },
+            if self.side_effect {
+                " (side effect)"
+            } else {
+                ""
             },
         )?;
         Ok(())
