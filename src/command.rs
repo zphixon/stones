@@ -1,6 +1,6 @@
 use crate::{
     orange, red,
-    vm::{Comparison, Math, OpColor, Opcode},
+    vm::{Comparison, Math, Opcode},
     AstCommand, Error, Token,
 };
 
@@ -13,6 +13,15 @@ pub struct Command {
 }
 
 impl Command {
+    pub fn empty() -> Command {
+        Command {
+            color: Stone::X,
+            dir: Dir::Left,
+            number: None,
+            side_effect: false,
+        }
+    }
+
     pub fn magnitude(&self) -> usize {
         self.number.map(|number| number.magnitude()).unwrap_or(1)
     }
@@ -34,74 +43,73 @@ impl Command {
         }
     }
 
-    pub fn get_opcode(&self) -> Opcode {
+    pub fn get_opcode(&self) -> Option<Opcode> {
         use Dir::*;
-        use Opcode::*;
         use Stone::*;
 
-        match (self.color, self.dir, self.number) {
+        Some(match (self.color, self.dir, self.number) {
             // constants
-            (Red, dir, red!(One)) => PushNumber(match dir {
+            (Red, dir, red!(One)) => Opcode::PushNumber(match dir {
                 Up => 0,
                 Down => 1,
                 Left => 2,
                 Right => 3,
             }),
-            (Red, dir, red!(Two)) => PushNumber(match dir {
+            (Red, dir, red!(Two)) => Opcode::PushNumber(match dir {
                 Up => 4,
                 Down => 5,
                 Left => 6,
                 Right => 7,
             }),
             (Red, dir, red!(Three)) => match dir {
-                Up => PushNumber(8),
-                Down => PushNumber(9),
-                Left => PushBool(true),
-                Right => PushBool(false),
+                Up => Opcode::PushNumber(8),
+                Down => Opcode::PushNumber(9),
+                Left => Opcode::PushBool(true),
+                Right => Opcode::PushBool(false),
             },
 
             // arrays
-            (Orange, Up, orange!(One)) => StartArray,
-            (Orange, Down, orange!(One)) => EndArray,
-            (Orange, Left, orange!(One)) => PushArray,
-            (Orange, Right, orange!(One)) => NthArray,
+            (Orange, Up, orange!(One)) => Opcode::StartArray,
+            (Orange, Down, orange!(One)) => Opcode::EndArray,
+            (Orange, Left, orange!(One)) => Opcode::PushArray,
+            (Orange, Right, orange!(One)) => Opcode::NthArray,
 
             // comparisons (feat. idiotic lhs/rhs semantics)
-            (Orange, Right, orange!(Two)) => Quine,
-            (Orange, dir, orange!(Two)) => Comparison(match dir {
-                Up => crate::vm::Comparison::Equal,
-                Down => crate::vm::Comparison::LessThan,
-                Left => crate::vm::Comparison::GreaterThan,
+            (Orange, Right, orange!(Two)) => Opcode::Quine,
+            (Orange, dir, orange!(Two)) => Opcode::Comparison(match dir {
+                Up => Comparison::Equal,
+                Down => Comparison::LessThan,
+                Left => Comparison::GreaterThan,
                 _ => unreachable!(),
             }),
 
             // math (feat. idiotic lhs/rhs semantics)
-            (Yellow, dir, None) => Math(match dir {
-                Up => crate::vm::Math::Multiply,
-                Down => crate::vm::Math::Add,
-                Left => crate::vm::Math::Subtract,
-                Right => crate::vm::Math::Divide,
+            (Yellow, dir, None) => Opcode::Math(match dir {
+                Up => Math::Multiply,
+                Down => Math::Add,
+                Left => Math::Subtract,
+                Right => Math::Divide,
             }),
 
             // stack operations
-            (Green, Up, None) => Roll,
-            (Green, Down, None) => Dup,
-            (Green, Left, None) => Drop,
-            (Green, Right, None) => Not,
+            (Green, Up, None) => Opcode::Roll,
+            (Green, Down, None) => Opcode::Dup,
+            (Green, Left, None) => Opcode::Drop,
+            (Green, Right, None) => Opcode::Not,
 
             // i/o
-            (Blue, Up, None) => Print,
-            (Blue, Down, None) => Input,
-            (Blue, Left, None) => Printc,
-            (Blue, Right, None) => Swap,
+            (Blue, Up, None) => Opcode::Print,
+            (Blue, Down, None) => Opcode::Input,
+            (Blue, Left, None) => Opcode::Printc,
+            (Blue, Right, None) => Opcode::Swap,
 
             // purple instructions need to be manually patched in the compiler
-            (Purple, _, None) => unreachable!("purple asked for opcode"),
+            (Purple, _, None) => None?,
 
             (_, _, None) | (_, _, Some(_)) => {
                 unreachable!("invalid command asked for opcode {self:?}")
             }
-        }
+        })
     }
 }
 
@@ -113,6 +121,39 @@ impl From<AstCommand> for Command {
             number: value.number.map(|number| number.number),
             side_effect: false,
         }
+    }
+}
+
+impl std::fmt::Display for Command {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} {}{}",
+            match self.color {
+                Stone::X => "X",
+                Stone::Red => "red",
+                Stone::Orange => "orange",
+                Stone::Yellow => "yellow",
+                Stone::Green => "green",
+                Stone::Blue => "blue",
+                Stone::Purple => "purple",
+            },
+            match self.dir {
+                Dir::Up => "up",
+                Dir::Down => "down",
+                Dir::Left => "left",
+                Dir::Right => "right",
+            },
+            match self.number {
+                red!(One) => " one",
+                red!(Two) => " two",
+                red!(Three) => " three",
+                orange!(One) => " one",
+                orange!(Two) => " two",
+                None => "",
+            },
+        )?;
+        Ok(())
     }
 }
 
@@ -128,20 +169,6 @@ pub enum Stone {
 }
 
 impl Stone {
-    pub fn to_op(&self) -> OpColor {
-        match self {
-            Stone::Red => OpColor::Red(RedNumber::One),
-            Stone::Orange => OpColor::Orange(OrangeNumber::One),
-            Stone::Yellow => OpColor::Yellow,
-            Stone::Blue => OpColor::Blue,
-            Stone::Green => OpColor::Green,
-
-            // cannot get purple, it is the heaviest
-            // cannot get X, it has no op
-            _ => unreachable!(),
-        }
-    }
-
     pub fn has_number(&self) -> bool {
         match self {
             Stone::Red | Stone::Orange => true,

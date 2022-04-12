@@ -4,8 +4,8 @@ pub mod vm;
 
 use std::{cmp::Ordering, iter::Peekable};
 
-use command::{Command, Dir, EitherNumber, OrangeNumber, RedNumber, Stone};
-use vm::Opcode;
+use command::{Command, Dir, EitherNumber, Stone};
+use vm::{Opcode, Operation};
 
 #[macro_export]
 macro_rules! red {
@@ -334,7 +334,7 @@ fn next<I: Iterator<Item = Token>>(scanner: &mut Peekable<I>) -> Result<Token, E
     scanner.next().ok_or(Error::UnexpectedEof)
 }
 
-pub fn compile(ast: &[Ast]) -> Vec<Opcode> {
+pub fn compile(ast: &[Ast]) -> Vec<Operation> {
     let mut ops = Vec::new();
 
     for node in ast {
@@ -344,7 +344,7 @@ pub fn compile(ast: &[Ast]) -> Vec<Opcode> {
     ops
 }
 
-fn compile_node(ops: &mut Vec<Opcode>, node: &Ast) {
+fn compile_node(ops: &mut Vec<Operation>, node: &Ast) {
     match node {
         Ast::PurpleLeft {
             begin, body, end, ..
@@ -356,23 +356,34 @@ fn compile_node(ops: &mut Vec<Opcode>, node: &Ast) {
     }
 }
 
-fn compile_while(ops: &mut Vec<Opcode>, _begin: AstCommand, body: &[Ast], _end: AstCommand) {
+fn compile_while(ops: &mut Vec<Operation>, begin: AstCommand, body: &[Ast], end: AstCommand) {
     let repeat_idx = ops.len();
-    ops.push(Opcode::Die);
+    ops.push(Operation::die());
     for command in body {
         compile_node(ops, command);
     }
-    ops.push(Opcode::JumpBackward(repeat_idx + 1));
-    ops[repeat_idx] = Opcode::JumpFalse(ops.len());
+
+    ops.push(Operation {
+        command: end.into(),
+        opcode: Opcode::JumpBackward(repeat_idx + 1),
+    });
+
+    ops[repeat_idx] = Operation {
+        command: begin.into(),
+        opcode: Opcode::JumpFalse(ops.len()),
+    };
 }
 
-fn compile_if(ops: &mut Vec<Opcode>, _begin: AstCommand, body: &[Ast], else_: Option<&Else>) {
+fn compile_if(ops: &mut Vec<Operation>, begin: AstCommand, body: &[Ast], else_: Option<&Else>) {
     let begin_idx = ops.len();
-    ops.push(Opcode::Die);
+    ops.push(Operation::die());
     for command in body {
         compile_node(ops, command);
     }
-    ops[begin_idx] = Opcode::JumpFalse(ops.len());
+    ops[begin_idx] = Operation {
+        command: begin.into(),
+        opcode: Opcode::JumpFalse(ops.len()),
+    };
 
     if let Some(else_) = else_ {
         //ops.push(Command::from(else_.else_).get_opcode());
@@ -382,8 +393,8 @@ fn compile_if(ops: &mut Vec<Opcode>, _begin: AstCommand, body: &[Ast], else_: Op
     }
 }
 
-fn compile_normal(ops: &mut Vec<Opcode>, command: AstCommand) {
-    ops.push(Command::from(command).get_opcode());
+fn compile_normal(ops: &mut Vec<Operation>, command: AstCommand) {
+    ops.push(Operation::from(command.into()));
 }
 
 #[derive(Clone, Debug)]

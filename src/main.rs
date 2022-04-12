@@ -26,14 +26,23 @@ struct Args {
     )]
     print_compiled: bool,
 
-    #[options(help = "Print the operation being executed.")]
-    operation: bool,
+    #[options(help = "Quit after parsing and compiling a file.")]
+    verify_syntax: bool,
 
-    #[options(help = "Display the field after every operation. Implies --operation.")]
-    field: bool,
+    #[options(help = "Print the operation being executed.", short = "o")]
+    print_operation: bool,
 
-    #[options(help = "Display the stack after every operation. Implies --operation.")]
-    stack: bool,
+    #[options(
+        help = "Display the field after every operation. Implies --operation.",
+        short = "f"
+    )]
+    print_field: bool,
+
+    #[options(
+        help = "Display the stack after every operation. Implies --operation.",
+        short = "s"
+    )]
+    print_stack: bool,
 
     #[options(
         help = "Continue an interactive session in the repl, overriding the exit behavior of --print-tokens and --print-ast."
@@ -43,7 +52,9 @@ struct Args {
 
 fn main() {
     let mut args: Args = Args::parse_args_default_or_exit();
-    args.operation = args.operation || args.field || args.stack;
+
+    // TODO handle more combinations
+    args.print_operation = args.print_operation || args.print_field || args.print_stack;
 
     if args.filename.is_none() || args.interactive {
         todo!();
@@ -64,44 +75,16 @@ fn main() {
         println!("{program:#?}");
     }
 
-    if args.filename.is_some() && (args.print_tokens || args.print_ast || args.print_compiled) {
+    if args.filename.is_some() && args.verify_syntax {
         return;
     }
 
-    //let mut vm = stones::vm::Vm::new(ast);
-    let mut field = stones::field::Field::new();
-    let mut step = 0;
+    let mut vm = stones::vm::Vm::new(program);
 
-    if args.field {
-        println!("init\n{field:?}\n");
+    if args.print_field {
+        println!("init\n{:?}\n", vm.field());
     }
 
-    // should be like
-    // vm.step(mut field, op) {
-    //   necessary_ops = field.step(op) {
-    //     let ops = mut vec
-    //     steprec(ops)
-    //     return ops
-    //   }
-    //   for op inn necops {
-    //     self.exec(op)
-    //   }
-    // }
-
-    //for op in ast {
-    //    //let err = field.step(&mut vm, op, args.operation);
-    //    if matches!(err, Err(stones::Error::Quine)) {
-    //        println!("{source}");
-    //    } else {
-    //        err.unwrap();
-    //    }
-
-    //    step += 1;
-    //    if args.field {
-    //        println!("{step}\n{field:?}");
-    //    }
-    //    if args.stack {
-    //        println!("{vm:?}");
-    //    }
-    //}
+    vm.run(args.print_operation, args.print_field, args.print_stack)
+        .unwrap();
 }

@@ -1,4 +1,4 @@
-use crate::{Dir, Error, OrangeNumber, RedNumber, Stone, Token, Value};
+use crate::{command::Command, field::Field, Error, Value};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Comparison {
@@ -17,7 +17,7 @@ pub enum Math {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Opcode {
-    PushNumber(isize),
+    PushNumber(i64),
     PushBool(bool),
     StartArray,
     PushArray,
@@ -40,281 +40,232 @@ pub enum Opcode {
     Die,
 }
 
-// vm runs on vec<command>
-// for each command
-//   field.commands_for(command)
-//   for each new command
-//     op = command.into()
-//     match op
-
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum OpColor {
-    Red(RedNumber),
-    Orange(OrangeNumber),
-    Yellow,
-    Green,
-    Blue,
-    Purple,
+pub struct Operation {
+    pub command: Command,
+    pub opcode: Opcode,
 }
 
-impl OpColor {
-    pub fn magnitude(&self) -> usize {
-        match self {
-            OpColor::Red(step) => step.magnitude(),
-            OpColor::Orange(step) => step.magnitude(),
-            OpColor::Yellow | OpColor::Blue | OpColor::Green | OpColor::Purple => 1,
-        }
-    }
-}
-
-impl TryFrom<Token> for OpColor {
-    type Error = Error;
-    fn try_from(value: Token) -> Result<Self, Self::Error> {
-        match value {
-            Token::Yellow => Ok(OpColor::Yellow),
-            Token::Green => Ok(OpColor::Green),
-            Token::Blue => Ok(OpColor::Blue),
-            Token::Purple => Ok(OpColor::Purple),
-            _ => Err(Error::ExpectedColor { got: value }),
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Op {
-    pub color: OpColor,
-    pub dir: Dir,
-    pub side_effect: bool,
-}
-
-impl std::fmt::Display for Op {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?} {:?}", self.color, self.dir)
-    }
-}
-
-impl Op {
-    pub fn color(&self) -> Stone {
-        match self.color {
-            OpColor::Red(_) => Stone::Red,
-            OpColor::Orange(_) => Stone::Orange,
-            OpColor::Yellow => Stone::Yellow,
-            OpColor::Blue => Stone::Blue,
-            OpColor::Green => Stone::Green,
-            OpColor::Purple => Stone::Purple,
+impl Operation {
+    pub fn die() -> Operation {
+        Operation {
+            command: Command::empty(),
+            opcode: Opcode::Die,
         }
     }
 
-    pub fn magnitude(&self) -> usize {
-        self.color.magnitude()
-    }
-
-    pub fn change_magnitude(self, new_magnitude: usize) -> Op {
-        match self.color {
-            OpColor::Red(_) => Op {
-                color: OpColor::Red(new_magnitude.into()),
-                ..self
-            },
-            OpColor::Orange(_) => Op {
-                color: OpColor::Orange(new_magnitude.into()),
-                ..self
-            },
-            OpColor::Yellow | OpColor::Blue | OpColor::Green | OpColor::Purple => self,
+    pub fn from(command: Command) -> Operation {
+        Operation {
+            opcode: command.get_opcode().unwrap(),
+            command,
         }
     }
 }
 
 #[derive(Debug)]
 pub struct Vm {
-    program: Vec<Op>,
-    ip: usize,
     stack: Vec<Value>,
+    program: Vec<Operation>,
+    ip: usize,
     array_in_progress: Option<Vec<Value>>,
+    field: Field<12, 6>,
 }
 
 impl Vm {
-    pub fn new(program: Vec<Op>) -> Vm {
+    pub fn new(program: Vec<Operation>) -> Vm {
         Vm {
+            stack: Vec::new(),
             program,
             ip: 0,
-            stack: Vec::new(),
             array_in_progress: None,
+            field: Field::new(),
         }
+    }
+
+    fn push(&mut self, value: Value) {
+        self.stack.push(value);
     }
 
     fn pop(&mut self) -> Result<Value, Error> {
         self.stack.pop().ok_or(Error::StackUnderflow)
     }
 
-    #[cfg_attr(test, allow(unused_variables))]
     fn peek(&mut self, depth: usize) -> Result<&Value, Error> {
-        #[cfg(test)]
-        return Ok(&Value::Num(0));
-
-        #[cfg_attr(test, allow(unreachable_code))]
         self.stack
             .get(self.stack.len() - depth - 1)
             .ok_or(Error::StackUnderflow)
     }
 
-    pub fn step(&mut self, print_op: bool) -> Result<(), Error> {
-        let op = self.program[self.ip];
-        self.ip += 1;
+    pub fn run(
+        &mut self,
+        print_op: bool,
+        print_field: bool,
+        print_stack: bool,
+    ) -> Result<(), Error> {
+        // TODO
+        for _ in self.ip..self.program.len() {
+            let operation = self.program[self.ip];
+            self.ip += 1;
+            let Operation { command, opcode } = operation;
 
-        self.exec(op, print_op)
-    }
-
-    fn exec(&mut self, op: Op, print_op: bool) -> Result<(), Error> {
-        use Dir::*;
-        use OpColor::*;
-        use OrangeNumber as O;
-        use RedNumber as R;
-
-        if print_op {
-            println!("exec {op:?}");
-        }
-
-        macro_rules! my_todo {
-            () => {{
-                #[cfg(not(test))]
-                todo!();
-            }};
-        }
-
-        match (op.color, op.dir) {
-            // constants
-            (Red(R::One), dir) => self.stack.push(Value::Num(match dir {
-                Up => 0,
-                Down => 1,
-                Left => 2,
-                Right => 3,
-            })),
-            (Red(R::Two), dir) => self.stack.push(Value::Num(match dir {
-                Up => 4,
-                Down => 5,
-                Left => 6,
-                Right => 7,
-            })),
-            (Red(R::Three), dir) => self.stack.push(match dir {
-                Up => Value::Num(8),
-                Down => Value::Num(9),
-                Left => Value::Bool(true),
-                Right => Value::Bool(false),
-            }),
-
-            // arrays
-            (Orange(O::One), Up) => self.array_in_progress = Some(Vec::new()),
-            (Orange(O::One), Down) => {
-                let arr = self
-                    .array_in_progress
-                    .take()
-                    .ok_or_else(|| my_todo!())
-                    .unwrap();
-                self.stack.push(Value::Arr(arr));
-            }
-            (Orange(O::One), Left) => {
-                // I didn't remember how useless arrays were in this language lol
-                let in_progress = self.array_in_progress.take();
-                if let Some(mut in_progress) = in_progress {
-                    in_progress.push(self.pop()?);
-                } else {
-                    my_todo!();
+            let commands = self.field.commands_for(command, print_op);
+            for command in commands {
+                let opcode = command.get_opcode().unwrap_or(opcode);
+                if print_op {
+                    println!("{:4} {:<30} {command}", self.ip, format!("{opcode:?}"));
                 }
-            }
-            (Orange(O::One), Right) => {
-                let idx: i64 = self.pop()?.try_into()?;
-                let maybe_arr = self.peek(0)?;
-                let arr: &[Value] = maybe_arr.get_slice().ok_or(Error::TypeMismatch {
-                    wanted: "array",
-                    got: maybe_arr.type_name(),
-                })?;
-                let dup = arr[idx as usize].clone();
-                self.stack.push(dup);
-            }
 
-            // comparisons (feat. idiotic lhs/rhs semantics)
-            (Orange(O::Two), Right) => Err(Error::Quine)?,
-            (Orange(O::Two), dir) => {
-                let lhs = self.pop()?;
-                let rhs = self.pop()?;
-                self.stack.push(Value::Bool(match dir {
-                    Up => lhs == rhs,
-                    Down => !(lhs < rhs) && lhs != rhs,
-                    Left => !(lhs > rhs) && lhs != rhs,
-                    _ => unreachable!(),
-                }))
-            }
+                match opcode {
+                    Opcode::PushNumber(num) => self.push(Value::Num(num)),
 
-            // math (feat. idiotic lhs/rhs semantics)
-            (Yellow, dir) => {
-                let lhs: i64 = self.pop()?.try_into()?;
-                let rhs: i64 = self.pop()?.try_into()?;
-                self.stack.push(Value::Num(match dir {
-                    Up => lhs * rhs,
-                    Down => lhs + rhs,
-                    Left => lhs - rhs,
-                    Right => lhs / rhs,
-                }));
-            }
+                    Opcode::PushBool(bool) => self.push(Value::Bool(bool)),
 
-            // stack operations
-            (Green, Up) => {
-                let d: i64 = self.pop()?.try_into()?;
-                if d > 0 {
-                    let mut to_roll = Vec::new();
-                    for _ in 0..d + 1 {
-                        to_roll.push(self.pop()?);
+                    Opcode::StartArray => self.array_in_progress = Some(Vec::new()),
+
+                    Opcode::PushArray => {
+                        let arr = self
+                            .array_in_progress
+                            .take()
+                            .ok_or_else(|| todo!())
+                            .unwrap();
+                        self.push(Value::Arr(arr));
                     }
-                    to_roll.reverse();
-                    let top = to_roll.pop().unwrap();
-                    to_roll.insert(0, top);
-                    for elem in to_roll {
-                        self.stack.push(elem);
+
+                    Opcode::EndArray => {
+                        let in_progress = self.array_in_progress.take();
+                        if let Some(mut in_progress) = in_progress {
+                            in_progress.push(self.pop()?);
+                            self.array_in_progress = Some(in_progress);
+                        } else {
+                            todo!();
+                        }
+                    }
+
+                    Opcode::NthArray => {
+                        let idx: i64 = self.pop()?.try_into()?;
+                        let maybe_arr = self.peek(0)?;
+                        let arr: &[Value] = maybe_arr.get_slice().ok_or(Error::TypeMismatch {
+                            wanted: "array",
+                            got: maybe_arr.type_name(),
+                        })?;
+                        let dup = arr[idx as usize].clone();
+                        self.push(dup);
+                    }
+
+                    Opcode::Comparison(comparison) => {
+                        let lhs = self.pop()?;
+                        let rhs = self.pop()?;
+                        self.push(Value::Bool(match comparison {
+                            Comparison::Equal => lhs == rhs,
+                            Comparison::LessThan => !(lhs < rhs) && lhs != rhs,
+                            Comparison::GreaterThan => !(lhs > rhs) && lhs != rhs,
+                        }));
+                    }
+
+                    Opcode::Quine => Err(Error::Quine)?,
+
+                    Opcode::Math(math) => {
+                        let lhs: i64 = self.pop()?.try_into()?;
+                        let rhs: i64 = self.pop()?.try_into()?;
+                        self.push(Value::Num(match math {
+                            Math::Multiply => lhs * rhs,
+                            Math::Add => lhs + rhs,
+                            Math::Subtract => lhs - rhs,
+                            Math::Divide => lhs / rhs,
+                        }));
+                    }
+
+                    Opcode::Roll => {
+                        let d: i64 = self.pop()?.try_into()?;
+                        if d > 0 {
+                            let mut to_roll = Vec::new();
+                            for _ in 0..d + 1 {
+                                to_roll.push(self.pop()?);
+                            }
+                            to_roll.reverse();
+                            let top = to_roll.pop().unwrap();
+                            to_roll.insert(0, top);
+                            for elem in to_roll {
+                                self.push(elem);
+                            }
+                        }
+                    }
+
+                    Opcode::Dup => {
+                        let dup = self.pop()?;
+                        self.push(dup.clone());
+                        self.push(dup);
+                    }
+
+                    Opcode::Drop => {
+                        let _ = self.pop()?;
+                    }
+
+                    Opcode::Not => {
+                        let bool = self.pop()?.is_truthy();
+                        self.push(Value::Bool(!bool));
+                    }
+
+                    Opcode::Print => self.pop()?.print_as_num(),
+
+                    Opcode::Input => {
+                        let mut line = String::new();
+                        std::io::stdin().read_line(&mut line)?;
+                        let line = line.trim();
+                        if let Ok(num) = line.parse() {
+                            self.push(Value::Num(num));
+                        } else if let Ok(bool) = line.parse() {
+                            self.push(Value::Bool(bool));
+                        } else {
+                            todo!();
+                        }
+                    }
+
+                    Opcode::Printc => self.pop()?.print_as_char(),
+
+                    Opcode::Swap => {
+                        let a = self.pop()?;
+                        let b = self.pop()?;
+                        self.push(a);
+                        self.push(b);
+                    }
+
+                    // always forward: head of if/while
+                    Opcode::JumpFalse(offset) => {
+                        if self.pop()?.is_truthy() {
+                            self.ip += offset; // - 1?
+                        }
+                    }
+
+                    // else command of if
+                    Opcode::JumpForward(offset) => {
+                        self.ip += offset; // - 1?
+                    }
+
+                    // end of while
+                    Opcode::JumpBackward(offset) => {
+                        self.ip -= offset;
+                    }
+
+                    Opcode::Die => unreachable!(),
+                }
+
+                if print_field {
+                    println!("{:?}", self.field);
+                }
+
+                if print_stack {
+                    for value in &self.stack {
+                        println!("{value:?}");
                     }
                 }
             }
-            (Green, Down) => {
-                let dup = self.pop()?;
-                self.stack.push(dup.clone());
-                self.stack.push(dup);
-            }
-            (Green, Left) => {
-                let _ = self.pop()?;
-            }
-            (Green, Right) => {
-                let bool = self.pop()?.is_truthy();
-                self.stack.push(Value::Bool(!bool));
-            }
-
-            // i/o
-            (Blue, Up) => self.pop()?.print_as_num(),
-            (Blue, Down) => {
-                let mut line = String::new();
-                std::io::stdin().read_line(&mut line)?;
-                let line = line.trim();
-                if let Ok(num) = line.parse() {
-                    self.stack.push(Value::Num(num));
-                } else if let Ok(bool) = line.parse() {
-                    self.stack.push(Value::Bool(bool));
-                } else {
-                    my_todo!();
-                }
-            }
-            (Blue, Left) => self.pop()?.print_as_char(),
-            (Blue, Right) => {
-                let a = self.pop()?;
-                let b = self.pop()?;
-                self.stack.push(a);
-                self.stack.push(b);
-            }
-
-            // control flow
-            (Purple, Up) => my_todo!(),
-            (Purple, Down) => my_todo!(),
-            (Purple, Left) => my_todo!(),
-            (Purple, Right) => my_todo!(),
         }
 
         Ok(())
+    }
+
+    pub fn field(&self) -> &Field {
+        &self.field
     }
 }
