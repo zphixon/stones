@@ -7,6 +7,10 @@ use std::{cmp::Ordering, iter::Peekable};
 use command::{Command, Dir, EitherNumber, Stone};
 use vm::{Opcode, Operation};
 
+pub fn print_command_opcode(ip: usize, command: &Command, opcode: Opcode) {
+    println!("{:4} {:<30} {command}", ip, format!("{opcode:?}"));
+}
+
 #[macro_export]
 macro_rules! red {
     ($num:ident) => {

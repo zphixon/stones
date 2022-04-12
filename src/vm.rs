@@ -112,7 +112,7 @@ impl Vm {
             for command in commands {
                 let opcode = command.get_opcode().unwrap_or(opcode);
                 if print_op {
-                    println!("{:4} {:<30} {command}", self.ip, format!("{opcode:?}"));
+                    crate::print_command_opcode(self.ip, &command, opcode);
                 }
 
                 match opcode {
