@@ -1,0 +1,21 @@
+blue down                get user input
+green down               duplicate input
+red up one               push zero
+orange up two            check if equal
+purple up                if true
+    red up one
+    blue up              output 0 and terminate
+purple down              otherwise
+    red up one           move Red to another row
+    green left           drop result
+    red left three       push true
+    purple left          while true
+        red down one     push 1
+        blue up          print 1
+        red left three   push true
+        red right three  move Red out of the way
+        red up one
+        green left       drop results
+        green left
+    purple right        end while
+purple right            end if

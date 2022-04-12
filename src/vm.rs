@@ -102,8 +102,11 @@ impl Vm {
         print_field: bool,
         print_stack: bool,
     ) -> Result<(), Error> {
-        // TODO
-        for _ in self.ip..self.program.len() {
+        loop {
+            if self.ip >= self.program.len() {
+                break;
+            }
+
             let operation = self.program[self.ip];
             self.ip += 1;
             let Operation { command, opcode } = operation;
@@ -232,19 +235,19 @@ impl Vm {
 
                     // always forward: head of if/while
                     Opcode::JumpFalse(offset) => {
-                        if self.pop()?.is_truthy() {
-                            self.ip += offset; // - 1?
+                        if !self.pop()?.is_truthy() {
+                            self.ip = offset + 1;
                         }
                     }
 
                     // else command of if
                     Opcode::JumpForward(offset) => {
-                        self.ip += offset; // - 1?
+                        self.ip = offset;
                     }
 
                     // end of while
                     Opcode::JumpBackward(offset) => {
-                        self.ip -= offset;
+                        self.ip = offset;
                     }
 
                     Opcode::Die => unreachable!(),
