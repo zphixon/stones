@@ -2,7 +2,7 @@ use gumdrop::Options;
 
 #[derive(Debug, Options)]
 struct Args {
-    #[options(help = "Print this message.")]
+    #[options(help = "Print this message.", short = "h")]
     help: bool,
 
     #[options(free, help = "File to run. If no file is given, opens a REPL.")]
@@ -26,7 +26,7 @@ struct Args {
     )]
     print_compiled: bool,
 
-    #[options(help = "Quit after parsing and compiling a file.")]
+    #[options(help = "Quit after parsing and compiling a file.", short = "v")]
     verify_syntax: bool,
 
     #[options(help = "Print the operation being executed.", short = "o")]
@@ -45,7 +45,8 @@ struct Args {
     print_stack: bool,
 
     #[options(
-        help = "Continue an interactive session in the repl, overriding the exit behavior of --print-tokens and --print-ast."
+        help = "Continue an interactive session in the repl, overriding the exit behavior of --print-tokens and --print-ast.",
+        short = "i"
     )]
     interactive: bool,
 }
