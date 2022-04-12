@@ -104,6 +104,10 @@ fn main() {
         println!("init\n{:?}\n", vm.field());
     }
 
-    vm.run(args.print_operation, args.print_field, args.print_stack)
-        .unwrap();
+    let mut result = vm.run(args.print_operation, args.print_field, args.print_stack);
+    while matches!(result, Err(stones::Error::Quine)) {
+        print!("{source}");
+        result = vm.run(args.print_operation, args.print_field, args.print_stack);
+    }
+    result.unwrap();
 }
