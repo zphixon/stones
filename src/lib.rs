@@ -341,6 +341,8 @@ pub fn compile(ast: &[Ast]) -> Vec<Operation> {
         compile_node(&mut ops, node);
     }
 
+    assert!(ops.iter().all(|op| op.opcode != Opcode::Die));
+
     ops
 }
 
@@ -375,21 +377,32 @@ fn compile_while(ops: &mut Vec<Operation>, begin: AstCommand, body: &[Ast], end:
 }
 
 fn compile_if(ops: &mut Vec<Operation>, begin: AstCommand, body: &[Ast], else_: Option<&Else>) {
+    // JumpFalse forward to else/end
     let begin_idx = ops.len();
     ops.push(Operation::die());
+
     for command in body {
         compile_node(ops, command);
     }
+
     ops[begin_idx] = Operation {
         command: begin.into(),
         opcode: Opcode::JumpFalse(ops.len()),
     };
 
     if let Some(else_) = else_ {
-        //ops.push(Command::from(else_.else_).get_opcode());
-        for command in else_.body.iter() {
-            compile_node(ops, &command);
+        // unconditional JumpForward
+        let else_idx = ops.len();
+        ops.push(Operation::die());
+
+        for command in &else_.body {
+            compile_node(ops, command);
         }
+
+        ops[else_idx] = Operation {
+            command: else_.else_.into(),
+            opcode: Opcode::JumpForward(ops.len()),
+        };
     }
 }
 
