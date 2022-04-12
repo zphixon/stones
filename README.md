@@ -2,7 +2,7 @@
 
 A bytecode-compiled esoteric programming language.
 
-[Original implementation](https://github.com/zphixon/stones-rewrite) - [Non-bytecode](https://github.com/zphixon/stones/tree/e040305b8eec695b0cbbb0647f6e00af4b33597f)
+[Original non-bytecode implementation](https://github.com/zphixon/stones/tree/e040305b8eec695b0cbbb0647f6e00af4b33597f) - [Scripted implementation](https://github.com/zphixon/stones-rewrite)
 
 ## Specification
 
