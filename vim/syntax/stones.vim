@@ -5,29 +5,21 @@
 syn case match
 
 syn keyword STodo TODO NOTE FIXME HACK OHMYGOODNESS
-syn keyword SInt red
-syn keyword SConditional purple
-syn keyword SOperator yellow
-syn keyword SFunction green blue orange
-syn keyword SDirection up down left right
-syn keyword SOne 1
-syn keyword STwo 2
-syn keyword SThree 3
-syn match SComment /^red\|^orange\|^yellow\|^green\|^blue\|^purple\|[^123]\|^up\|^down\|^left\|^right\|^one\|^two\|^three\|^\s/
-syn match SNumber /three\|two\|one/
+syn match SRed /red \(up\|down\|left\|right\) \(one\|two\|three\)/
+syn match SOrange /orange \(up\|down\|left\|right\) \(one\|two\)/
+syn match SYellowGreen /\(yellow\|green\) \(up\|down\|left\|right\)/
+syn match SBlue /blue \(up\|down\|left\|right\)/
+syn match SPurple /purple \(up\|down\|left\|right\)/
 
 hi def link STodo Todo
-hi def link SInt Number
-hi def link SConditional Type
-hi def link SOperator Operator
-hi def link SFunction Function
-hi def link SNth Function
-hi def link SDirection Identifier
-hi def link SNumber Number
 hi def link SComment Comment
-hi def link SOne Comment
-hi def link STwo Comment
-hi def link SThree Comment
 
-" these syntax definitions are awful, deal with it
+hi def link SRed Number
+
+hi def link SOrange Operator
+hi def link SYellowGreen Operator
+
+hi def link SBlue Function
+
+hi def link SPurple Conditional
 
