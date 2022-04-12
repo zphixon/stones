@@ -181,14 +181,17 @@ pub struct Else {
 #[derive(Debug, Clone, Copy)]
 pub struct Number {
     number: EitherNumber,
+    #[allow(dead_code)]
     number_token: Token,
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct AstCommand {
     color: Stone,
+    #[allow(dead_code)]
     color_token: Token,
     dir: Dir,
+    #[allow(dead_code)]
     dir_token: Token,
     number: Option<Number>,
 }
