@@ -26,12 +26,12 @@ impl Field<12, 6> {
 
         Field {
             field: [
-                [Blue, X, X,   X, X,      X, Orange, X, X,     X, X,      X],
-                [X,    X, X,   X, X,      X, X,      X, X,     X, X,      X],
-                [X,    X, Red, X, X,      X, X,      X, Green, X, X,      X],
-                [X,    X, X,   X, X,      X, X,      X, X,     X, X,      X],
-                [X,    X, X,   X, Yellow, X, X,      X, X,     X, Purple, X],
-                [X,    X, X,   X, X,      X, X,      X, X,     X, X,      X],
+                [Blue, __, __,   __, __,     __, Orange, __, __,    __, __,     __],
+                [__,   __, __,   __, __,     __, __,     __, __,    __, __,     __],
+                [__,   __, Red,  __, __,     __, __,     __, Green, __, __,     __],
+                [__,   __, __,   __, __,     __, __,     __, __,    __, __,     __],
+                [__,   __, __,   __, Yellow, __, __,     __, __,    __, Purple, __],
+                [__,   __, __,   __, __,     __, __,     __, __,    __, __,     __],
             ],
         }
     }
@@ -124,9 +124,9 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
             if next > cmd.color {
                 // next is heavier, quit early
                 break;
-            } else if next == Stone::X {
+            } else if next == Stone::__ {
                 // next is empty, just move it
-            } else if next != Stone::X && next < cmd.color {
+            } else if next != Stone::__ && next < cmd.color {
                 // next is lighter
                 let next_cmd = Command {
                     color: next,
@@ -145,7 +145,7 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
                 unreachable!()
             }
 
-            self.set(Stone::X, current_row, current_col);
+            self.set(Stone::__, current_row, current_col);
             self.set(cmd.color, next_row, next_col);
             current_row = next_row;
             current_col = next_col;
@@ -213,7 +213,7 @@ mod test {
 
     #[test]
     fn cmp() {
-        assert!(Stone::X < Stone::Red);
+        assert!(Stone::__ < Stone::Red);
         assert!(Stone::Red < Stone::Orange);
         assert!(Stone::Orange < Stone::Yellow);
         assert!(Stone::Yellow < Stone::Green);
@@ -225,8 +225,8 @@ mod test {
     fn simple() {
         mktest!(
             (Stone::Blue, Right, None),
-            [[Stone::Blue, Stone::X]],
-            [[Stone::X, Stone::Blue]],
+            [[Stone::Blue, Stone::__]],
+            [[Stone::__, Stone::Blue]],
             oplist!((Stone::Blue, Right, None, false),)
         );
     }
@@ -235,8 +235,8 @@ mod test {
     fn cancelled() {
         mktest!(
             (Stone::Red, Right, red!(One)),
-            [[Stone::Red, Stone::Blue, Stone::X]],
-            [[Stone::Red, Stone::Blue, Stone::X]],
+            [[Stone::Red, Stone::Blue, Stone::__]],
+            [[Stone::Red, Stone::Blue, Stone::__]],
             Vec::<Command>::new()
         );
     }
@@ -245,8 +245,8 @@ mod test {
     fn double_cancelled() {
         mktest!(
             (Stone::Orange, Right, orange!(One)),
-            [[Stone::Orange, Stone::X, Stone::Purple]],
-            [[Stone::X, Stone::Orange, Stone::Purple]],
+            [[Stone::Orange, Stone::__, Stone::Purple]],
+            [[Stone::__, Stone::Orange, Stone::Purple]],
             oplist!((Stone::Orange, Right, orange!(One), false),)
         );
     }
@@ -289,8 +289,8 @@ mod test {
     fn left_wrap() {
         mktest!(
             (Stone::Green, Left, None),
-            [[Stone::Green, Stone::X, Stone::X]],
-            [[Stone::X, Stone::X, Stone::Green]],
+            [[Stone::Green, Stone::__, Stone::__]],
+            [[Stone::__, Stone::__, Stone::Green]],
             oplist!((Stone::Green, Left, None, false),)
         );
     }
@@ -299,8 +299,8 @@ mod test {
     fn right_wrap() {
         mktest!(
             (Stone::Green, Right, None),
-            [[Stone::X, Stone::X, Stone::Green]],
-            [[Stone::Green, Stone::X, Stone::X]],
+            [[Stone::__, Stone::__, Stone::Green]],
+            [[Stone::Green, Stone::__, Stone::__]],
             oplist!((Stone::Green, Right, None, false),)
         );
     }
@@ -310,14 +310,14 @@ mod test {
         mktest!(
             (Stone::Green, Up, None),
             [
-                [Stone::X, Stone::Green],
-                [Stone::X, Stone::X],
-                [Stone::X, Stone::X],
+                [Stone::__, Stone::Green],
+                [Stone::__, Stone::__],
+                [Stone::__, Stone::__],
             ],
             [
-                [Stone::X, Stone::X],
-                [Stone::X, Stone::X],
-                [Stone::X, Stone::Green]
+                [Stone::__, Stone::__],
+                [Stone::__, Stone::__],
+                [Stone::__, Stone::Green]
             ],
             oplist!((Stone::Green, Up, None, false),)
         );
@@ -328,14 +328,14 @@ mod test {
         mktest!(
             (Stone::Green, Down, None),
             [
-                [Stone::X, Stone::X],
-                [Stone::X, Stone::X],
-                [Stone::X, Stone::Green],
+                [Stone::__, Stone::__],
+                [Stone::__, Stone::__],
+                [Stone::__, Stone::Green],
             ],
             [
-                [Stone::X, Stone::Green],
-                [Stone::X, Stone::X],
-                [Stone::X, Stone::X],
+                [Stone::__, Stone::Green],
+                [Stone::__, Stone::__],
+                [Stone::__, Stone::__],
             ],
             oplist!((Stone::Green, Down, None, false),)
         );
@@ -345,8 +345,8 @@ mod test {
     fn push_left() {
         mktest!(
             (Stone::Green, Left, None),
-            [[Stone::X, Stone::Yellow, Stone::Green]],
-            [[Stone::Yellow, Stone::Green, Stone::X]],
+            [[Stone::__, Stone::Yellow, Stone::Green]],
+            [[Stone::Yellow, Stone::Green, Stone::__]],
             oplist!(
                 (Stone::Yellow, Left, None, true),
                 (Stone::Green, Left, None, false),
@@ -358,8 +358,8 @@ mod test {
     fn push_right() {
         mktest!(
             (Stone::Green, Right, None),
-            [[Stone::Green, Stone::Yellow, Stone::X]],
-            [[Stone::X, Stone::Green, Stone::Yellow]],
+            [[Stone::Green, Stone::Yellow, Stone::__]],
+            [[Stone::__, Stone::Green, Stone::Yellow]],
             oplist!(
                 (Stone::Yellow, Right, None, true),
                 (Stone::Green, Right, None, false),
@@ -372,14 +372,14 @@ mod test {
         mktest!(
             (Stone::Green, Up, None),
             [
-                [Stone::X, Stone::X],
-                [Stone::Yellow, Stone::X],
-                [Stone::Green, Stone::X],
+                [Stone::__, Stone::__],
+                [Stone::Yellow, Stone::__],
+                [Stone::Green, Stone::__],
             ],
             [
-                [Stone::Yellow, Stone::X],
-                [Stone::Green, Stone::X],
-                [Stone::X, Stone::X]
+                [Stone::Yellow, Stone::__],
+                [Stone::Green, Stone::__],
+                [Stone::__, Stone::__]
             ],
             oplist!(
                 (Stone::Yellow, Up, None, true),
@@ -393,14 +393,14 @@ mod test {
         mktest!(
             (Stone::Green, Down, None),
             [
-                [Stone::Green, Stone::X],
-                [Stone::Yellow, Stone::X],
-                [Stone::X, Stone::X],
+                [Stone::Green, Stone::__],
+                [Stone::Yellow, Stone::__],
+                [Stone::__, Stone::__],
             ],
             [
-                [Stone::X, Stone::X],
-                [Stone::Green, Stone::X],
-                [Stone::Yellow, Stone::X],
+                [Stone::__, Stone::__],
+                [Stone::Green, Stone::__],
+                [Stone::Yellow, Stone::__],
             ],
             oplist!(
                 (Stone::Yellow, Down, None, true),
@@ -413,8 +413,8 @@ mod test {
     fn push_left_wrap() {
         mktest!(
             (Stone::Green, Left, None),
-            [[Stone::Yellow, Stone::Green, Stone::X]],
-            [[Stone::Green, Stone::X, Stone::Yellow]],
+            [[Stone::Yellow, Stone::Green, Stone::__]],
+            [[Stone::Green, Stone::__, Stone::Yellow]],
             oplist!(
                 (Stone::Yellow, Left, None, true),
                 (Stone::Green, Left, None, false),
@@ -426,8 +426,8 @@ mod test {
     fn push_right_wrap() {
         mktest!(
             (Stone::Green, Right, None),
-            [[Stone::X, Stone::Green, Stone::Yellow]],
-            [[Stone::Yellow, Stone::X, Stone::Green]],
+            [[Stone::__, Stone::Green, Stone::Yellow]],
+            [[Stone::Yellow, Stone::__, Stone::Green]],
             oplist!(
                 (Stone::Yellow, Right, None, true),
                 (Stone::Green, Right, None, false),
@@ -440,14 +440,14 @@ mod test {
         mktest!(
             (Stone::Green, Up, None),
             [
-                [Stone::Yellow, Stone::X],
-                [Stone::Green, Stone::X],
-                [Stone::X, Stone::X],
+                [Stone::Yellow, Stone::__],
+                [Stone::Green, Stone::__],
+                [Stone::__, Stone::__],
             ],
             [
-                [Stone::Green, Stone::X],
-                [Stone::X, Stone::X],
-                [Stone::Yellow, Stone::X],
+                [Stone::Green, Stone::__],
+                [Stone::__, Stone::__],
+                [Stone::Yellow, Stone::__],
             ],
             oplist!(
                 (Stone::Yellow, Up, None, true),
@@ -461,14 +461,14 @@ mod test {
         mktest!(
             (Stone::Green, Down, None),
             [
-                [Stone::X, Stone::X],
-                [Stone::Green, Stone::X],
-                [Stone::Yellow, Stone::X],
+                [Stone::__, Stone::__],
+                [Stone::Green, Stone::__],
+                [Stone::Yellow, Stone::__],
             ],
             [
-                [Stone::Yellow, Stone::X],
-                [Stone::X, Stone::X],
-                [Stone::Green, Stone::X],
+                [Stone::Yellow, Stone::__],
+                [Stone::__, Stone::__],
+                [Stone::Green, Stone::__],
             ],
             oplist!(
                 (Stone::Yellow, Down, None, true),
@@ -481,8 +481,8 @@ mod test {
     fn double_push_left() {
         mktest!(
             (Stone::Orange, Right, orange!(Two)),
-            [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
-            [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
+            [[Stone::Orange, Stone::Red, Stone::__, Stone::__]],
+            [[Stone::__, Stone::__, Stone::Orange, Stone::Red]],
             oplist!(
                 (Stone::Red, Right, red!(One), true),
                 (Stone::Red, Right, red!(One), true),
@@ -495,8 +495,8 @@ mod test {
     fn double_push_right() {
         mktest!(
             (Stone::Orange, Right, orange!(Two)),
-            [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
-            [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
+            [[Stone::Orange, Stone::Red, Stone::__, Stone::__]],
+            [[Stone::__, Stone::__, Stone::Orange, Stone::Red]],
             oplist!(
                 (Stone::Red, Right, red!(One), true),
                 (Stone::Red, Right, red!(One), true),
@@ -509,8 +509,8 @@ mod test {
     fn double_push_left_wrap() {
         mktest!(
             (Stone::Orange, Right, orange!(Two)),
-            [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
-            [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
+            [[Stone::__, Stone::__, Stone::Orange, Stone::Red]],
+            [[Stone::Orange, Stone::Red, Stone::__, Stone::__]],
             oplist!(
                 (Stone::Red, Right, red!(One), true),
                 (Stone::Red, Right, red!(One), true),
@@ -523,8 +523,8 @@ mod test {
     fn double_push_right_wrap() {
         mktest!(
             (Stone::Orange, Right, orange!(Two)),
-            [[Stone::X, Stone::X, Stone::Orange, Stone::Red]],
-            [[Stone::Orange, Stone::Red, Stone::X, Stone::X]],
+            [[Stone::__, Stone::__, Stone::Orange, Stone::Red]],
+            [[Stone::Orange, Stone::Red, Stone::__, Stone::__]],
             oplist!(
                 (Stone::Red, Right, red!(One), true),
                 (Stone::Red, Right, red!(One), true),
@@ -537,8 +537,8 @@ mod test {
     fn double_push_cancelled() {
         mktest!(
             (Stone::Orange, Right, orange!(Two)),
-            [[Stone::Orange, Stone::Red, Stone::X, Stone::Blue]],
-            [[Stone::X, Stone::Orange, Stone::Red, Stone::Blue]],
+            [[Stone::Orange, Stone::Red, Stone::__, Stone::Blue]],
+            [[Stone::__, Stone::Orange, Stone::Red, Stone::Blue]],
             oplist!(
                 (Stone::Red, Right, red!(One), true),
                 (Stone::Orange, Right, orange!(One), false),
@@ -550,8 +550,8 @@ mod test {
     fn double_push_cancelled_wrap() {
         mktest!(
             (Stone::Orange, Right, orange!(Two)),
-            [[Stone::X, Stone::Blue, Stone::Orange, Stone::Red]],
-            [[Stone::Red, Stone::Blue, Stone::X, Stone::Orange]],
+            [[Stone::__, Stone::Blue, Stone::Orange, Stone::Red]],
+            [[Stone::Red, Stone::Blue, Stone::__, Stone::Orange]],
             oplist!(
                 (Stone::Red, Right, red!(One), true),
                 (Stone::Orange, Right, orange!(One), false),
@@ -564,7 +564,7 @@ mod test {
         mktest!(
             (Stone::Purple, Left, None),
             [[
-                Stone::X,
+                Stone::__,
                 Stone::Red,
                 Stone::Orange,
                 Stone::Yellow,
@@ -579,7 +579,7 @@ mod test {
                 Stone::Green,
                 Stone::Blue,
                 Stone::Purple,
-                Stone::X,
+                Stone::__,
             ]],
             oplist!(
                 (Stone::Red, Left, red!(One), true),

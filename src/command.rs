@@ -15,7 +15,7 @@ pub struct Command {
 impl Command {
     pub fn empty() -> Command {
         Command {
-            color: Stone::X,
+            color: Stone::__,
             dir: Dir::Left,
             number: None,
             side_effect: false,
@@ -39,7 +39,7 @@ impl Command {
                 ..self
             },
             Stone::Yellow | Stone::Blue | Stone::Green | Stone::Purple => self,
-            Stone::X => unreachable!(),
+            Stone::__ => unreachable!(),
         }
     }
 
@@ -130,7 +130,7 @@ impl std::fmt::Display for Command {
             f,
             "{} {}{}{}",
             match self.color {
-                Stone::X => "X",
+                Stone::__ => "__",
                 Stone::Red => "red",
                 Stone::Orange => "orange",
                 Stone::Yellow => "yellow",
@@ -164,7 +164,7 @@ impl std::fmt::Display for Command {
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub enum Stone {
-    X,
+    __,
     Red,
     Orange,
     Yellow,
