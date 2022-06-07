@@ -6,7 +6,7 @@ edition = '2021'
 
 [dependencies]
 gumdrop = '0.8.1'
-rustyline = '1'
+rustyline = '9.1.2'
 
 [profile.dev]
 debug = true
