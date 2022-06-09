@@ -175,10 +175,7 @@ pub enum Stone {
 
 impl Stone {
     pub fn has_number(&self) -> bool {
-        match self {
-            Stone::Red | Stone::Orange => true,
-            _ => false,
-        }
+        matches!(self, Stone::Red | Stone::Orange)
     }
 
     pub fn number_one(&self) -> Option<EitherNumber> {

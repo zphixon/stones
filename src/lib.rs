@@ -8,7 +8,8 @@ use command::{Command, Dir, EitherNumber, Stone};
 use vm::{Opcode, Operation};
 
 pub fn print_command_opcode(ip: usize, command: &Command, opcode: Opcode) {
-    println!("{:4} {:<30} {command}", ip, format!("{opcode:?}"));
+    let opstr = format!("{opcode:?}");
+    println!("{:4} {opstr:<30} {command}", ip);
 }
 
 #[macro_export]
@@ -93,22 +94,14 @@ pub enum Token {
 
 impl Token {
     pub fn is_color(&self) -> bool {
-        match self {
-            Token::Red
-            | Token::Orange
-            | Token::Yellow
-            | Token::Green
-            | Token::Blue
-            | Token::Purple => true,
-            _ => false,
-        }
+        matches!(
+            self,
+            Token::Red | Token::Orange | Token::Yellow | Token::Green | Token::Blue | Token::Purple
+        )
     }
 
     pub fn is_number(&self) -> bool {
-        match self {
-            Token::One | Token::Two | Token::Three => true,
-            _ => false,
-        }
+        matches!(self, Token::One | Token::Two | Token::Three)
     }
 }
 

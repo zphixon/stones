@@ -160,8 +160,8 @@ impl Vm {
                         let rhs = self.pop()?;
                         self.push(Value::Bool(match comparison {
                             Comparison::Equal => lhs == rhs,
-                            Comparison::LessThan => !(lhs < rhs) && lhs != rhs,
-                            Comparison::GreaterThan => !(lhs > rhs) && lhs != rhs,
+                            Comparison::LessThan => lhs > rhs && lhs != rhs,
+                            Comparison::GreaterThan => lhs < rhs && lhs != rhs,
                         }));
                     }
 

@@ -176,6 +176,12 @@ impl<const Width: usize, const Height: usize> Field<Width, Height> {
     }
 }
 
+impl Default for Field<12, 6> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
